@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import shutil
 
 from fabric.api import task
 from fabric.state import env
@@ -26,10 +27,19 @@ def _render_graphics(paths):
     from flask import g
 
     # Fake out deployment target
-    app_config.configure_targets(env.get('settings', None))
+    # app_config.configure_targets(env.get('settings', None))
 
     for path in paths:
         slug = path.split('%s/' % app_config.GRAPHICS_PATH)[1].split('/')[0]
+
+        if not os.path.exists('%s/build' % path):
+            os.makedirs('%s/build' % path)
+
+        if not os.path.exists('%s/build/css' % path):
+            os.makedirs('%s/build/css' % path)
+
+        if not os.path.exists('%s/build/js' % path):
+            os.makedirs('%s/build/js' % path)
 
         with app.app.test_request_context(path='graphics/%s/' % slug):
             g.compile_includes = True
@@ -38,7 +48,7 @@ def _render_graphics(paths):
             view = app.graphic.__dict__['_graphics_detail']
             content = view(slug).data
 
-        with open('%s/index.html' % path, 'w') as writefile:
+        with open('%s/build/index.html' % path, 'w') as writefile:
             writefile.write(content)
 
         # Fallback for legacy projects w/o child templates
@@ -52,8 +62,12 @@ def _render_graphics(paths):
             view = app.graphic.__dict__['_graphics_child']
             content = view(slug).data
 
-        with open('%s/child.html' % path, 'w') as writefile:
+        with open('%s/build/child.html' % path, 'w') as writefile:
             writefile.write(content)
 
+        os.system('cp %s/css/*.css %s/build/css' % (path, path))
+        os.system('cp %s/js/*.js %s/build/js' % (path, path))
+        os.system('cp -r %s/js/lib %s/build/js' % (path, path))
+
     # Un-fake-out deployment target
-    app_config.configure_targets(app_config.DEPLOYMENT_TARGET)
+    # app_config.configure_targets(app_config.DEPLOYMENT_TARGET)
