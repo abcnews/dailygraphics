@@ -145,25 +145,6 @@
 
         <div class="right">
 
-            {% if DEPLOYMENT_TARGET != "production" %}
-                {% if DEPLOYMENT_TARGET != None %}
-                <div class="segment">
-                    <a class="btn localhost" href="http://localhost:8000/graphics/{{ slug }}/">localhost &raquo;</a>
-                </div>
-                {% endif %}
-
-                {% if DEPLOYMENT_TARGET != 'staging' %}
-                <div class="segment">
-                    <a class="btn staging" href="http://stage-apps.npr.org/dailygraphics/graphics/{{ slug }}/" target="_blank">staging &raquo;</a>
-                </div>
-                {% endif %}
-
-                {% if DEPLOYMENT_TARGET != 'production' %}
-                <div class="segment">
-                    <a class="btn production" href="http://apps.npr.org/dailygraphics/graphics/{{ slug }}/" target="_blank">production &raquo;</a>
-                </div>
-                {% endif %}
-
                 {% if COPY_GOOGLE_DOC_KEY %}
                 {% if COPY_GOOGLE_DOC_KEY != 'None' %}
                 <div class="segment">
@@ -171,7 +152,7 @@
                 </div>
                 {% endif %}
                 {% endif %}
-            {% endif %}
+
         </div>
     </header>
 
@@ -187,67 +168,15 @@
 <!-- textarea contents -->
     <textarea readonly="readonly" rows="10" cols="50">
 <div id="responsive-embed-{{ slug }}"></div>
+<script src="/{{ PROJECT_SLUG }}/graphics/{{ slug }}/js/lib/pym.js" type="text/javascript"></script>
 <script type="text/javascript">
-    // Require.js is on the page (new Seamus)
-    if (typeof requirejs !== 'undefined') {
-        // Create a local require.js namespace
-        var require_{{ var_name }} = requirejs.config({
-            context: '{{ slug }}',
-            paths: {
-                'pym': 'http://apps.npr.org/dailygraphics/graphics/{{ slug }}/js/lib/pym'
-            },
-    		shim: {
-    			'pym': { exports: 'pym' }
-    		}
-        });
-
-        // Load pym into locale namespace
-        require_{{ var_name }}(['require', 'pym'], function (require, Pym) {
-            // Create pym parent
-            var pymParent = new Pym.Parent(
-                'responsive-embed-{{ slug }}',
-                'http://apps.npr.org/dailygraphics/graphics/{{ slug }}/child.html',
-                {}
-            );
-
-            // Unbind events when the page changes
-            document.addEventListener('npr:pageUnload', function (e) {
-                // Unbind *this* event once its run once
-                e.target.removeEventListener(e.type, arguments.callee);
-
-                // Pym versions with "remove"
-                if (typeof pymParent.remove == 'function') {
-                    pymParent.remove();
-                // Pym version without "remove"
-                } else {
-                    // Unbind pym events
-                    window.removeEventListener('message', pymParent._processMessage);
-                    window.removeEventListener('resize', pymParent._onResize);
-                }
-
-                // Explicitly unload pym library
-                require_{{ var_name }}.undef('pym');
-                require_{{ var_name }} = null;
-            })
-        });
-    // Require.js is not on the page, but jQuery is (old Seamus)
-    } else if (typeof $ !== 'undefined' && typeof $.getScript === 'function') {
-        // Load pym
-        $.getScript('http://apps.npr.org/dailygraphics/graphics/{{ slug }}/js/lib/pym.js').done(function () {
-            // Wait for page load
-            $(function () {
-                // Create pym parent
-                var pymParent = new pym.Parent(
-                    'responsive-embed-{{ slug }}',
-                    'http://apps.npr.org/dailygraphics/graphics/{{ slug }}/child.html',
-                    {}
-                );
-            });
-        });
-    // Neither require.js nor jQuery are on the page
-    } else {
-        console.error('Could not load {{ slug }}! Neither require.js nor jQuery are on the page.');
-    }
+$(function() {
+    var pymParent = new pym.Parent(
+        'responsive-embed-{{ slug }}',
+        '/{{ PROJECT_SLUG }}/graphics/{{ slug }}/child.html',
+        {}
+    );
+});
 </script>
     </textarea>
 <!-- end textarea contents -->
@@ -256,7 +185,7 @@
 
 <!-- textarea contents -->
     <textarea readonly="readonly" rows="10" cols="50">
-<p data-pym-src="http://{{ PRODUCTION_S3_BUCKET['bucket_name'] }}/{{ PROJECT_SLUG }}/graphics/{{ slug }}/child.html">&amp;nbsp;</p><script src="http://{{ PRODUCTION_S3_BUCKET['bucket_name'] }}/{{ PROJECT_SLUG }}/graphics/{{ slug }}/js/lib/pym.js" type="text/javascript"></script>
+<p data-pym-src="/{{ PROJECT_SLUG }}/graphics/{{ slug }}/child.html">&amp;nbsp;</p><script src="/{{ PROJECT_SLUG }}/graphics/{{ slug }}/js/lib/pym.js" type="text/javascript"></script>
     </textarea>
 <!-- end textarea contents -->
 
