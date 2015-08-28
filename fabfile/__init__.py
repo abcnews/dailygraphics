@@ -17,7 +17,7 @@ from time import sleep
 
 import app_config
 import assets
-import flat
+import ftp as flat
 import render
 import utils
 
@@ -102,22 +102,14 @@ def deploy(slug):
 
     flat.deploy_folder(
         graphic_root,
-        s3_root,
+        slug,
         headers={
             'Cache-Control': 'max-age=%i' % default_max_age
         },
         ignore=['%s/*' % graphic_assets]
     )
 
-    # Deploy parent assets
-    flat.deploy_folder(
-        'www',
-        app_config.PROJECT_SLUG,
-        headers={
-            'Cache-Control': 'max-age=%i' % default_max_age
-        }
-    )
-
+    print use_assets
     if use_assets:
         flat.deploy_folder(
             graphic_assets,
