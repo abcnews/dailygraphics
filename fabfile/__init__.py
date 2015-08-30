@@ -102,8 +102,8 @@ def deploy_single(slug):
 
     update_copy(slug)
 
-    if use_assets:
-        assets.sync(slug)
+    # if use_assets:
+    #     assets.sync(slug)
 
     render.render(slug)
 
@@ -116,18 +116,17 @@ def deploy_single(slug):
         ignore=['%s/*' % graphic_assets]
     )
 
-    print use_assets
-    if use_assets:
-        flat.deploy_folder(
-            graphic_assets,
-            s3_assets,
-            headers={
-                'Cache-Control': 'max-age=%i' % assets_max_age
-            }
-        )
+    # print use_assets
+    # if use_assets:
+    #     flat.deploy_folder(
+    #         graphic_assets,
+    #         s3_assets,
+    #         headers={
+    #             'Cache-Control': 'max-age=%i' % assets_max_age
+    #         }
+    #     )
 
-    print ''
-    print '%s URL: %s/graphics/%s/' % (env.settings.capitalize(), app_config.S3_BASE_URL, slug)
+    print 'Deployed'
 
 def download_copy(slug):
     """
