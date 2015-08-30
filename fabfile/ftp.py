@@ -28,12 +28,12 @@ def uploadThis(ftp, path):
         p = os.path.join(path, f)
         if os.path.isfile(p):
             fh = open(f, 'rb')
-            print "IS FILE %s" % p
+            # print "IS FILE %s" % p
             ftp.storbinary('STOR %s' % f, fh)
             fh.close()
         elif os.path.isdir(p):
-            print "IS DIR %s" % p
-            if not checkExists(ftp, p):
+            # print "IS DIR %s" % p
+            if not checkExists(ftp, f):
                 ftp.mkd(f)
             ftp.cwd(f)
             uploadThis(ftp, p)
