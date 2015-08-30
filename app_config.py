@@ -15,6 +15,7 @@ NAMES
 # Project name in urls
 # Use dashes, not underscores!
 PROJECT_SLUG = 'dailygraphics'
+CONTENT_FTP = 'http://www.abc.net.au/dat/news/interactives'
 
 # Slug for assets dir on S3
 ASSETS_SLUG = PROJECT_SLUG
