@@ -53,3 +53,5 @@ www/graphics/*/child.html
 dailygraphics.sublime-*
 graphic_templates/**/*.xlsx
 graphic_templates/_basec
+graphics
+keys.sh
