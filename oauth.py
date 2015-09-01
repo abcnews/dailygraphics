@@ -106,7 +106,7 @@ def save_credentials(credentials):
     """
     Take Authomatic credentials object and save to disk.
     """
-    file_path = os.path.expanduser(app_config.GOOGLE_OAUTH_CREDENTIALS_PATH)
+    file_path = app_config.GOOGLE_OAUTH_CREDENTIALS_PATH
     with open(file_path, 'w') as f:
         f.write(credentials.serialize())
 
