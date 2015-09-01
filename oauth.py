@@ -86,7 +86,7 @@ def get_credentials():
     """
     Read Authomatic credentials object from disk and refresh if necessary.
     """
-    file_path = os.path.expanduser(app_config.GOOGLE_OAUTH_CREDENTIALS_PATH)
+    file_path = app_config.GOOGLE_OAUTH_CREDENTIALS_PATH
 
     try:
         with open(file_path) as f:
