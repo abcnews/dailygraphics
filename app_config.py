@@ -14,6 +14,7 @@ NAMES
 """
 # Project name in urls
 # Use dashes, not underscores!
+PROJECT_DIR = os.path.dirname(os.path.realpath(__file__))
 PROJECT_SLUG = 'dailygraphics'
 CONTENT_FTP = 'http://www.abc.net.au/dat/news/interactives'
 
