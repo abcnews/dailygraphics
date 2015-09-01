@@ -26,7 +26,7 @@ REPOSITORY_URL = 'git@github.com:nprapps/%s.git' % REPOSITORY_NAME
 REPOSITORY_ALT_URL = None # 'git@bitbucket.org:nprapps/%s.git' % REPOSITORY_NAME'
 
 # Path to the folder containing the graphics
-GRAPHICS_PATH = os.path.abspath('./graphics')
+GRAPHICS_PATH = os.path.abspath('../graphics')
 
 # Path to the graphic templates
 TEMPLATES_PATH = os.path.abspath('graphic_templates')
@@ -35,7 +35,7 @@ TEMPLATES_PATH = os.path.abspath('graphic_templates')
 OAUTH
 """
 
-GOOGLE_OAUTH_CREDENTIALS_PATH = '~/.google_oauth_credentials'
+GOOGLE_OAUTH_CREDENTIALS_PATH = os.path.abspath('.google_oauth_credentials')
 
 authomatic_config = {
     'google': {
