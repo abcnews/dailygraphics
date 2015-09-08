@@ -151,7 +151,7 @@ var renderColumnChart = function(config) {
         .domain([
             min,
             d3.max(config['data'], function(d) {
-                return Math.ceil(d[valueColumn] / roundTicksFactor) * roundTicksFactor;
+                return d[valueColumn];
             })
         ])
         .range([chartHeight, 0]);
@@ -217,7 +217,7 @@ var renderColumnChart = function(config) {
                     return yScale(0);
                 }
 
-                return yScale(d[valueColumn]);
+                return d[valueColumn];
             })
             .attr('width', xScale.rangeBand())
             .attr('height', function(d) {
@@ -251,7 +251,7 @@ var renderColumnChart = function(config) {
         .enter()
         .append('text')
             .text(function(d) {
-                return d[valueColumn].toFixed(0);
+                return d[valueColumn].toFixed(1);
             })
             .attr('x', function(d, i) {
                 return xScale(d[labelColumn]) + (xScale.rangeBand() / 2);
