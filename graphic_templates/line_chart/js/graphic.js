@@ -2,12 +2,55 @@
 var pymChild = null;
 var isMobile = false;
 var dataSeries = [];
+var graphicData = null;
+var graphicConfig = null;
+
+// D3 formatters
+var fmtYearAbbrev = d3.time.format('%y');
+var fmtYearFull = d3.time.format('%b %Y');
+
+var defaultColors = [ COLORS['blue3'], COLORS['red3'], COLORS['yellow3'], COLORS['orange3'], COLORS['teal3'] ];
 
 /*
  * Initialize graphic
  */
 var onWindowLoaded = function() {
     if (Modernizr.svg) {
+        graphicConfig = GRAPHIC_CONFIG;
+        loadLocalData(GRAPHIC_DATA);
+
+        if (graphicConfig.timeFormatLarge) {
+            fmtYearFull = d3.time.format(graphicConfig.timeFormatLarge);
+        }
+
+        if (graphicConfig.timeFormatSmall) {
+            fmtYearAbbrev = d3.time.format(graphicConfig.timeFormatSmall);
+        }
+    } else {
+        pymChild = new pym.Child({});
+    }
+}
+
+/*
+ * Load graphic data from a local source.
+ */
+var loadLocalData = function(data) {
+    graphicData = data;
+
+    formatData();
+
+    pymChild = new pym.Child({
+        renderCallback: render
+    });
+}
+
+/*
+ * Load graphic data from a CSV.
+ */
+var loadCSV = function(url) {
+    d3.csv(GRAPHIC_DATA_URL, function(error, data) {
+        graphicData = data;
+
         formatData();
 
         pymChild = new pym.Child({
@@ -99,17 +142,22 @@ var renderLineChart = function(config) {
 
     var aspectWidth = isMobile ? 4 : 16;
     var aspectHeight = isMobile ? 3 : 9;
+    if ('ratio' in graphicConfig) {
+        var parts = graphicConfig.ratio.split("x");
+        aspectWidth = +parts[0];
+        aspectHeight = +parts[1];
+    }
 
     var margins = {
         top: 5,
-        right: 75,
+        right: 80,
         bottom: 20,
         left: 30
     };
 
-    var ticksX = 10;
-    var ticksY = 10;
-    var roundTicksFactor = 5;
+    var ticksX = graphicConfig.ticksX || 10;
+    var ticksY = graphicConfig.ticksY || 10;
+    var roundTicksFactor = graphicConfig.roundTicksFactor || 5;
 
     // Mobile
     if (isMobile) {
@@ -129,6 +177,21 @@ var renderLineChart = function(config) {
     /*
      * Create D3 scale objects.
      */
+
+    var minY = 'minValue' in graphicConfig ? graphicConfig.minValue : d3.min(d3.entries(formattedData), function(c) {
+        return d3.min(c['value'], function(v) {
+            var n = v[valueColumn];
+            return Math.ceil(n / roundTicksFactor) * roundTicksFactor;
+        });
+    });
+
+    var maxY = 'maxValue' in graphicConfig ? graphicConfig.maxValue : d3.max(d3.entries(formattedData), function(c) {
+        return d3.max(c['value'], function(v) {
+            var n = v[valueColumn];
+            return Math.ceil(n / roundTicksFactor) * roundTicksFactor;
+        });
+    });
+
     var xScale = d3.time.scale()
         .domain(d3.extent(config['data'][0]['values'], function(d) {
             return d['date'];
@@ -152,12 +215,30 @@ var renderLineChart = function(config) {
     });
 
     var yScale = d3.scale.linear()
+<<<<<<< HEAD
         .domain([min, max])
         .range([chartHeight, 0]);
+=======
+        .domain([ minY, maxY ])
+        .range([ chartHeight, 0 ]);
+>>>>>>> * Make line chart configurable
+
+
+    var colorList = defaultColors;
+    if ('colors' in graphicConfig) {
+        colorList = graphicConfig.colors.split(/\s*,\s*/);
+    }
 
     var colorScale = d3.scale.ordinal()
+<<<<<<< HEAD
         .domain(_.pluck(config['data'], 'name'))
         .range([COLORS['red3'], COLORS['yellow3'], COLORS['blue3'], COLORS['orange3'], COLORS['teal3']]);
+=======
+        .domain(d3.keys(config['data'][0]).filter(function(key) {
+            return key !== dateColumn;
+        }))
+        .range(colorList);
+>>>>>>> * Make line chart configurable
 
     /*
      * Render the HTML legend.
@@ -255,7 +336,7 @@ var renderLineChart = function(config) {
      * Render lines to chart.
      */
     var line = d3.svg.line()
-        .interpolate('monotone')
+        .interpolate(graphicConfig.interpolate || 'monotone')
         .x(function(d) {
             return xScale(d[dateColumn]);
         })
