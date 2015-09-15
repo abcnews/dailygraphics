@@ -308,7 +308,10 @@ var renderLineChart = function(config) {
     var yAxis = d3.svg.axis()
         .scale(yScale)
         .orient('left')
-        .ticks(ticksY);
+        .ticks(ticksY)
+        .tickFormat(function (d) {
+            return (graphicConfig.prefixY || '') + d + (graphicConfig.suffixY || '');
+        });
 
     /*
      * Render axes to chart.
