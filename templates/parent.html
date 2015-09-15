@@ -116,6 +116,7 @@
         textarea {
             display: block;
             margin-bottom: 20px;
+            width: 100%;
         }
     </style>
 </head>
@@ -165,10 +166,10 @@
         <h2><span class="production">Production</span> embed code</h2>
 
 <!-- textarea contents -->
-    <textarea readonly="readonly" rows="10" cols="50">
+    <textarea readonly="readonly" rows="40">
 <div id="responsive-embed-{{ slug }}">
 </div>
-<script src="{{ CONTENT_FTP }}/graphics/{{ slug }}/js/lib/pym.js" type="text/javascript"></script>
+<script src="{{ CONTENT_FTP }}/graphics/lib/pym.js" type="text/javascript"></script>
 <script type="text/javascript">
 $(function() {
     var pymParent = new pym.Parent(
