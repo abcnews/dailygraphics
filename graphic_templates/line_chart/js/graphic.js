@@ -155,6 +155,22 @@ var renderLineChart = function(config) {
         left: 30
     };
 
+    if (graphicConfig.marginTop) {
+        margins.top = parseInt(graphicConfig.marginTop, 10);
+    }
+
+    if (graphicConfig.marginRight) {
+        margins.right = parseInt(graphicConfig.marginRight, 10);
+    }
+
+    if (graphicConfig.marginBottom) {
+        margins.bottom = parseInt(graphicConfig.marginBottom, 10);
+    }
+
+    if (graphicConfig.marginLeft) {
+        margins.left = parseInt(graphicConfig.marginLeft, 10);
+    }
+
     var ticksX = parseInt(graphicConfig.ticksX || 10, 10);
     var ticksY = parseInt(graphicConfig.ticksY || 10, 10);
     var roundTicksFactor = parseInt(graphicConfig.roundTicksFactor || 5, 10);
