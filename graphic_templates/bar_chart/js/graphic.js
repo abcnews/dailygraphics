@@ -228,7 +228,7 @@ var renderBarChart = function(config) {
         .enter()
         .append('text')
             .text(function(d) {
-                return d[valueColumn].toFixed(0) + '%';
+                return d[valueColumn].toFixed(0);
             })
             .attr('x', function(d) {
                 return xScale(d[valueColumn]);
