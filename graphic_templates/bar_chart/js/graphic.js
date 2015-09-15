@@ -124,10 +124,7 @@ var renderBarChart = function(config) {
     var xAxis = d3.svg.axis()
         .scale(xScale)
         .orient('bottom')
-        .ticks(ticksX)
-        .tickFormat(function(d) {
-            return d.toFixed(0) + '%';
-        });
+        .ticks(ticksX);
 
     /*
      * Render axes to chart.
