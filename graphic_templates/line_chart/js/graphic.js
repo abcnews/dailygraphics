@@ -123,8 +123,8 @@ var renderLineChart = function(config) {
     var aspectHeight = isMobile ? 3 : 9;
     if ('ratio' in graphicConfig) {
         var parts = graphicConfig.ratio.split("x");
-        aspectWidth = +parts[0];
-        aspectHeight = +parts[1];
+        aspectWidth = parseInt(parts[0], 10);
+        aspectHeight = parseInt(parts[1], 10);
     }
 
     var margins = {
@@ -134,9 +134,9 @@ var renderLineChart = function(config) {
         left: 30
     };
 
-    var ticksX = graphicConfig.ticksX || 10;
-    var ticksY = graphicConfig.ticksY || 10;
-    var roundTicksFactor = graphicConfig.roundTicksFactor || 5;
+    var ticksX = parseInt(graphicConfig.ticksX || 10, 10);
+    var ticksY = parseInt(graphicConfig.ticksY || 10, 10);
+    var roundTicksFactor = parseInt(graphicConfig.roundTicksFactor || 5, 10);
 
     // Mobile
     if (isMobile) {
@@ -178,14 +178,14 @@ var renderLineChart = function(config) {
      * Create D3 scale objects.
      */
 
-    var minY = 'minValue' in graphicConfig ? graphicConfig.minValue : d3.min(d3.entries(formattedData), function(c) {
+    var minY = 'minValue' in graphicConfig ? parseFloat(graphicConfig.minValue, 10) : d3.min(d3.entries(formattedData), function(c) {
         return d3.min(c['value'], function(v) {
             var n = v[valueColumn];
             return Math.ceil(n / roundTicksFactor) * roundTicksFactor;
         });
     });
 
-    var maxY = 'maxValue' in graphicConfig ? graphicConfig.maxValue : d3.max(d3.entries(formattedData), function(c) {
+    var maxY = 'maxValue' in graphicConfig ? parseFloat(graphicConfig.maxValue, 10) : d3.max(d3.entries(formattedData), function(c) {
         return d3.max(c['value'], function(v) {
             var n = v[valueColumn];
             return Math.ceil(n / roundTicksFactor) * roundTicksFactor;
