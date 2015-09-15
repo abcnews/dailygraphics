@@ -181,7 +181,7 @@ var renderLineChart = function(config) {
     var minY = 'minValue' in graphicConfig ? parseFloat(graphicConfig.minValue, 10) : d3.min(d3.entries(formattedData), function(c) {
         return d3.min(c['value'], function(v) {
             var n = v[valueColumn];
-            return Math.ceil(n / roundTicksFactor) * roundTicksFactor;
+            return Math.floor(n / roundTicksFactor) * roundTicksFactor;
         });
     });
 
