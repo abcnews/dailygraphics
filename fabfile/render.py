@@ -65,9 +65,9 @@ def _render_graphics(paths):
         with open('%s/build/child.html' % path, 'w') as writefile:
             writefile.write(content)
 
-        os.system('cp %s/css/*.css %s/build/css' % (path, path))
-        os.system('cp %s/js/*.js %s/build/js' % (path, path))
-        os.system('cp -r %s/js/lib %s/build/js' % (path, path))
+        os.system('cp %s/css/graphic-header.css %s/build/css' % (path, path))
+        os.system('cp %s/js/graphic-header.js %s/build/js' % (path, path))
+        os.system('cp %s/js/graphic-footer.js %s/build/js' % (path, path))
 
     # Un-fake-out deployment target
     # app_config.configure_targets(app_config.DEPLOYMENT_TARGET)
