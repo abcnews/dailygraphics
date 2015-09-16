@@ -6,12 +6,14 @@ var MOBILE_THRESHOLD = 500;
 var pymChild = null;
 var isMobile = false;
 var graphicData = null;
+var graphicConfig = null;
 
 /*
  * Initialize the graphic.
  */
 var onWindowLoaded = function() {
     if (Modernizr.svg) {
+        graphicConfig = GRAPHIC_CONFIG;
         loadLocalData(GRAPHIC_DATA);
         //loadCSV('data.csv')
     } else {
@@ -205,6 +207,9 @@ var renderBarChart = function(config) {
             .attr('height', barHeight)
             .attr('class', function(d, i) {
                 return 'bar-' + i + ' ' + classify(d[labelColumn]);
+            })
+            .attr('fill', function(d) {
+                return graphicConfig.barColor || "#17807E";
             });
 
     /*
