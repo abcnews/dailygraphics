@@ -150,13 +150,23 @@ var renderBarChart = function(config) {
     /*
      * Create D3 scale objects.
      */
-    var min = 'minX' in graphicConfig ? parseFloat(graphicConfig.minX, 10) : d3.min(config['data'], function(d) {
+    var min = d3.min(config['data'], function(d) {
         return Math.floor(d[valueColumn] / roundTicksFactor) * roundTicksFactor;
     });
 
-    var max = 'maxX' in graphicConfig ? parseFloat(graphicConfig.maxX, 10) : d3.max(config['data'], function(d) {
+    if ('minX' in graphicConfig) {
+        min = parseFloat(graphicConfig.minX, 10);  
+    } else if (min > 0) {
+        min = 0;
+    }
+
+    var max = d3.max(config['data'], function(d) {
         return Math.ceil(d[valueColumn] / roundTicksFactor) * roundTicksFactor;
     });
+
+    if ('maxX' in graphicConfig) {
+        max = parseFloat(graphicConfig.maxX, 10);
+    }
 
     var xScale = d3.scale.linear()
         .domain([
