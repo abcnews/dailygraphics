@@ -95,11 +95,11 @@ var renderBarChart = function(config) {
     var labelColumn = 'label';
     var valueColumn = 'amt';
 
-    var barHeight = 30;
-    var barGap = 5;
-    var labelWidth = 85;
-    var labelMargin = 6;
-    var valueGap = 6;
+    var barHeight = parseInt(graphicConfig.barHeight || 30, 10);
+    var barGap = parseInt(graphicConfig.barGap || 5, 10);
+    var labelWidth = parseInt(graphicConfig.labelWidth || 85, 10);
+    var labelMargin = parseInt(graphicConfig.labelMargin || 6, 10);
+    var valueGap = parseInt(graphicConfig.valueGap || 6, 10);
 
     var margins = {
         top: 0,
@@ -108,8 +108,24 @@ var renderBarChart = function(config) {
         left: (labelWidth + labelMargin)
     };
 
-    var ticksX = 4;
-    var roundTicksFactor = 5;
+    if (graphicConfig.marginTop) {
+        margins.top = parseInt(graphicConfig.marginTop, 10);
+    }
+
+    if (graphicConfig.marginRight) {
+        margins.right = parseInt(graphicConfig.marginRight, 10);
+    }
+
+    if (graphicConfig.marginBottom) {
+        margins.bottom = parseInt(graphicConfig.marginBottom, 10);
+    }
+
+    if (graphicConfig.marginLeft) {
+        margins.left = parseInt(graphicConfig.marginLeft, 10);
+    }
+
+    var ticksX = parseInt(graphicConfig.ticksX || 4, 10);
+    var roundTicksFactor = parseInt(graphicConfig.roundTicksFactor || 5, 10);
 
     // Calculate actual chart dimensions
     var chartWidth = config['width'] - margins['left'] - margins['right'];
