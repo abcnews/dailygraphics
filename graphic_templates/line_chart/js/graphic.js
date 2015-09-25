@@ -54,7 +54,9 @@ var loadCSV = function(url) {
     d3.csv(GRAPHIC_DATA_URL, function(error, data) {
         graphicData = data;
 
-        formatData();
+        if (graphicData[0].date) {
+            formatData();
+        }
 
         pymChild = new pym.Child({
             renderCallback: render
