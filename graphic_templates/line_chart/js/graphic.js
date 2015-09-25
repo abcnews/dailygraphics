@@ -37,8 +37,10 @@ var onWindowLoaded = function() {
 var loadLocalData = function(data) {
     graphicData = data;
 
-    formatData();
-
+    if (graphicData[0].date) {
+        formatData();
+    }
+    
     pymChild = new pym.Child({
         renderCallback: render
     });
