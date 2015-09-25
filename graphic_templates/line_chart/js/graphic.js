@@ -181,12 +181,9 @@ var renderLineChart = function(config) {
 
         formattedData[column] = graphicData.map(function(d) {
             return {
-                'date': d[dateColumn],
+                'x': d[dateColumn] || d['x'],
                 'amt': d[column]
             };
-// filter out empty data. uncomment this if you have inconsistent data.
-//        }).filter(function(d) {
-//            return d['amt'].length > 0;
         });
     }
 
@@ -208,11 +205,34 @@ var renderLineChart = function(config) {
         });
     });
 
-    var xScale = d3.time.scale()
+    var xFormat;
+    var xScale;
+
+    if (formattedData['date']) {
+        xFormat = function(d, i) {
+            if (isMobile) {
+                return '\u2019' + fmtYearAbbrev(d);
+            } else {
+                return fmtYearFull(d);
+            }
+        };
+
+        xScale = d3.time.scale()
         .domain(d3.extent(config['data'], function(d) {
             return d[dateColumn];
         }))
         .range([ 0, chartWidth ])
+    } else {
+        xFormat = function (d, i) {
+            return d;
+        };
+
+        xScale = d3.scale.ordinal()
+        .rangeRoundBands([0, chartWidth], .1)
+        .domain(graphicData.map(function (d) { 
+            return d['x']; 
+        }));
+    }
 
     var yScale = d3.scale.linear()
         .domain([ minY, maxY ])
@@ -225,9 +245,7 @@ var renderLineChart = function(config) {
     }
 
     var colorScale = d3.scale.ordinal()
-        .domain(d3.keys(config['data'][0]).filter(function(key) {
-            return key !== dateColumn;
-        }))
+        .domain([0, colorList.length])
         .range(colorList);
 
     /*
@@ -271,13 +289,7 @@ var renderLineChart = function(config) {
         .scale(xScale)
         .orient('bottom')
         .ticks(ticksX)
-        .tickFormat(function(d, i) {
-            if (isMobile) {
-                return '\u2019' + fmtYearAbbrev(d);
-            } else {
-                return fmtYearFull(d);
-            }
-        });
+        .tickFormat(xFormat);
 
     var yAxis = d3.svg.axis()
         .scale(yScale)
@@ -331,7 +343,7 @@ var renderLineChart = function(config) {
     var line = d3.svg.line()
         .interpolate(graphicConfig.interpolate || 'monotone')
         .x(function(d) {
-            return xScale(d[dateColumn]);
+            return xScale(d[dateColumn] || d['x']);
         })
         .y(function(d) {
             return yScale(d[valueColumn]);
