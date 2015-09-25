@@ -377,7 +377,7 @@ var renderLineChart = function(config) {
             .attr('x', function(d, i) {
                 var last = d['value'][d['value'].length - 1];
 
-                return xScale(last[dateColumn]) + 5;
+                return xScale(last[dateColumn] || last['x']) + 5;
             })
             .attr('y', function(d) {
                 var last = d['value'][d['value'].length - 1];
