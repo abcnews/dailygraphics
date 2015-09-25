@@ -43,7 +43,7 @@ var loadLocalData = function(data) {
     if (graphicData[0].date) {
         formatData();
     }
-    
+
     pymChild = new pym.Child({
         renderCallback: render
     });
@@ -179,7 +179,7 @@ var renderLineChart = function(config) {
      * Restructure tabular data for easier charting.
      */
     for (var column in graphicData[0]) {
-        if (column == dateColumn) {
+        if (column == dateColumn || column == 'x') {
             continue;
         }
 
