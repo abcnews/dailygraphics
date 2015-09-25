@@ -207,7 +207,7 @@ var renderLineChart = function(config) {
         formattedData[column] = graphicData.map(function(d) {
             return {
                 'x': d[dateColumn] || d['x'],
-                'amt': d[column]
+                'amt': +d[column]
             };
         });
     }
