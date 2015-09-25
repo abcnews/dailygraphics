@@ -190,6 +190,24 @@ var renderLineChart = function(config) {
     var containerElement = d3.select(config['container']);
     containerElement.html('');
 
+    var formattedData = {};
+
+    /*
+     * Restructure tabular data for easier charting.
+     */
+    for (var column in graphicData[0]) {
+        if (column == dateColumn) {
+            continue;
+        }
+
+        formattedData[column] = graphicData.map(function(d) {
+            return {
+                'x': d[dateColumn] || d['x'],
+                'amt': d[column]
+            };
+        });
+    }
+
     /*
      * Create D3 scale objects.
      */
@@ -208,11 +226,34 @@ var renderLineChart = function(config) {
         });
     });
 
-    var xScale = d3.time.scale()
-        .domain(d3.extent(config['data'][0]['values'], function(d) {
-            return d['date'];
+    var xFormat;
+    var xScale;
+
+    if (formattedData['date']) {
+        xFormat = function(d, i) {
+            if (isMobile) {
+                return '\u2019' + fmtYearAbbrev(d);
+            } else {
+                return fmtYearFull(d);
+            }
+        };
+
+        xScale = d3.time.scale()
+        .domain(d3.extent(config['data'], function(d) {
+            return d[dateColumn];
         }))
         .range([ 0, chartWidth ])
+    } else {
+        xFormat = function (d, i) {
+            return d;
+        };
+
+        xScale = d3.scale.ordinal()
+        .rangeRoundBands([0, chartWidth], .1)
+        .domain(graphicData.map(function (d) {
+            return d['x'];
+        }));
+    }
 
     var min = d3.min(config['data'], function(d) {
         return d3.min(d['values'], function(v) {
@@ -231,13 +272,8 @@ var renderLineChart = function(config) {
     });
 
     var yScale = d3.scale.linear()
-<<<<<<< HEAD
-        .domain([min, max])
-        .range([chartHeight, 0]);
-=======
         .domain([ minY, maxY ])
         .range([ chartHeight, 0 ]);
->>>>>>> * Make line chart configurable
 
 
     var colorList = defaultColors;
@@ -246,15 +282,10 @@ var renderLineChart = function(config) {
     }
 
     var colorScale = d3.scale.ordinal()
-<<<<<<< HEAD
-        .domain(_.pluck(config['data'], 'name'))
-        .range([COLORS['red3'], COLORS['yellow3'], COLORS['blue3'], COLORS['orange3'], COLORS['teal3']]);
-=======
         .domain(d3.keys(config['data'][0]).filter(function(key) {
             return key !== dateColumn;
         }))
         .range(colorList);
->>>>>>> * Make line chart configurable
 
     /*
      * Render the HTML legend.
@@ -297,13 +328,7 @@ var renderLineChart = function(config) {
         .scale(xScale)
         .orient('bottom')
         .ticks(ticksX)
-        .tickFormat(function(d, i) {
-            if (isMobile) {
-                return '\u2019' + fmtYearAbbrev(d);
-            } else {
-                return fmtYearFull(d);
-            }
-        });
+        .tickFormat(xFormat);
 
     var yAxis = d3.svg.axis()
         .scale(yScale)
@@ -357,7 +382,7 @@ var renderLineChart = function(config) {
     var line = d3.svg.line()
         .interpolate(graphicConfig.interpolate || 'monotone')
         .x(function(d) {
-            return xScale(d[dateColumn]);
+            return xScale(d[dateColumn] || d['x']);
         })
         .y(function(d) {
             return yScale(d[valueColumn]);
