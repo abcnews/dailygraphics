@@ -453,7 +453,7 @@ var renderLineChart = function(config) {
             .attr("y", -5)
             .attr("class", "axis-label");
         
-        t.attr("x", -1 * (chartHeight - t.node().getComputedTextLength()) / 2);
+        t.attr("x", -1 * (chartWidth - t.node().getComputedTextLength()) / 2);
         t.attr("transform", "rotate(-90)");
     }
 }
