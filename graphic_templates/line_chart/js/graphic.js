@@ -437,6 +437,13 @@ var renderLineChart = function(config) {
 
                 return label;
             });
+
+    if (graphicConfig.xLabel) {
+        chartElement.append("text")
+            .attr("x", chartWidth / 2)
+            .attr("y", chartHeight)
+            .text(graphicConfig.xLabel);
+    }
 }
 
 /*
