@@ -439,11 +439,15 @@ var renderLineChart = function(config) {
             });
 
     if (graphicConfig.xLabel) {
-        chartElement.append("text")
-            .attr("x", chartWidth / 2)
-            .attr("y", chartHeight + margins['bottom'] - 5)
+        var t = chartElement.append("text")
             .text(graphicConfig.xLabel)
+            .attr("y", chartHeight + margins['bottom'] - 5)
             .attr("class", "axis-label");
+        
+        t.attr("x", (chartWidth - t[0].width) / 2)
+            
+            
+            
     }
 }
 
