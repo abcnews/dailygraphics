@@ -404,7 +404,7 @@ var renderLineChart = function(config) {
             .attr("y", chartHeight + margins['bottom'] - 5)
             .attr("class", "axis-label");
         
-        t.attr("x", (chartWidth - t[0].width) / 2)
+        t.attr("x", (chartWidth - t[0].getBBox().width) / 2)
             
             
             
