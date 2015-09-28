@@ -410,11 +410,11 @@ var renderLineChart = function(config) {
     if (graphicConfig.yLabel) {
         var t = chartElement.append("text")
             .text(graphicConfig.yLabel)
-            .attr("x", 5)
+            .attr("y", -5)
             .attr("class", "axis-label");
         
-        t.attr("y", (chartHeight - t.node().getComputedTextLength()) / 2);
-        t.style("transform", "rotate(-90deg)");
+        t.attr("x", -1 * (chartHeight - t.node().getComputedTextLength()) / 2);
+        t.attr("transform", "rotate(-90)");
     }
 }
 
