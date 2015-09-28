@@ -442,7 +442,7 @@ var renderLineChart = function(config) {
         chartElement.append("text")
             .attr("x", chartWidth / 2)
             .attr("y", chartHeight)
-            .text(graphicConfig.xLabel);
+            .text(graphicConfig.xLabel + 80);
     }
 }
 
