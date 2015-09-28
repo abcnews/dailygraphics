@@ -442,7 +442,8 @@ var renderLineChart = function(config) {
         chartElement.append("text")
             .attr("x", chartWidth / 2)
             .attr("y", chartHeight + margins['bottom'] - 5)
-            .text(graphicConfig.xLabel);
+            .text(graphicConfig.xLabel)
+            .attr("class", "axis-label");
     }
 }
 
