@@ -232,11 +232,11 @@ var renderLineChart = function(config) {
         };
 
         xScale = d3.scale.ordinal()
-        // .rangeRoundBands([0, chartWidth], .1)
+        .rangeRoundPoints([0, chartWidth], .1)
         .domain(graphicData.map(function (d) { 
             return d['x']; 
         }))
-        .range([0, chartWidth]);
+        // .range([0, chartWidth]);
     }
 
     var yScale = d3.scale.linear()
