@@ -232,7 +232,7 @@ var renderLineChart = function(config) {
         };
 
         xScale = d3.scale.ordinal()
-        .rangeRoundPoints([0, chartWidth], .1)
+        .rangeRoundPoints([0, chartWidth])
         .domain(graphicData.map(function (d) { 
             return d['x']; 
         }))
