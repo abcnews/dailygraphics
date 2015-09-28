@@ -450,7 +450,7 @@ var renderLineChart = function(config) {
     if (graphicConfig.yLabel) {
         var t = chartElement.append("text")
             .text(graphicConfig.yLabel)
-            .attr("y", -5)
+            .attr("y", -25)
             .attr("class", "axis-label");
         
         t.attr("x", -1 * (chartWidth - t.node().getComputedTextLength()) / 2);
