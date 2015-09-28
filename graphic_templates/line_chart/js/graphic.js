@@ -441,8 +441,8 @@ var renderLineChart = function(config) {
     if (graphicConfig.xLabel) {
         chartElement.append("text")
             .attr("x", chartWidth / 2)
-            .attr("y", chartHeight)
-            .text(graphicConfig.xLabel + 80);
+            .attr("y", chartHeight + 80)
+            .text(graphicConfig.xLabel);
     }
 }
 
