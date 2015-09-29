@@ -8,6 +8,7 @@ var graphicConfig = null;
 // D3 formatters
 var fmtYearAbbrev = d3.time.format('%y');
 var fmtYearFull = d3.time.format('%b %Y');
+var numFormat = d3.format(",");
 
 var defaultColors = [ COLORS['blue3'], COLORS['red3'], COLORS['yellow3'], COLORS['orange3'], COLORS['teal3'] ];
 
@@ -347,7 +348,7 @@ var renderLineChart = function(config) {
         .orient('left')
         .ticks(ticksY)
         .tickFormat(function (d) {
-            return (graphicConfig.prefixY || '') + d + (graphicConfig.suffixY || '');
+            return (graphicConfig.prefixY || '') + numFormat(d) + (graphicConfig.suffixY || '');
         });
 
     /*
@@ -435,7 +436,7 @@ var renderLineChart = function(config) {
                 var last = d['values'][d['values'].length - 1];
                 var value = last[valueColumn];
 
-                var label = last[valueColumn].toFixed(1);
+                var label = numFormat(last[valueColumn]);
 
                 if (!isMobile) {
                     label = d['name'] + ': ' + label;
