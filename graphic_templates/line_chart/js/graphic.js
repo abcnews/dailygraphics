@@ -70,9 +70,15 @@ var loadCSV = function(url) {
  */
 var formatData = function() {
     DATA.forEach(function(d) {
-        var date = d3.time.format('%d/%m/%y').parse(d['date']);
-        if (!date) {
-            date = d3.time.format('%d/%m/%Y').parse(d['date']);
+        var date;
+
+        if (graphicConfig.parseDateFormat) {
+            date = d3.time.format(graphicConfig.parseDateFormat).parse(d['date']);
+        } else {
+            date = d3.time.format('%d/%m/%y').parse(d['date']);
+            if (!date) {
+                date = d3.time.format('%d/%m/%Y').parse(d['date']);
+            }
         }
 
         d['date'] = date;
@@ -183,7 +189,7 @@ var renderLineChart = function(config) {
     if (isMobile) {
         ticksX = 5;
         ticksY = 5;
-        margins['right'] = 25;
+        margins['right'] = 45;
     }
 
     // Calculate actual chart dimensions
@@ -443,7 +449,7 @@ var renderLineChart = function(config) {
             .text(graphicConfig.xLabel)
             .attr("y", chartHeight + margins['bottom'] - 5)
             .attr("class", "axis-label");
-        
+
         t.attr("x", (chartWidth - t.node().getComputedTextLength()) / 2)
     }
 
@@ -452,7 +458,7 @@ var renderLineChart = function(config) {
             .text(graphicConfig.yLabel)
             .attr("y", -25)
             .attr("class", "axis-label");
-        
+
         t.attr("x", 0 - ((chartHeight + margins['top'] + margins['bottom']) / 2));
         t.attr("transform", "rotate(-90)");
     }
