@@ -98,30 +98,37 @@ Label the Y axis.
 
 **barColors**
 > Default: teal
+
 Custom fill color for bars in the bar chart. For multiple colors, separate colors with a comma.
 
 **valueGap**
 > Default: `6`
+
 Spacing between the end of the bar and the value.
 
 **barHeight**
 > Default: `30`
+
 The height of the bars.
 
 **barGap**
 > Default: `5`
+
 Vertical spacing between each bar.
 
 **labelWidth**
 > Default: `85`
+
 Width in pixels of the labels.
 
 **labelMargin**
 > Default: `6`
+
 Spacing between the label and the bar.
 
 **marginTop**
 > Default: `0`
+
 Spacing at the top of the graphic in pixels.
 
 **marginRight**
@@ -135,12 +142,15 @@ Spacing at the top of the graphic in pixels.
 
 **maxX**
 > Default: largest value in the data rounded *up* to the nearest multiple of `roundTicksFactor`
+
 Maximum value on the X axis.
 
 **roundTicksFactor**
 > Default: `5`
+
 Use this when relying on the default min or max value. When calculating the maxX value, it will round to the nearest factor or multiple of this number.
 
 **ticksX**
 > Default: `4`
+
 How many ticks on the X axis.
