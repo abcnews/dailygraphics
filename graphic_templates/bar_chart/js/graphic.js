@@ -7,6 +7,7 @@ var pymChild = null;
 var isMobile = false;
 var graphicData = null;
 var graphicConfig = null;
+var numFormat = d3.format(",");
 
 /*
  * Initialize the graphic.
@@ -206,6 +207,15 @@ var renderBarChart = function(config) {
             .tickFormat('')
         );
 
+    var colorList = [""];
+    if ('colors' in graphicConfig) {
+        colorList = graphicConfig.colors.split(/\s*,\s*/);
+    }
+
+    var colorScale = d3.scale.ordinal()
+        .domain([0, colorList])
+        .range(colorList);
+
     /*
      * Render bars to chart.
      */
@@ -286,7 +296,7 @@ var renderBarChart = function(config) {
         .enter()
         .append('text')
             .text(function(d) {
-                return d[valueColumn].toFixed(0);
+                return (graphicConfig.prefixY || '') + numFormat(d) + (graphicConfig.suffixY || '');
             })
             .attr('x', function(d) {
                 return xScale(d[valueColumn]);
