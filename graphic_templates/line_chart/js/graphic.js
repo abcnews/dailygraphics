@@ -243,7 +243,7 @@ var renderLineChart = function(config) {
     if (graphicData[0]['date']) {
         xFormat = function(d, i) {
             if (isMobile) {
-                return '\u2019' + fmtYearAbbrev(d);
+                return fmtYearAbbrev(d);
             } else {
                 return fmtYearFull(d);
             }
