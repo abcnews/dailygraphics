@@ -6,12 +6,14 @@ var MOBILE_THRESHOLD = 500;
 var pymChild = null;
 var isMobile = false;
 var graphicData = null;
+var graphicConfig = null;
 
 /*
  * Initialize the graphic.
  */
 var onWindowLoaded = function() {
     if (Modernizr.svg) {
+        graphicConfig = GRAPHIC_CONFIG;
         loadLocalData(GRAPHIC_DATA);
         //loadCSV('data.csv')
     } else {
@@ -161,9 +163,14 @@ var renderGroupedBarChart = function(config) {
     var yScale = d3.scale.linear()
         .range([chartHeight, 0]);
 
+    var colorList = [COLORS['teal3'], COLORS['teal5']];
+    if (graphicConfig.barColors) {
+        colorList = graphicConfig.barColors.split(",");
+    }
+
     var colorScale = d3.scale.ordinal()
     .domain(_.pluck(config['data'][0]['values'], labelColumn))
-        .range([COLORS['teal3'], COLORS['teal5']]);
+        .range(colorList);
     /*
      * Render a color legend.
      */
