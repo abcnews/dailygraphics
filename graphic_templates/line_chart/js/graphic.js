@@ -18,7 +18,6 @@ var defaultColors = [ COLORS['blue3'], COLORS['red3'], COLORS['yellow3'], COLORS
 var onWindowLoaded = function() {
     if (Modernizr.svg) {
         graphicConfig = GRAPHIC_CONFIG;
-        loadLocalData(GRAPHIC_DATA);
 
         if (graphicConfig.timeFormatLarge) {
             fmtYearFull = d3.time.format(graphicConfig.timeFormatLarge);
@@ -27,6 +26,8 @@ var onWindowLoaded = function() {
         if (graphicConfig.timeFormatSmall) {
             fmtYearAbbrev = d3.time.format(graphicConfig.timeFormatSmall);
         }
+
+        loadLocalData(GRAPHIC_DATA);
     } else {
         pymChild = new pym.Child({});
     }
