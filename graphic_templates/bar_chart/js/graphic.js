@@ -296,7 +296,7 @@ var renderBarChart = function(config) {
         .enter()
         .append('text')
             .text(function(d) {
-                return (graphicConfig.prefixY || '') + numFormat(d) + (graphicConfig.suffixY || '');
+                return (graphicConfig.prefixY || '') + numFormat(d[valueColumn]) + (graphicConfig.suffixY || '');
             })
             .attr('x', function(d) {
                 return xScale(d[valueColumn]);
