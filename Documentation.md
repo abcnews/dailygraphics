@@ -154,3 +154,13 @@ Use this when relying on the default min or max value. When calculating the maxX
 > Default: `4`
 
 How many ticks on the X axis.
+
+**prefixX**
+> Default: empty string
+
+A string to put in front of the ticks in the X axis. e.g. `$`.
+
+**suffixX**
+> Default: empty string
+
+A string to put at the end of the ticks in the X axis. e.g. `%`.
