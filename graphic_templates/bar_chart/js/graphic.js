@@ -293,7 +293,7 @@ var renderBarChart = function(config) {
         .enter()
         .append('text')
             .text(function(d) {
-                return (graphicConfig.prefixY || '') + numFormat(d[valueColumn]) + (graphicConfig.suffixY || '');
+                return (graphicConfig.prefixX || '') + numFormat(d[valueColumn]) + (graphicConfig.suffixX || '');
             })
             .attr('x', function(d) {
                 return xScale(d[valueColumn]);
