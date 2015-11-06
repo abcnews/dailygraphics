@@ -6,6 +6,39 @@ var COLORS = {
     'blue1': '#28556F', 'blue2': '#3D7FA6', 'blue3': '#51AADE', 'blue4': '#7DBFE6', 'blue5': '#A8D5EF', 'blue6': '#D3EAF7'
 };
 
+var PTYCOLORS = {
+    'ptyalp': '#C04745',
+    'ptylab': '#C04745',
+    'ptylib': '#4776BE',
+    'ptylnp': '#4776BE',
+    'ptynat': '#009966',
+    'ptygrn': '#86AB00',
+};
+
+var multiColors = [
+    "#1F79CD",
+    "#FF7C0A",
+    "#00B3A7",
+    "#D662B1",
+    "#71A12D",
+    "#926CB5",
+    "#F55446"
+];
+
+var monochromeColors = [
+    "#1B79CC",
+    "#47A6FF",
+    "#136C9C",
+    "#8796A1",
+    "#2B4E78",
+    "#5686B0",
+    "#5E6F7A"
+];
+
+var singleColors = [
+    "#478CCC"
+];
+
 /*
  * Convert arbitrary strings to valid css classes.
  * via: https://gist.github.com/mathewbyrne/1280286
@@ -65,4 +98,32 @@ var urlToLocation = function(url) {
     var a = document.createElement('a');
     a.href = url;
     return a;
+}
+
+var colorArray = function (config, d) {
+    var c = d;
+    if (config.theme) {
+        if (graphicConfig.theme == "monochrome") {
+            c = monochromeColors;
+        }
+
+        if (graphicConfig.theme == "multicolor") {
+            c = multiColors;
+        }
+
+        if (graphicConfig.theme == "singlecolor") {
+            c = singleColors;
+        }
+    } else if (config.colors) {
+        c = config.colors.split(/\s*,\s*/);
+    }
+
+    for (var i = 0; i < c.length; ++i) {
+        var color = c[i];
+        if (color in PTYCOLORS) {
+            c[i] = PTYCOLORS[color];
+        }
+    }
+
+    return c;
 }

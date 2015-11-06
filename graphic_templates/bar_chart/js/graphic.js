@@ -207,11 +207,7 @@ var renderBarChart = function(config) {
             .tickFormat('')
         );
 
-    var colorList = [""];
-    if ('colors' in graphicConfig) {
-        colorList = graphicConfig.colors.split(/\s*,\s*/);
-    }
-
+    var colorList = colorArray(graphicConfig, singleColors);
     var colorScale = d3.scale.ordinal()
         .domain([0, colorList])
         .range(colorList);
@@ -242,8 +238,8 @@ var renderBarChart = function(config) {
             .attr('class', function(d, i) {
                 return 'bar-' + i + ' ' + classify(d[labelColumn]);
             })
-            .attr('fill', function(d) {
-                return graphicConfig.barColor || "#17807E";
+            .attr('fill', function(d, i) {
+                return colorScale(i);
             });
 
     /*

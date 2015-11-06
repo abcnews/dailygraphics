@@ -13,8 +13,6 @@ var fmtYearAbbrev = d3.time.format('%y');
 var fmtYearFull = d3.time.format('%b %Y');
 var numFormat = d3.format(",");
 
-var defaultColors = [ COLORS['blue3'], COLORS['red3'], COLORS['yellow3'], COLORS['orange3'], COLORS['teal3'] ];
-
 /*
  * Initialize graphic
  */
@@ -252,11 +250,7 @@ var renderLineChart = function(config) {
         .range([ chartHeight, 0 ]);
 
 
-    var colorList = defaultColors;
-    if ('colors' in graphicConfig) {
-        colorList = graphicConfig.colors.split(/\s*,\s*/);
-    }
-
+    var colorList = colorArray(graphicConfig, monochromeColors);
     var colorScale = d3.scale.ordinal()
         .domain([0, colorList.length])
         .range(colorList);
