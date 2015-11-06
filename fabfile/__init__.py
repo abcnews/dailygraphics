@@ -122,6 +122,38 @@ def deploy(slug):
 
     print 'Deployed'
 
+
+@task
+def debug_deploy(slug, template):
+    """
+    Deploy the latest app to S3 and, if configured, to our servers.
+    """
+    graphic_path = '%s/%s' % (app_config.GRAPHICS_PATH, slug)
+    require('settings', provided_by=[production, staging])
+
+    if not slug:
+        print 'You must specify a project slug, like this: "deploy:slug"'
+        return
+
+    graphic_root = '%s/%s' % (app_config.GRAPHICS_PATH, slug)
+    s3_root = '%s/graphics/%s' % (app_config.PROJECT_SLUG, slug)
+    graphic_assets = '%s/assets' % graphic_root
+    s3_assets = '%s/assets' % s3_root
+
+    graphic_config = load_graphic_config(graphic_root)
+
+    use_assets = getattr(graphic_config, 'USE_ASSETS', True)
+    default_max_age = getattr(graphic_config, 'DEFAULT_MAX_AGE', None) or app_config.DEFAULT_MAX_AGE
+    assets_max_age = getattr(graphic_config, 'ASSETS_MAX_AGE', None) or app_config.ASSETS_MAX_AGE
+
+    local('cp -r graphic_templates/_base/ %s' % (graphic_path))
+    local('cp -r graphic_templates/%s/* %s' % (template, graphic_path))
+
+    # update_copy(slug)
+    render.render(slug)
+
+    print 'Deployed'
+
 def download_copy(slug):
     """
     Downloads a Google Doc as an .xlsx file.
@@ -165,7 +197,7 @@ def update_copy(slug=None):
 """
 App-specific commands
 """
-def _add_graphic(slug, template):
+def _add_graphic(slug, template, debug=False):
     """
     Create a graphic with `slug` from `template`
     """
@@ -174,14 +206,18 @@ def _add_graphic(slug, template):
     if _check_slug(slug):
         return
 
-    _check_credentials()
+    if not debug:
+        _check_credentials()
 
     local('cp -r graphic_templates/_base %s' % (graphic_path))
     local('cp -r graphic_templates/%s/* %s' % (template, graphic_path))
 
+    if debug:
+        local('cp debug.xlsx %s/%s.xlsx' % (graphic_path, slug))
+
     config_path = os.path.join(graphic_path, 'graphic_config.py')
 
-    if os.path.isfile(config_path):
+    if not debug and os.path.isfile(config_path):
         print 'Creating spreadsheet...'
 
         success = copy_spreadsheet(slug)
@@ -278,11 +314,11 @@ def add_state_grid_map(slug):
     _add_graphic(slug, 'state_grid_map')
 
 @task
-def add_line_chart(slug):
+def add_line_chart(slug, debug=False):
     """
     Create a line chart.
     """
-    _add_graphic(slug, 'line_chart')
+    _add_graphic(slug, 'line_chart', debug)
 
 @task
 def add_dot_chart(slug):
