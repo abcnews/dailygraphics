@@ -15,7 +15,7 @@ from render_utils import load_graphic_config, make_context, render_with_context
 graphic = Blueprint('graphic', __name__)
 
 @graphic.route('/<slug>/')
-@oauth.oauth_required
+#@oauth.oauth_required
 def _graphics_detail(slug):
     """
     Renders a parent.html index with child.html embedded as iframe.
@@ -50,7 +50,7 @@ def _graphics_detail(slug):
     return make_response(render_template(template, **context))
 
 @graphic.route('/<slug>/child.html')
-@oauth.oauth_required
+#@oauth.oauth_required
 def _graphics_child(slug):
     """
     Renders a child.html for embedding.
