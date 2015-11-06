@@ -265,46 +265,46 @@ def add_graphic(slug):
     _add_graphic(slug, 'graphic')
 
 @task
-def add_bar_chart(slug):
+def add_bar_chart(slug, debug=False):
     """
     Create a bar chart.
     """
-    _add_graphic(slug, 'bar_chart')
+    _add_graphic(slug, 'bar_chart', debug)
 
 @task
-def add_column_chart(slug):
+def add_column_chart(slug, debug=False):
     """
     Create a column chart.
     """
-    _add_graphic(slug, 'column_chart')
+    _add_graphic(slug, 'column_chart', debug)
 
 @task
-def add_stacked_column_chart(slug):
+def add_stacked_column_chart(slug, debug=False):
     """
     Create a stacked column chart.
     """
-    _add_graphic(slug, 'stacked_column_chart')
+    _add_graphic(slug, 'stacked_column_chart', debug)
 
 @task
-def add_block_histogram(slug):
+def add_block_histogram(slug, debug=False):
     """
     Create a block histogram.
     """
-    _add_graphic(slug, 'block_histogram')
+    _add_graphic(slug, 'block_histogram', debug)
 
 @task
-def add_grouped_bar_chart(slug):
+def add_grouped_bar_chart(slug, debug=False):
     """
     Create a grouped bar chart.
     """
-    _add_graphic(slug, 'grouped_bar_chart')
+    _add_graphic(slug, 'grouped_bar_chart', debug)
 
 @task
-def add_stacked_bar_chart(slug):
+def add_stacked_bar_chart(slug, debug=False):
     """
     Create a stacked bar chart.
     """
-    _add_graphic(slug, 'stacked_bar_chart')
+    _add_graphic(slug, 'stacked_bar_chart', debug)
 
 @task
 def add_state_grid_map(slug):
