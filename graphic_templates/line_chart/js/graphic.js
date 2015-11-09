@@ -283,6 +283,9 @@ var renderLineChart = function(config) {
     var chartWrapper = containerElement.append('div')
         .attr('class', 'graphic-wrapper');
 
+    if (graphicConfig.xLabel) margins.bottom += 20;
+    if (graphicConfig.yLabel) margins.top += 20;
+
     var chartElement = chartWrapper.append('svg')
         .attr('width', chartWidth + margins['left'] + margins['right'])
         .attr('height', chartHeight + margins['top'] + margins['bottom'])
@@ -403,7 +406,7 @@ var renderLineChart = function(config) {
     if (graphicConfig.xLabel) {
         var t = chartElement.append("text")
             .text(graphicConfig.xLabel)
-            .attr("y", chartHeight + margins['bottom'] - 5)
+            .attr("y", chartHeight + margins.bottom)
             .attr("class", "axis-label");
         
         t.attr("x", (chartWidth - t.node().getComputedTextLength()) / 2)
@@ -412,11 +415,9 @@ var renderLineChart = function(config) {
     if (graphicConfig.yLabel) {
         var t = chartElement.append("text")
             .text(graphicConfig.yLabel)
-            .attr("y", -25)
+            .attr("x", -20)
+            .attr("y", -10)
             .attr("class", "axis-label");
-        
-        t.attr("x", 0 - ((chartHeight + margins['top'] + margins['bottom']) / 2));
-        t.attr("transform", "rotate(-90)");
     }
 }
 
