@@ -128,9 +128,7 @@ var renderBarChart = function(config) {
     var ticksX = parseInt(graphicConfig.ticksX || 4, 10);
     var roundTicksFactor = parseInt(graphicConfig.roundTicksFactor || 5, 10);
 
-    // Calculate actual chart dimensions
-    var chartWidth = config['width'] - margins['left'] - margins['right'];
-    var chartHeight = ((barHeight + barGap) * config['data'].length);
+    
 
     // Clear existing graphic (for redraw)
     var containerElement = d3.select(config['container']);
@@ -141,6 +139,11 @@ var renderBarChart = function(config) {
      */
     var chartWrapper = containerElement.append('div')
         .attr('class', 'graphic-wrapper');
+
+    // Calculate actual chart dimensions
+    var innerWidth = chartWrapper.node().getBoundingClientRect().width;
+    var chartWidth = innerWidth - margins['left'] - margins['right'];
+    var chartHeight = ((barHeight + barGap) * config['data'].length);
 
     var chartElement = chartWrapper.append('svg')
         .attr('width', chartWidth + margins['left'] + margins['right'])
