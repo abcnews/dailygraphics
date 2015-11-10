@@ -1,12 +1,45 @@
 // Global vars
 var pymChild = null;
 var isMobile = false;
+var graphicData = null;
+var graphicConfig = null;
+
+// D3 formatters
+var fmtComma = d3.format(',');
 
 /*
  * Initialize the graphic.
  */
 var onWindowLoaded = function() {
     if (Modernizr.svg) {
+        graphicConfig = GRAPHIC_CONFIG;
+        loadLocalData(GRAPHIC_DATA);
+        //loadCSV('data.csv')
+    } else {
+        pymChild = new pym.Child({});
+    }
+}
+
+/*
+ * Load graphic data from a local source.
+ */
+var loadLocalData = function(data) {
+    graphicData = data;
+
+    formatData();
+
+    pymChild = new pym.Child({
+        renderCallback: render
+    });
+}
+
+/*
+ * Load graphic data from a CSV.
+ */
+var loadCSV = function(url) {
+    d3.csv(GRAPHIC_DATA_URL, function(error, data) {
+        graphicData = data;
+
         formatData();
 
         pymChild = new pym.Child({
@@ -69,17 +102,15 @@ var renderColumnChart = function(config) {
 
     var margins = {
         top: 5,
-        right: 5,
+        right: 0,
         bottom: 20,
-        left: 30
+        left: 0
     };
 
     var ticksY = 4;
     var roundTicksFactor = 50;
 
-    // Calculate actual chart dimensions
-    var chartWidth = config['width'] - margins['left'] - margins['right'];
-    var chartHeight = Math.ceil((config['width'] * aspectHeight) / aspectWidth) - margins['top'] - margins['bottom'];
+
 
     // Clear existing graphic (for redraw)
     var containerElement = d3.select(config['container']);
@@ -90,6 +121,11 @@ var renderColumnChart = function(config) {
      */
     var chartWrapper = containerElement.append('div')
         .attr('class', 'graphic-wrapper');
+
+    // Calculate actual chart dimensions
+    var innerWidth = chartWrapper.node().getBoundingClientRect().width;
+    var chartWidth = innerWidth - margins['left'] - margins['right'];
+    var chartHeight = Math.ceil((config['width'] * aspectHeight) / aspectWidth) - margins['top'] - margins['bottom'];
 
     var chartElement = chartWrapper.append('svg')
         .attr('width', chartWidth + margins['left'] + margins['right'])
@@ -128,17 +164,20 @@ var renderColumnChart = function(config) {
     var xAxis = d3.svg.axis()
         .scale(xScale)
         .orient('bottom')
-        .tickFormat(function(d, i) {
-            return d;
-        });
+        .ticks(0)
+        .tickSize(0)
+        .tickPadding(5)
+        // .tickFormat(function(d, i) {
+        //     return d;
+        // });
 
-    var yAxis = d3.svg.axis()
-        .scale(yScale)
-        .orient('left')
-        .ticks(ticksY)
-        .tickFormat(function(d) {
-            return fmtComma(d);
-        });
+    // var yAxis = d3.svg.axis()
+    //     .scale(yScale)
+    //     .orient('left')
+    //     .ticks(ticksY)
+    //     .tickFormat(function(d) {
+    //         return fmtComma(d);
+    //     });
 
     /*
      * Render axes to chart.
@@ -146,11 +185,12 @@ var renderColumnChart = function(config) {
     chartElement.append('g')
         .attr('class', 'x axis')
         .attr('transform', makeTranslate(0, chartHeight))
-        .call(xAxis);
+        .call(xAxis)
+        .select("path").remove();
 
-    chartElement.append('g')
-        .attr('class', 'y axis')
-        .call(yAxis)
+    // chartElement.append('g')
+    //     .attr('class', 'y axis')
+    //     .call(yAxis)
 
     /*
      * Render grid to chart.
@@ -159,12 +199,17 @@ var renderColumnChart = function(config) {
         return yAxis;
     };
 
-    chartElement.append('g')
-        .attr('class', 'y grid')
-        .call(yAxisGrid()
-            .tickSize(-chartWidth, 0)
-            .tickFormat('')
-        );
+    // chartElement.append('g')
+    //     .attr('class', 'y grid')
+    //     .call(yAxisGrid()
+    //         .tickSize(-chartWidth, 0)
+    //         .tickFormat('')
+    //     );
+
+    var colorList = colorArray(graphicConfig, singleColors);
+    var colorScale = d3.scale.ordinal()
+        .domain([0, colorList])
+        .range(colorList);
 
     /*
      * Render bars to chart.
@@ -183,7 +228,7 @@ var renderColumnChart = function(config) {
                     return yScale(0);
                 }
 
-                return d[valueColumn];
+                return yScale(d[valueColumn]);
             })
             .attr('width', xScale.rangeBand())
             .attr('height', function(d) {
@@ -195,18 +240,21 @@ var renderColumnChart = function(config) {
             })
             .attr('class', function(d) {
                 return 'bar bar-' + d[labelColumn];
+            })
+            .attr('fill', function(d, i) {
+                return colorScale(i);
             });
 
     /*
      * Render 0 value line.
      */
     if (min < 0) {
-        chartElement.append('line')
-            .attr('class', 'zero-line')
-            .attr('x1', 0)
-            .attr('x2', chartWidth)
-            .attr('y1', yScale(0))
-            .attr('y2', yScale(0));
+      // chartElement.append('line')
+      //     .attr('class', 'zero-line')
+      //     .attr('x1', 0)
+      //     .attr('x2', chartWidth)
+      //     .attr('y1', yScale(0))
+      //     .attr('y2', yScale(0));
     }
 
     /*
@@ -219,7 +267,7 @@ var renderColumnChart = function(config) {
         .enter()
         .append('text')
             .text(function(d) {
-                return d[valueColumn].toFixed(1);
+                return fmtComma(d[valueColumn]);
             })
             .attr('x', function(d, i) {
                 return xScale(d[labelColumn]) + (xScale.rangeBand() / 2);
