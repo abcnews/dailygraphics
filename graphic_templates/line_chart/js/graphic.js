@@ -169,15 +169,22 @@ var renderLineChart = function(config) {
         ticksX = 5;
         ticksY = 5;
         margins['right'] = 45;
-    }
-
-    // Calculate actual chart dimensions
-    var chartWidth = config['width'] - margins['left'] - margins['right'];
-    var chartHeight = Math.ceil((config['width'] * aspectHeight) / aspectWidth) - margins['top'] - margins['bottom'];
+    }    
 
     // Clear existing graphic (for redraw)
     var containerElement = d3.select(config['container']);
     containerElement.html('');
+
+    /*
+     * Create the root SVG element.
+     */
+    var chartWrapper = containerElement.append('div')
+        .attr('class', 'graphic-wrapper');
+
+    // Calculate actual chart dimensions
+    var innerWidth = chartWrapper.node().getBoundingClientRect().width;
+    var chartWidth = innerWidth - margins['left'] - margins['right'];
+    var chartHeight = Math.ceil((config['width'] * aspectHeight) / aspectWidth) - margins['top'] - margins['bottom'];
 
     var formattedData = {};
 
@@ -277,11 +284,7 @@ var renderLineChart = function(config) {
             return d['key'];
         });
 
-    /*
-     * Create the root SVG element.
-     */
-    var chartWrapper = containerElement.append('div')
-        .attr('class', 'graphic-wrapper');
+    
 
     if (graphicConfig.xLabel) margins.bottom += 20;
     if (graphicConfig.yLabel) margins.top += 20;
