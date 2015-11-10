@@ -187,25 +187,25 @@ var renderBarChart = function(config) {
     /*
      * Render axes to chart.
      */
-    chartElement.append('g')
-        .attr('class', 'x axis')
-        .attr('transform', makeTranslate(0, chartHeight))
-        .call(xAxis);
+    // chartElement.append('g')
+    //     .attr('class', 'x axis')
+    //     .attr('transform', makeTranslate(0, chartHeight))
+    //     .call(xAxis);
 
     /*
      * Render grid to chart.
      */
-    var xAxisGrid = function() {
-        return xAxis;
-    };
+    // var xAxisGrid = function() {
+    //     return xAxis;
+    // };
 
-    chartElement.append('g')
-        .attr('class', 'x grid')
-        .attr('transform', makeTranslate(0, chartHeight))
-        .call(xAxisGrid()
-            .tickSize(-chartHeight, 0, 0)
-            .tickFormat('')
-        );
+    // chartElement.append('g')
+    //     .attr('class', 'x grid')
+    //     .attr('transform', makeTranslate(0, chartHeight))
+    //     .call(xAxisGrid()
+    //         .tickSize(-chartHeight, 0, 0)
+    //         .tickFormat('')
+    //     );
 
     var colorList = colorArray(graphicConfig, singleColors);
     var colorScale = d3.scale.ordinal()
@@ -245,12 +245,12 @@ var renderBarChart = function(config) {
     /*
      * Render 0-line.
      */
-    chartElement.append('line')
-        .attr('class', 'zero-line')
-        .attr('x1', xScale(0))
-        .attr('x2', xScale(0))
-        .attr('y1', 0)
-        .attr('y2', chartHeight);
+    // chartElement.append('line')
+    //     .attr('class', 'zero-line')
+    //     .attr('x1', xScale(0))
+    //     .attr('x2', xScale(0))
+    //     .attr('y1', 0)
+    //     .attr('y2', chartHeight);
 
     /*
      * Render bar labels.
