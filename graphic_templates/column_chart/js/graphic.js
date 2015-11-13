@@ -98,7 +98,7 @@ var renderColumnChart = function(config) {
 
     var aspectWidth = isMobile ? 4 : 16;
     var aspectHeight = isMobile ? 3 : 9;
-    var valueGap = 6;
+    var valueGap = parseInt(graphicConfig.valueGap || 6, 10);
 
     var margins = {
         top: 5,
@@ -108,9 +108,23 @@ var renderColumnChart = function(config) {
     };
 
     var ticksY = 4;
-    var roundTicksFactor = 50;
+    var roundTicksFactor = parseInt(graphicConfig.roundTicksFactor || 50, 10);
 
+    if (graphicConfig.marginTop) {
+        margins.top = parseInt(graphicConfig.marginTop, 10);
+    }
 
+    if (graphicConfig.marginRight) {
+        margins.right = parseInt(graphicConfig.marginRight, 10);
+    }
+
+    if (graphicConfig.marginBottom) {
+        margins.bottom = parseInt(graphicConfig.marginBottom, 10);
+    }
+
+    if (graphicConfig.marginLeft) {
+        margins.left = parseInt(graphicConfig.marginLeft, 10);
+    }
 
     // Clear existing graphic (for redraw)
     var containerElement = d3.select(config['container']);
