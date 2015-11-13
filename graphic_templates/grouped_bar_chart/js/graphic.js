@@ -145,13 +145,21 @@ var renderGroupedBarChart = function(config) {
     var ticksX = parseInt(graphicConfig.ticksX || 7, 10);
     var roundTicksFactor = parseInt(graphicConfig.roundTicksFactor || 5, 10);
 
-    // Calculate actual chart dimensions
-    var chartWidth = config['width'] - margins['left'] - margins['right'];
-    var chartHeight = (((((barHeight + barGapInner) * numGroupBars) - barGapInner) + barGap) * numGroups) - barGap + barGapInner;
-
+   
     // Clear existing graphic (for redraw)
     var containerElement = d3.select(config['container']);
     containerElement.html('');
+
+    /*
+     * Create the root SVG element.
+     */
+    var chartWrapper = containerElement.append('div')
+        .attr('class', 'graphic-wrapper');
+
+     // Calculate actual chart dimensions
+    var innerWidth = chartWrapper.node().getBoundingClientRect().width;
+    var chartWidth = innerWidth - margins['left'] - margins['right'];
+    var chartHeight = (((((barHeight + barGapInner) * numGroupBars) - barGapInner) + barGap) * numGroups) - barGap + barGapInner;
 
     /*
      * Create D3 scale objects.
@@ -188,13 +196,9 @@ var renderGroupedBarChart = function(config) {
     var yScale = d3.scale.linear()
         .range([chartHeight, 0]);
 
-    var colorList = [COLORS['teal3'], COLORS['teal5']];
-    if (graphicConfig.barColors) {
-        colorList = graphicConfig.barColors.split(",");
-    }
-
+    var colorList = colorArray(graphicConfig, monochromeColors);
     var colorScale = d3.scale.ordinal()
-    .domain(_.pluck(config['data'][0]['values'], labelColumn))
+        .domain(_.pluck(config['data'][0]['values'], labelColumn))
         .range(colorList);
     /*
      * Render a color legend.
@@ -218,11 +222,6 @@ var renderGroupedBarChart = function(config) {
             return d[labelColumn];
         });
 
-    /*
-     * Create the root SVG element.
-     */
-    var chartWrapper = containerElement.append('div')
-        .attr('class', 'graphic-wrapper');
 
     var chartElement = chartWrapper.append('svg')
         .attr('width', chartWidth + margins['left'] + margins['right'])
@@ -244,10 +243,10 @@ var renderGroupedBarChart = function(config) {
     /*
      * Render axes to chart.
      */
-    chartElement.append('g')
-        .attr('class', 'x axis')
-        .attr('transform', makeTranslate(0, chartHeight))
-        .call(xAxis);
+    // chartElement.append('g')
+    //     .attr('class', 'x axis')
+    //     .attr('transform', makeTranslate(0, chartHeight))
+    //     .call(xAxis);
 
     /*
      * Render grid to chart.
@@ -256,13 +255,13 @@ var renderGroupedBarChart = function(config) {
         return xAxis;
     };
 
-    chartElement.append('g')
-        .attr('class', 'x grid')
-        .attr('transform', makeTranslate(0, chartHeight))
-        .call(xAxisGrid()
-            .tickSize(-chartHeight, 0, 0)
-            .tickFormat('')
-        );
+    // chartElement.append('g')
+    //     .attr('class', 'x grid')
+    //     .attr('transform', makeTranslate(0, chartHeight))
+    //     .call(xAxisGrid()
+    //         .tickSize(-chartHeight, 0, 0)
+    //         .tickFormat('')
+    //     );
 
     /*
      * Render bars to chart.
