@@ -2,6 +2,7 @@
 
 {% block content %}
 
+    {% if not COPY.labels.nocard %}<div class="card">{% endif %}
     {% if COPY.labels.headline %}<h1>{{ COPY.labels.headline|smarty }}</h1>{% endif %}
     {% if COPY.labels.subhed %}<h2>{{ render(COPY.labels.subhed)|smarty }}</h2>{% endif %}
 
@@ -20,6 +21,7 @@
         {% if COPY.labels.source %}<p>Source: {{ COPY.labels.source|smarty }}</p>{% endif %}
         {% if COPY.labels.credit %}<p>Credit: {{ COPY.labels.credit|smarty }}</p>{% endif %}
     </div>
+    {% if not COPY.labels.nocard %}</div>{% endif %}
 
     <script type="text/javascript">
         var DATA = {{ COPY.data.json() }};
