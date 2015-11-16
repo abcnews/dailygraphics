@@ -39,6 +39,12 @@ var singleColors = [
     "#478CCC"
 ];
 
+var highlightColors = [
+    "#CCCCCC"
+];
+
+var highlightColor = '#478CCC';
+
 /*
  * Convert arbitrary strings to valid css classes.
  * via: https://gist.github.com/mathewbyrne/1280286
@@ -111,8 +117,12 @@ var colorArray = function (config, d) {
             c = multiColors;
         }
 
-        if (graphicConfig.theme == "singlecolor") {
+        if (graphicConfig.theme == "single") {
             c = singleColors;
+        }
+
+        if (graphicConfig.theme == "highlight") {
+            c = highlightColors;
         }
     } else if (config.colors) {
         c = config.colors.split(/\s*,\s*/);
