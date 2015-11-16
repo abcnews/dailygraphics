@@ -115,7 +115,7 @@ var renderGroupedBarChart = function(config) {
     var labelWidth = parseInt(graphicConfig.labelWidth || 85, 10);
     var labelMargin = parseInt(graphicConfig.labelMargin || 6, 10);
     var valueGap = parseInt(graphicConfig.valueGap || 6, 10);
-    var groupHeight =  (barHeight * numGroupBars) + (barGapInner * (numGroupBars - 1))
+    var groupHeight = (barHeight * numGroupBars) + (barGapInner * (numGroupBars - 1)) + 20;
 
     var margins = {
         top: 0,
@@ -159,6 +159,7 @@ var renderGroupedBarChart = function(config) {
     var chartWidth = innerWidth - margins['left'] - margins['right'];
     var chartHeight = (((((barHeight + barGapInner) * numGroupBars) - barGapInner) + barGap) * numGroups) - barGap + barGapInner;
 
+    chartHeight = (groupHeight + 20) * (numGroups - 1);
     /*
      * Create D3 scale objects.
      */
@@ -198,29 +199,7 @@ var renderGroupedBarChart = function(config) {
     var colorScale = d3.scale.ordinal()
         .domain(_.pluck(config['data'][0]['values'], labelColumn))
         .range(colorList);
-    /*
-     * Render a color legend.
-     */
-    var legend = containerElement.append('ul')
-        .attr('class', 'key')
-        .selectAll('g')
-            .data(config['data'][0]['values'])
-        .enter().append('li')
-            .attr('class', function(d, i) {
-                return 'key-item key-' + i + ' ' + classify(d[labelColumn]);
-            });
-
-    legend.append('b')
-        .style('background-color', function(d) {
-        	return colorScale(d[labelColumn]);
-        });
-
-    legend.append('label')
-        .text(function(d) {
-            return d[labelColumn];
-        });
-
-
+    
     var chartElement = chartWrapper.append('svg')
         .attr('width', chartWidth + margins['left'] + margins['right'])
         .attr('height', chartHeight + margins['top'] + margins['bottom'])
@@ -270,11 +249,7 @@ var renderGroupedBarChart = function(config) {
         .append('g')
             .attr('class', 'g bars')
             .attr('transform', function(d, i) {
-                if (i == 0) {
-                    return makeTranslate(0, 0);
-                }
-
-                return makeTranslate(0, (groupHeight + barGap) * i);
+                return makeTranslate(0, (groupHeight + barGap) * i + 20);
             });
 
     barGroups.selectAll('rect')
@@ -308,6 +283,19 @@ var renderGroupedBarChart = function(config) {
                 return 'y-' + d[labelColumn];
             });
 
+    barGroups.append('text')
+            .attr('x', 0)
+            .attr('y', -8)
+            .attr('class', 'group-label')
+            .text(function (d) { return d.key; });
+
+    var labelData = [];
+    _.each(config['data'], function (d) {
+        _.each(d.values, function (e) {
+            labelData.push(e.label)
+        });
+    });
+
     /*
      * Render 0-line.
      */
@@ -331,15 +319,22 @@ var renderGroupedBarChart = function(config) {
             'left': '0'
         }))
         .selectAll('li')
-        .data(config['data'])
+        .data(labelData)
         .enter()
         .append('li')
             .attr('style', function(d,i) {
-                var top = (groupHeight + barGap) * i;
+                var index = Math.floor(i / 2);
+                var top = (groupHeight + barGap) * index;
+
+                if (i & 1 === 1) {
+                    top += barHeight + barGapInner;
+                }
 
                 if (i == 0) {
                     top = 0;
                 }
+
+                top += 20;
 
                 return formatStyle({
                     'width': (labelWidth - 10) + 'px',
@@ -349,11 +344,11 @@ var renderGroupedBarChart = function(config) {
                 });
             })
             .attr('class', function(d,i) {
-                return classify(d['key']);
+                return classify(d);//['key']);
             })
             .append('span')
                 .text(function(d) {
-                    return d['key']
+                    return d;//['key']
                 });
 
     /*
