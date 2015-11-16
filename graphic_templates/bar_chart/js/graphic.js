@@ -149,6 +149,11 @@ var renderBarChart = function(config) {
         .append('g')
         .attr('transform', 'translate(' + margins['left'] + ',' + margins['top'] + ')');
 
+    var overlay = chartElement.append('rect')
+        .attr('width', chartWidth)
+        .attr('height', chartHeight)
+        .attr('fill', 'transparent');
+
     /*
      * Create D3 scale objects.
      */
@@ -213,7 +218,7 @@ var renderBarChart = function(config) {
     /*
      * Render bars to chart.
      */
-    chartElement.append('g')
+    var bars = chartElement.append('g')
         .attr('class', 'bars')
         .selectAll('rect')
         .data(config['data'])
@@ -239,6 +244,20 @@ var renderBarChart = function(config) {
             .attr('fill', function(d, i) {
                 return colorScale(i);
             });
+
+    if (graphicConfig.theme == "highlight") {
+        chartWrapper.on("mousemove", function (e) {
+            var pos = d3.mouse(chartWrapper.node())
+            var index = Math.floor(pos[1] / (barHeight + barGap)) + 1;
+
+            //chartWrapper.selectAll(".bars rect")
+            bars.attr('fill', function (d, i) {
+                return colorScale(i);
+            });
+
+            chartWrapper.selectAll(".bars rect:nth-child(" + index + ")").attr('fill', highlightColor);
+        });
+    }
 
     /*
      * Render 0-line.
