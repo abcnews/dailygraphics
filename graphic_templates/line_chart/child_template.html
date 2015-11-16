@@ -23,6 +23,8 @@
     <script type="text/javascript">
         var GRAPHIC_DATA = {{ COPY.data.json() }};
         var GRAPHIC_CONFIG = {{ COPY.labels.json() }};
+        GRAPHIC_CONFIG.xLabel = "X-Axis Label";
+        GRAPHIC_CONFIG.yLabel = "Y-Axis Label";
     </script>
 
 {% endblock content %}

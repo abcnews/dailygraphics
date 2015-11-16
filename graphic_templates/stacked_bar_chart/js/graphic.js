@@ -144,32 +144,33 @@ var renderStackedBarChart = function(config) {
     /*
      * Create D3 scale objects.
      */
-     var min = d3.min(config['data'], function(d) {
-         var lastValue = d['values'][d['values'].length - 1];
+    var min = d3.min(config['data'], function(d) {
+        var lastValue = d['values'][d['values'].length - 1];
 
-         return Math.floor(lastValue['x1'] / roundTicksFactor) * roundTicksFactor;
-     });
+        return Math.floor(lastValue['x1'] / roundTicksFactor) * roundTicksFactor;
+    });
 
-     if (min > 0) {
-         min = 0;
-     }
+    if (min > 0) {
+        min = 0;
+    }
 
-     var xScale = d3.scale.linear()
-         .domain([
-             min,
-             d3.max(config['data'], function(d) {
-                 var lastValue = d['values'][d['values'].length - 1];
+    var xScale = d3.scale.linear()
+        .domain([
+            min,
+            d3.max(config['data'], function(d) {
+                var lastValue = d['values'][d['values'].length - 1];
 
-                 return Math.ceil(lastValue['x1'] / roundTicksFactor) * roundTicksFactor;
-             })
-         ])
-         .rangeRound([0, chartWidth]);
+                return Math.ceil(lastValue['x1'] / roundTicksFactor) * roundTicksFactor;
+            })
+        ])
+        .rangeRound([0, chartWidth]);
 
-     var colorScale = d3.scale.ordinal()
-         .domain(d3.keys(config['data'][0]).filter(function(d) {
-             return d != labelColumn && d != 'values';
-         }))
-         .range([ COLORS['teal3'], COLORS['orange3'], COLORS['blue3'], '#ccc' ]);
+    var colorList = colorArray(graphicConfig, singleColors);
+    var colorScale = d3.scale.ordinal()
+        .domain(d3.keys(config['data'][0]).filter(function(d) {
+            return d != labelColumn && d != 'values';
+        }))
+        .range(colorList);
 
     /*
      * Render the legend.
