@@ -149,6 +149,11 @@ var renderColumnChart = function(config) {
         .append('g')
         .attr('transform', 'translate(' + margins['left'] + ',' + margins['top'] + ')');
 
+    var overlay = chartElement.append('rect')
+        .attr('width', chartWidth)
+        .attr('height', chartHeight)
+        .attr('fill', 'transparent');
+
     /*
      * Create D3 scale objects.
      */
@@ -262,15 +267,22 @@ var renderColumnChart = function(config) {
                 return colorScale(i);
             });
 
-    /*
-     * Render 0 value line.
-     */
-    // chartElement.append('line')
-    //     .attr('class', 'zero-line')
-    //     .attr('x1', 0)
-    //     .attr('x2', chartWidth)
-    //     .attr('y1', yScale(0))
-    //     .attr('y2', yScale(0));
+
+    if (graphicConfig.theme == "highlight") {
+        chartWrapper.on("mousemove", function (e) {
+            var pos = d3.mouse(chartWrapper.node())
+            var index = Math.floor(pos[0] / (xScale.rangeBand() + valueGap)) + 1;
+
+            chartWrapper.selectAll(".bars rect").attr('fill', function (d, i) {
+                return colorScale(i);
+            });
+
+            chartWrapper.selectAll(".value text.over").classed('over', false);
+
+            chartWrapper.selectAll(".bars rect:nth-child(" + index + ")").attr('fill', highlightColor);
+            chartWrapper.selectAll(".value text.out:nth-child(" + index + ")").classed('over', true);
+        });
+    }
 
     /*
      * Render bar values.
