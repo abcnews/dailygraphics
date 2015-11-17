@@ -115,7 +115,7 @@ var renderGroupedBarChart = function(config) {
     var labelWidth = parseInt(graphicConfig.labelWidth || 85, 10);
     var labelMargin = parseInt(graphicConfig.labelMargin || 6, 10);
     var valueGap = parseInt(graphicConfig.valueGap || 6, 10);
-    var groupHeight = (barHeight * numGroupBars) + (barGapInner * (numGroupBars - 1)) + 20;
+    var groupHeight = (barHeight * numGroupBars) + (barGapInner * (numGroupBars - 1)) + 30;
 
     var margins = {
         top: 0,
@@ -276,7 +276,7 @@ var renderGroupedBarChart = function(config) {
                 return Math.abs(xScale(0) - xScale(d[valueColumn]));
             })
             .attr('height', barHeight)
-            .style('fill', function(d) {
+            .attr('fill', function(d) {
             	return colorScale(d[labelColumn]);
             })
             .attr('class', function(d) {
@@ -350,6 +350,31 @@ var renderGroupedBarChart = function(config) {
                 .text(function(d) {
                     return d;//['key']
                 });
+
+    if (graphicConfig.theme == "highlight") {
+        chartWrapper.on("mousemove", function (e) {
+            var pos = d3.mouse(chartWrapper.node())
+            var gh = groupHeight + 10;
+            var index = Math.floor(pos[1] / gh);
+            var relativeY = pos[1] - index * gh;
+            var barIndex = Math.floor((relativeY - 20) / (barHeight + barGapInner));
+
+            chartWrapper.selectAll(".value text.over").classed('over', false);
+            chartWrapper.selectAll(".bars rect").attr('fill', function (d, i) {
+                return colorScale(i);
+            });
+
+            if (relativeY <= 20) {
+                // in the group heading
+                return;
+            }
+
+            chartWrapper.selectAll(".bars:nth-child("+(index+1)+") rect:nth-child("+(barIndex+1)+")")
+                .attr('fill', highlightColor);
+            chartWrapper.selectAll(".bars:nth-child("+(index+1)+") .value text.out:nth-child("+(barIndex+1)+")")
+                .classed('over', true);
+        });
+    }
 
     /*
      * Render bar values.
