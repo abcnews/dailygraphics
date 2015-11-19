@@ -160,7 +160,7 @@ var renderLineChart = function(config) {
 
     var margins = {
         top: 5,
-        right: 80,
+        right: 50,
         bottom: 20,
         left: 30
     };
@@ -190,7 +190,7 @@ var renderLineChart = function(config) {
         ticksX = 5;
         ticksY = 5;
         margins['right'] = 45;
-    }    
+    }
 
     // Clear existing graphic (for redraw)
     var containerElement = d3.select(config['container']);
@@ -324,8 +324,6 @@ var renderLineChart = function(config) {
             return d['name'];
         });
 
-    
-
     if (graphicConfig.xLabel) margins.bottom += 20;
     if (graphicConfig.yLabel) margins.top += 20;
 
@@ -334,6 +332,11 @@ var renderLineChart = function(config) {
         .attr('height', chartHeight + margins['top'] + margins['bottom'])
         .append('g')
         .attr('transform', 'translate(' + margins['left'] + ',' + margins['top'] + ')');
+
+    var overlay = chartElement.append('rect')
+        .attr('width', chartWidth)
+        .attr('height', chartHeight)
+        .attr('fill', 'transparent');
 
     /*
      * Create D3 axes.
@@ -402,8 +405,9 @@ var renderLineChart = function(config) {
             return yScale(d[valueColumn]);
         });
 
-    chartElement.append('g')
-        .attr('class', 'lines')
+    var highlighted = graphicConfig.highlighted ? graphicConfig.highlighted.split(/\s*,\s*/) : [];
+    var lines = chartElement.append('g')
+        .attr('class', 'lines visible-lines')
         .selectAll('path')
         .data(config['data'])
         .enter()
@@ -412,29 +416,71 @@ var renderLineChart = function(config) {
                 return 'line ' + classify(d['name']);
             })
             .attr('stroke', function(d) {
-                return colorScale(d['name']);
+                if (highlighted.indexOf(d.key) !== -1) {
+                    return highlightColor;
+                }
+
+                return colorScale(d['key']);
             })
             .attr('d', function(d) {
                 return line(d['values']);
             });
 
-    chartElement.append('g')
+    if (graphicConfig.theme == "highlight") {
+        var shadowLines = chartElement.append('g')
+            .attr('class', 'lines shadow-lines')
+            .selectAll('path')
+            .data(d3.entries(formattedData))
+            .enter()
+            .append('path')
+                .attr('class', function(d, i) {
+                    return 'line line-' + i + ' ' + classify(d['key']);
+                })
+                .attr('stroke', function(d) {
+                    return "transparent";
+                })
+                .attr('d', function(d) {
+                    return line(d['value']);
+                })
+                .attr('data-index', function (d, i) { return i; })
+                .style('stroke-width', '20px');
+    }
+
+    function labelXFunc (d, i) {
+        var last = d['value'][d['value'].length - 1];
+
+        return xScale(last[dateColumn] || last['x']) + 5;
+    }
+
+    var labels = chartElement.append('g')
         .attr('class', 'value')
         .selectAll('text')
         .data(config['data'])
         .enter().append('text')
-            .attr('x', function(d, i) {
-                var last = d['values'][d['values'].length - 1];
-
-                return xScale(last[dateColumn] || last['x']) + 5;
+            .attr('class', function (d, i) {
+                return 'label-group label-' + i;
             })
+            .attr('x', labelXFunc)
             .attr('y', function(d) {
                 var last = d['values'][d['values'].length - 1];
 
                 return yScale(last[valueColumn]) + 3;
-            })
+            });
+
+    labels
+        .append("tspan")
+            .attr('dy', '-1em')
+            .attr('x', labelXFunc)
+            .attr('class', 'text-label')
             .text(function(d) {
-                var last = d['values'][d['values'].length - 1];
+                return d.key;
+            });
+    labels
+        .append("tspan")
+            .attr('dy', '1.2em')
+            .attr('x', labelXFunc)
+            .text(function (d) {
+                var last = d['value'][d['value'].length - 1];
                 var value = last[valueColumn];
 
                 var label = numFormat(last[valueColumn]);
@@ -449,7 +495,7 @@ var renderLineChart = function(config) {
     if (graphicConfig.xLabel) {
         var t = chartElement.append("text")
             .text(graphicConfig.xLabel)
-            .attr("y", chartHeight + margins.bottom)
+            .attr("y", chartHeight + margins.bottom - 5)
             .attr("class", "axis-label");
 
         t.attr("x", (chartWidth - t.node().getComputedTextLength()) / 2)
@@ -458,11 +504,26 @@ var renderLineChart = function(config) {
     if (graphicConfig.yLabel) {
         var t = chartElement.append("text")
             .text(graphicConfig.yLabel)
-            .attr("y", -25)
+            .attr("x", -20)
+            .attr("y", -15)
             .attr("class", "axis-label");
 
         t.attr("x", 0 - ((chartHeight + margins['top'] + margins['bottom']) / 2));
         t.attr("transform", "rotate(-90)");
+    }
+
+    if (graphicConfig.theme == "highlight") {
+        shadowLines.on("mouseover", function () {
+            var index = this.getAttribute('data-index');
+            chartElement.select(".visible-lines .line-" + index).attr('stroke', highlightColor);
+            chartElement.selectAll(".label-" + index + " tspan").attr('fill', highlightColor);
+        });
+
+        shadowLines.on("mouseout", function () {
+            var index = this.getAttribute('data-index');
+            chartElement.select(".visible-lines .line-" + index).attr('stroke', highlightColors[0]);
+            chartElement.selectAll(".label-" + index + " tspan").attr('fill', null);
+        });
     }
 }
 
