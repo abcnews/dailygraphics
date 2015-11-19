@@ -121,7 +121,7 @@ var colorArray = function (config, d) {
             c = singleColors;
         }
 
-        if (graphicConfig.theme == "highlight") {
+        if (graphicConfig.theme == "highlight" || graphicConfig.theme == "highlighted") {
             c = highlightColors;
         }
     } else if (config.colors) {
