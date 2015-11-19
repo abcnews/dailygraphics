@@ -341,6 +341,13 @@ def add_line_chart(slug, debug=False):
     _add_graphic(slug, 'line_chart', debug)
 
 @task
+def add_pie_chart(slug, debug=False):
+    """
+    Create a pie chart.
+    """
+    _add_graphic(slug, 'pie_chart', debug)
+
+@task
 def add_dot_chart(slug):
     """
     Create a dot chart with error bars
