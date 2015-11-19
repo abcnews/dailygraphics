@@ -139,7 +139,7 @@ var renderLineChart = function(config) {
 
     var margins = {
         top: 5,
-        right: 80,
+        right: 50,
         bottom: 20,
         left: 30
     };
@@ -262,30 +262,6 @@ var renderLineChart = function(config) {
         .domain([0, colorList.length])
         .range(colorList);
 
-    /*
-     * Render the HTML legend.
-     */
-    var legend = containerElement.append('ul')
-        .attr('class', 'key')
-        .selectAll('g')
-            .data(d3.entries(formattedData))
-        .enter().append('li')
-            .attr('class', function(d, i) {
-                return 'key-item key-' + i + ' ' + classify(d['key']);
-            });
-
-    legend.append('b')
-        .style('background-color', function(d) {
-            return colorScale(d['key']);
-        });
-
-    legend.append('label')
-        .text(function(d) {
-            return d['key'];
-        });
-
-    
-
     if (graphicConfig.xLabel) margins.bottom += 20;
     if (graphicConfig.yLabel) margins.top += 20;
 
@@ -294,6 +270,11 @@ var renderLineChart = function(config) {
         .attr('height', chartHeight + margins['top'] + margins['bottom'])
         .append('g')
         .attr('transform', 'translate(' + margins['left'] + ',' + margins['top'] + ')');
+
+    var overlay = chartElement.append('rect')
+        .attr('width', chartWidth)
+        .attr('height', chartHeight)
+        .attr('fill', 'transparent');
 
     /*
      * Create D3 axes.
@@ -362,8 +343,9 @@ var renderLineChart = function(config) {
             return yScale(d[valueColumn]);
         });
 
-    chartElement.append('g')
-        .attr('class', 'lines')
+    var highlighted = graphicConfig.highlighted ? graphicConfig.highlighted.split(/\s*,\s*/) : [];
+    var lines = chartElement.append('g')
+        .attr('class', 'lines visible-lines')
         .selectAll('path')
         .data(d3.entries(formattedData))
         .enter()
@@ -372,36 +354,74 @@ var renderLineChart = function(config) {
                 return 'line line-' + i + ' ' + classify(d['key']);
             })
             .attr('stroke', function(d) {
+                if (highlighted.indexOf(d.key) !== -1) {
+                    return highlightColor;
+                }
+
                 return colorScale(d['key']);
             })
             .attr('d', function(d) {
                 return line(d['value']);
             });
 
-    chartElement.append('g')
+    if (graphicConfig.theme == "highlight") {
+        var shadowLines = chartElement.append('g')
+            .attr('class', 'lines shadow-lines')
+            .selectAll('path')
+            .data(d3.entries(formattedData))
+            .enter()
+            .append('path')
+                .attr('class', function(d, i) {
+                    return 'line line-' + i + ' ' + classify(d['key']);
+                })
+                .attr('stroke', function(d) {
+                    return "transparent";
+                })
+                .attr('d', function(d) {
+                    return line(d['value']);
+                })
+                .attr('data-index', function (d, i) { return i; })
+                .style('stroke-width', '20px');
+    }
+
+    function labelXFunc (d, i) {
+        var last = d['value'][d['value'].length - 1];
+
+        return xScale(last[dateColumn] || last['x']) + 5;
+    }
+
+    var labels = chartElement.append('g')
         .attr('class', 'value')
         .selectAll('text')
         .data(d3.entries(formattedData))
         .enter().append('text')
-            .attr('x', function(d, i) {
-                var last = d['value'][d['value'].length - 1];
-
-                return xScale(last[dateColumn] || last['x']) + 5;
+            .attr('class', function (d, i) {
+                return 'label-group label-' + i;
             })
+            .attr('x', labelXFunc)
             .attr('y', function(d) {
                 var last = d['value'][d['value'].length - 1];
 
                 return yScale(last[valueColumn]) + 3;
-            })
+            });
+
+    labels
+        .append("tspan")
+            .attr('dy', '-1em')
+            .attr('x', labelXFunc)
+            .attr('class', 'text-label')
             .text(function(d) {
+                return d.key;
+            });
+    labels
+        .append("tspan")
+            .attr('dy', '1.2em')
+            .attr('x', labelXFunc)
+            .text(function (d) {
                 var last = d['value'][d['value'].length - 1];
                 var value = last[valueColumn];
 
                 var label = numFormat(last[valueColumn]);
-
-                if (!isMobile) {
-                    label = d['key'] + ': ' + label;
-                }
 
                 return label;
             });
@@ -409,7 +429,7 @@ var renderLineChart = function(config) {
     if (graphicConfig.xLabel) {
         var t = chartElement.append("text")
             .text(graphicConfig.xLabel)
-            .attr("y", chartHeight + margins.bottom)
+            .attr("y", chartHeight + margins.bottom - 5)
             .attr("class", "axis-label");
         
         t.attr("x", (chartWidth - t.node().getComputedTextLength()) / 2)
@@ -419,8 +439,22 @@ var renderLineChart = function(config) {
         var t = chartElement.append("text")
             .text(graphicConfig.yLabel)
             .attr("x", -20)
-            .attr("y", -10)
+            .attr("y", -15)
             .attr("class", "axis-label");
+    }
+
+    if (graphicConfig.theme == "highlight") {
+        shadowLines.on("mouseover", function () {
+            var index = this.getAttribute('data-index');
+            chartElement.select(".visible-lines .line-" + index).attr('stroke', highlightColor);
+            chartElement.selectAll(".label-" + index + " tspan").attr('fill', highlightColor);
+        });
+
+        shadowLines.on("mouseout", function () {
+            var index = this.getAttribute('data-index');
+            chartElement.select(".visible-lines .line-" + index).attr('stroke', highlightColors[0]);
+            chartElement.selectAll(".label-" + index + " tspan").attr('fill', null);
+        });
     }
 }
 
