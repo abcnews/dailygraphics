@@ -335,11 +335,11 @@ def add_dot_chart(slug):
     _add_graphic(slug, 'dot_chart')
 
 @task
-def add_slopegraph(slug):
+def add_slopegraph(slug, debug=False):
     """
     Create a slopegraph (intended for narrow display)
     """
-    _add_graphic(slug, 'slopegraph')
+    _add_graphic(slug, 'slopegraph', debug)
 
 @task
 def add_map(slug):
