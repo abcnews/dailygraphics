@@ -1,5 +1,36 @@
 # Chart Builder
 
+## Common Options
+
+**theme**
+> single, monochrome, multicolor, highlight
+Use one of the themes to render the chart. Each chart type has a different default theme.
+
+- `single` - only one color, the ABC blue
+- `monochrome` -  variations of ABC blue and grey
+- `multicolor` - multiple colors designed for color blindness
+- `highlight` - Line, bar and column chart support the highlight theme that renders everything a dull grey and blue when hovered or "highlighted"
+
+**colors**
+Comma separated list of colors for each line. e.g. "red, blue, green, yellow". You can also specify the colors as RGB hex values (see http://www.colorpicker.com/) preceded with `#`. You may use the code of political parties to use our standard party colors (e.g. `ptylab, ptylib, ptynat, ptygrn`).
+
+**nocard**
+By default the chart will be displayed in the ABC card container. Add this config option with any value to remove the card.
+
+**marginTop**
+> Default: `5`
+
+Spacing at the top of the graphic in pixels.
+
+**marginRight**
+> Default: `80`
+
+**marginBottom**
+> Default: `20`
+
+**marginLeft**
+> Default: `30`
+
 ## Line Chart
 
 ### Type of X axis
@@ -9,11 +40,6 @@ Name the X axis in the data sheet `x` for ordinal data or `date` for time based 
 > Default: `4x3` on mobile, `16x9` otherwise
 
 Specify a custom aspect ratio. The graphic is responsive and resizable and will retain this ratio.
-
-**colors**
-> Default: `blue, red, yellow, orange, teal`
-
-Comma separated list of colors for each line. e.g. "red, blue, green, yellow". You can also specify the colors as RGB hex values (see http://www.colorpicker.com/) preceded with `#`.
 
 **interpolate**
 > Default: `monotone`
@@ -59,20 +85,6 @@ How many ticks on the X axis.
 > Default: `10`
 
 How many ticks on the Y axis.
-
-**marginTop**
-> Default: `5`
-
-Spacing at the top of the graphic in pixels.
-
-**marginRight**
-> Default: `80`
-
-**marginBottom**
-> Default: `20`
-
-**marginLeft**
-> Default: `30`
 
 **prefixY**
 > Default: empty string
