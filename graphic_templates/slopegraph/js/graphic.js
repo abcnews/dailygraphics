@@ -8,12 +8,14 @@ var pymChild = null;
 var isMobile = false;
 var isSidebar = false;
 var graphicData = null;
+var graphicConfig = null;
 
 /*
  * Initialize graphic
  */
 var onWindowLoaded = function() {
     if (Modernizr.svg) {
+        graphicConfig = GRAPHIC_METADATA;
         loadLocalData(GRAPHIC_DATA);
         //loadCSV('data.csv')
     } else {
@@ -104,8 +106,10 @@ var renderSlopegraph = function(config) {
     var startColumn = 'start';
     var endColumn = 'end';
 
-    var startLabel = config['metadata']['startLabel'];
-    var endLabel = config['metadata']['endLabel'];
+    var startLabel = config['metadata']['start_label'];
+    var endLabel = config['metadata']['end_label'];
+
+    console.log(config);
 
     var aspectWidth = 5;
     var aspectHeight = 3;
@@ -116,6 +120,22 @@ var renderSlopegraph = function(config) {
         bottom: 20,
         left: 40
     };
+
+    if (graphicConfig.marginTop) {
+        margins.top = parseInt(graphicConfig.marginTop, 10);
+    }
+
+    if (graphicConfig.marginRight) {
+        margins.right = parseInt(graphicConfig.marginRight, 10);
+    }
+
+    if (graphicConfig.marginBottom) {
+        margins.bottom = parseInt(graphicConfig.marginBottom, 10);
+    }
+
+    if (graphicConfig.marginLeft) {
+        margins.left = parseInt(graphicConfig.marginLeft, 10);
+    }
 
     var ticksX = 2;
     var ticksY = 10;
@@ -136,13 +156,20 @@ var renderSlopegraph = function(config) {
         margins['right'] = 145;
     }
 
-    // Calculate actual chart dimensions
-    var chartWidth = config['width'] - margins['left'] - margins['right'];
-    var chartHeight = Math.ceil((config['width'] * aspectHeight) / aspectWidth) - margins['top'] - margins['bottom'];
-
     // Clear existing graphic (for redraw)
     var containerElement = d3.select(config['container']);
     containerElement.html('');
+
+    /*
+     * Create the root SVG element.
+     */
+    var chartWrapper = containerElement.append('div')
+        .attr('class', 'graphic-wrapper');
+
+    // Calculate actual chart dimensions
+    var innerWidth = chartWrapper.node().getBoundingClientRect().width;
+    var chartWidth = innerWidth - margins['left'] - margins['right'];
+    var chartHeight = Math.ceil((config['width'] * aspectHeight) / aspectWidth) - margins['top'] - margins['bottom'];
 
     /*
      * Create D3 scale objects.
@@ -150,6 +177,8 @@ var renderSlopegraph = function(config) {
     var xScale = d3.scale.ordinal()
         .domain([startLabel, endLabel])
         .range([0, chartWidth])
+
+    console.log(startLabel, endLabel)
 
     var yScale = d3.scale.linear()
         .domain([
@@ -162,9 +191,10 @@ var renderSlopegraph = function(config) {
         ])
         .range([chartHeight, 0]);
 
+    var colorList = colorArray(graphicConfig, monochromeColors);
     var colorScale = d3.scale.ordinal()
-        .domain(_.pluck(config['data'], labelColumn))
-        .range([ COLORS['red3'], COLORS['yellow3'], COLORS['blue3'], COLORS['orange3'], COLORS['teal3'] ]);
+        .domain([0, colorList.length])
+        .range(colorList);
 
     /*
      * Create D3 axes.
@@ -184,12 +214,6 @@ var renderSlopegraph = function(config) {
         .tickFormat(function(d) {
             return d;
         });
-
-    /*
-     * Create the root SVG element.
-     */
-    var chartWrapper = containerElement.append('div')
-        .attr('class', 'graphic-wrapper');
 
     var chartElement = chartWrapper.append('svg')
         .attr('width', chartWidth + margins['left'] + margins['right'])
@@ -229,8 +253,8 @@ var renderSlopegraph = function(config) {
             .attr('y2', function(d) {
                 return yScale(d[endColumn]);
             })
-            .style('stroke', function(d) {
-                return colorScale(d[labelColumn])
+            .style('stroke', function(d, i) {
+                return colorScale(i)
             });
 
     /*
@@ -257,8 +281,8 @@ var renderSlopegraph = function(config) {
                 return classify(d[labelColumn]);
             })
             .attr('r', dotRadius)
-            .style('fill', function(d) {
-                return colorScale(d[labelColumn])
+            .style('fill', function(d, i) {
+                return colorScale(i)
             });
 
     chartElement.append('g')
@@ -275,8 +299,8 @@ var renderSlopegraph = function(config) {
                 return classify(d[labelColumn]);
             })
             .attr('r', dotRadius)
-            .style('fill', function(d) {
-                return colorScale(d[labelColumn])
+            .style('fill', function(d, i) {
+                return colorScale(i)
             });
 
     /*
