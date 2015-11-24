@@ -140,20 +140,6 @@ Width in pixels of the labels.
 
 Spacing between the label and the bar.
 
-**marginTop**
-> Default: `0`
-
-Spacing at the top of the graphic in pixels.
-
-**marginRight**
-> Default: `15`
-
-**marginBottom**
-> Default: `20`
-
-**marginLeft**
-> Default: `labelWidth + labelMargin`
-
 **maxX**
 > Default: largest value in the data rounded *up* to the nearest multiple of `roundTicksFactor`
 
@@ -178,3 +164,23 @@ A string to put in front of the ticks in the X axis. e.g. `$`.
 > Default: empty string
 
 A string to put at the end of the ticks in the X axis. e.g. `%`.
+
+## Development
+
+For local development it is easier to create debug graphics so they don't require you to setup OAuth to use Google Spreadsheets. 
+
+**Creating a debug graphic**
+
+~~~
+fab add_line_graph:graphname,debug=1
+~~~
+
+**Building a debug graphic**
+
+~~~
+fab debug_deploy:graphname,template=line_chart
+~~~
+
+**Modifying the data**
+
+There should be a xlsx file of the same name as the graphic in the graphic directory. Modify this file and run the debug_deploy command.
