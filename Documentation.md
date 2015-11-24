@@ -167,9 +167,11 @@ A string to put at the end of the ticks in the X axis. e.g. `%`.
 
 ## Development
 
-For local development it is easier to create debug graphics so they don't require you to setup OAuth to use Google Spreadsheets. 
+For local development it is easier to create debug graphics so they don't require you to setup OAuth to use Google Spreadsheets. The path of the graphics is specified in `app_config.py`. By default it is located in the directory above the dailygraphics repo in a folder called `graphics`.
 
 **Creating a debug graphic**
+
+Change directory to the dailygraphics repo before running `fab` commands.
 
 ~~~
 fab add_line_graph:graphname,debug=1
