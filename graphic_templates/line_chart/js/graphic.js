@@ -250,6 +250,8 @@ var renderLineChart = function(config) {
             return d['x']; 
         }))
         // .range([0, chartWidth]);
+
+        dateColumn = 'x';
     }
 
     var yScale = d3.scale.linear()
@@ -456,6 +458,129 @@ var renderLineChart = function(config) {
             chartElement.selectAll(".label-" + index + " tspan").attr('fill', null);
         });
     }
+
+    var tooltipWrapper = chartWrapper.append("div").attr("class", "tooltip-wrapper");
+
+    overlay.on("mousemove", function (e) {
+        var pos = d3.mouse(overlay.node());
+        var domain = xScale.domain();
+        var range = xScale.range();
+        var xVal, obj;
+
+        if (dateColumn === 'date') {
+            var x = xScale.invert(pos[0]);
+            var index = bisectDate(graphicData, x, 1);
+            obj = graphicData[index - 1];
+            var obj2 = graphicData[index];
+
+            // choose the closest object to the mouse
+            if (index < graphicData.length - 1 && x - obj.date > obj2.date - x) {
+                obj = obj2;
+            }
+
+            xVal = obj.date;
+            delete obj.date;
+            console.log("DATE", obj, xVal)
+        } else {
+            var i = d3.bisect(range, pos[0]);
+            var left = domain[i - 1];
+            var right = domain[i];
+
+            // var obj = getObjectFromArray(graphicData, dateColumn, left);
+            obj = _.clone(_.findWhere(graphicData, {x: left}));
+            xVal = left;
+
+            if (i < domain.length - 1 && pos[0] - xScale(left) > xScale(right) - pos[0]) {
+                obj = _.clone(_.findWhere(graphicData, {x: right}));
+                xVal = right;
+            }
+
+            delete obj.x;
+        }
+
+        var merged = {};
+        var visited = {};
+
+        for (var key in obj) {
+            if (visited[key]) continue;
+
+            var y1 = yScale(obj[key]);
+
+            for (var key2 in obj) {
+                if (key === key2) continue;
+
+                var y2 = yScale(obj[key2]);
+
+                // must have a gap of 40 pixels else be merged
+                var diff = y1 - y2;
+                if (Math.abs(diff) < 40) {
+                    // merge
+                    if (y1 < y2) {
+                        if (!merged[key]) merged[key] = [];
+                        merged[key].push(key2);
+                    } else {
+                        if (!merged[key2]) merged[key2] = [];
+                        merged[key2].push(key);
+                    }
+
+                    visited[key] = true;
+                    visited[key2] = true;
+                }
+            }
+        }
+
+        for (var key in obj) {
+            if (!visited[key]) {
+                merged[key] = [];
+            }
+        }
+
+        var transformed = [];
+        for (var key in merged) {
+            merged[key].unshift(key);
+            transformed.push(merged[key]);
+        }
+
+        var s = tooltipWrapper
+            .selectAll("div.tooltip")
+            .data(transformed)
+            .html(function (d) {
+                var h = "";
+                for (var i = 0; i < d.length; ++i) {
+                    h += "<div>"+d[i]+" <strong>"+obj[d[i]]+"</strong></div>"
+                }
+                return h;
+            })
+            .style("left", function (d) {
+                var offset = this.clientWidth / 2;
+                return (xScale(xVal) - offset + margins.left) + "px";
+            })
+            .style("top", function (d) {
+                return (yScale(obj[d[0]]) - this.clientHeight / 2) + "px";
+            });
+
+        s.enter()
+            .append("div")
+            .attr("class", "tooltip")
+            .html(function (d) {
+                
+                var h = "";
+                for (var i = 0; i < d.length; ++i) {
+                    h += "<div>"+d[i]+" <strong>"+obj[d[i]]+"</strong></div>"
+                }
+                return h;
+            })
+            .style("left", function (d) {
+                var offset = this.clientWidth / 2;
+                return (xScale(xVal) - offset + margins.left) + "px";
+            })
+            .style("top", function (d) {
+                return (yScale(obj[d[0]]) - this.clientHeight / 2) + "px";
+            })
+            
+        
+        s.exit().remove();
+    })
 }
 
 
