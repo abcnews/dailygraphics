@@ -10,6 +10,8 @@ var fmtYearAbbrev = d3.time.format('%y');
 var fmtYearFull = d3.time.format('%b %Y');
 var numFormat = d3.format(",");
 
+var bisectDate = d3.bisector(function(d) { return d.date; }).left;
+
 /*
  * Initialize graphic
  */
@@ -208,10 +210,12 @@ var renderLineChart = function(config) {
     var chartHeight = Math.ceil((config['width'] * aspectHeight) / aspectWidth) - margins['top'] - margins['bottom'];
 
     var formattedData = {};
+    var flatData = [];
 
     /*
      * Restructure tabular data for easier charting.
      */
+    var i = 0;
     for (var column in graphicData[0]) {
         if (column == dateColumn || column == 'x') {
             continue;
@@ -223,6 +227,17 @@ var renderLineChart = function(config) {
                 'amt': +d[column]
             };
         });
+
+        flatData = flatData.concat(graphicData.map(function(d) {
+            return {
+                'x': d[dateColumn] || d['x'],
+                'amt': +d[column],
+                'i': i,
+                'key': column
+            };
+        }));
+
+        i++;
     }
 
     /*
@@ -417,12 +432,12 @@ var renderLineChart = function(config) {
             .attr('class', function(d, i) {
                 return 'line ' + classify(d['name']);
             })
-            .attr('stroke', function(d) {
+            .attr('stroke', function(d, i) {
                 if (highlighted.indexOf(d.key) !== -1) {
                     return highlightColor;
                 }
 
-                return colorScale(d['key']);
+                return colorScale(i);
             })
             .attr('d', function(d) {
                 return line(d['values']);
@@ -530,7 +545,25 @@ var renderLineChart = function(config) {
 
     var tooltipWrapper = chartWrapper.append("div").attr("class", "tooltip-wrapper");
 
-    overlay.on("mousemove", function (e) {
+    if (graphicConfig.circleMarker !== 'off') {
+        chartElement.append('g')
+            .selectAll('circle')
+            .data(flatData)
+            .enter().append('circle')
+            .attr('r', 3.5)
+            .attr("cx", function (d) {
+                return xScale(d.x);
+            })
+            .attr("cy", function (d) {
+                return yScale(d.amt);
+            })
+            .attr("fill", function (d, i) {
+                return colorScale(d.i);
+            });
+    }
+
+    if (graphicConfig.tooltip !== 'off') {
+    chartElement.on("mousemove", function (e) {
         var pos = d3.mouse(overlay.node());
         var domain = xScale.domain();
         var range = xScale.range();
@@ -539,8 +572,8 @@ var renderLineChart = function(config) {
         if (dateColumn === 'date') {
             var x = xScale.invert(pos[0]);
             var index = bisectDate(graphicData, x, 1);
-            obj = graphicData[index - 1];
-            var obj2 = graphicData[index];
+            obj = _.clone(graphicData[index - 1]);
+            var obj2 = _.clone(graphicData[index]);
 
             // choose the closest object to the mouse
             if (index < graphicData.length - 1 && x - obj.date > obj2.date - x) {
@@ -549,7 +582,6 @@ var renderLineChart = function(config) {
 
             xVal = obj.date;
             delete obj.date;
-            console.log("DATE", obj, xVal)
         } else {
             var i = d3.bisect(range, pos[0]);
             var left = domain[i - 1];
@@ -567,16 +599,15 @@ var renderLineChart = function(config) {
             delete obj.x;
         }
 
-        var merged = {};
+        var couples = [];
         var visited = {};
-
         for (var key in obj) {
-            if (visited[key]) continue;
-
             var y1 = yScale(obj[key]);
 
             for (var key2 in obj) {
                 if (key === key2) continue;
+                if (visited[key + key2]) continue;
+                if (visited[key2 + key]) continue;
 
                 var y2 = yScale(obj[key2]);
 
@@ -584,30 +615,59 @@ var renderLineChart = function(config) {
                 var diff = y1 - y2;
                 if (Math.abs(diff) < 40) {
                     // merge
-                    if (y1 < y2) {
-                        if (!merged[key]) merged[key] = [];
-                        merged[key].push(key2);
-                    } else {
-                        if (!merged[key2]) merged[key2] = [];
-                        merged[key2].push(key);
-                    }
+                    var o = {};
+                    o[key] = y1;
+                    o[key2] = y2;
+                    couples.push(o);
 
-                    visited[key] = true;
-                    visited[key2] = true;
+                    visited[key + key2] = true;
+                    visited[key2 + key] = true;
                 }
             }
         }
 
-        for (var key in obj) {
-            if (!visited[key]) {
-                merged[key] = [];
+        var buckets = [];
+        visited = {};
+        for (var i = 0; i < couples.length; ++i) {
+            var keys = Object.keys(couples[i]);
+            var bucket;
+
+            for (var j = 0; j < buckets.length; ++j) {
+                var b = buckets[j];
+                if (b[keys[0]] || b[keys[1]]) {
+                    bucket = b;
+                }
+            }
+
+            if (!bucket) {
+                bucket = {};
+                bucket[keys[0]] = couples[i][keys[0]];
+                bucket[keys[1]] = couples[i][keys[1]];
+                buckets.push(bucket);
+            }
+
+            bucket[keys[0]] = couples[i][keys[0]];
+            bucket[keys[1]] = couples[i][keys[1]];
+            visited[keys[0]] = true;
+            visited[keys[1]] = true;
+        }
+
+        for (var k in obj) {
+            if (!visited[k]) {
+                var b = {};
+                b[k] = obj[k];
+                buckets.push(b);
             }
         }
 
         var transformed = [];
-        for (var key in merged) {
-            merged[key].unshift(key);
-            transformed.push(merged[key]);
+        for (var i = 0; i < buckets.length; ++i) {
+            var bucket = buckets[i];
+            var keys = Object.keys(bucket);
+            keys.sort(function (a, b) {
+                return bucket[a] - bucket[b];
+            });
+            transformed.push(keys);
         }
 
         var s = tooltipWrapper
@@ -649,7 +709,8 @@ var renderLineChart = function(config) {
             
         
         s.exit().remove();
-    })
+    });
+    }
 }
 
 /*
