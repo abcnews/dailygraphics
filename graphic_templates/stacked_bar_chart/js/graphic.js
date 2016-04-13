@@ -6,12 +6,14 @@ var MOBILE_THRESHOLD = 500;
 var pymChild = null;
 var isMobile = false;
 var graphicData = null;
+var graphicConfig = null;
 
 /*
  * Initialize the graphic.
  */
 var onWindowLoaded = function() {
     if (Modernizr.svg) {
+        graphicConfig = GRAPHIC_CONFIG;
         loadLocalData(GRAPHIC_DATA);
         //loadCSV('data.csv')
     } else {
@@ -165,7 +167,7 @@ var renderStackedBarChart = function(config) {
         ])
         .rangeRound([0, chartWidth]);
 
-    var colorList = colorArray(graphicConfig, singleColors);
+    var colorList = colorArray(graphicConfig, multiColors);
     var colorScale = d3.scale.ordinal()
         .domain(d3.keys(config['data'][0]).filter(function(d) {
             return d != labelColumn && d != 'values';
