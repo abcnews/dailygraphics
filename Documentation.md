@@ -110,11 +110,6 @@ Label the Y axis.
 
 ## Bar Chart
 
-**barColors**
-> Default: teal
-
-Custom fill color for bars in the bar chart. For multiple colors, separate colors with a comma.
-
 **valueGap**
 > Default: `6`
 
