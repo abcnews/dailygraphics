@@ -216,43 +216,49 @@ rect {
     background: white;
     box-shadow: 0 0 3px 1px #ccc;
     border-radius: 3px;
-}
 
-.card h1 {
-    color: #023860;
-    font-size: 20px;
-    background: #eaeaea;
-    border-top-right-radius: 3px;
-    border-top-left-radius: 3px;
-    padding: 15px;
-    margin: 0 0 10px 0;
-}
+    h1 {
+        color: #023860;
+        font-size: 20px;
+        background: #eaeaea;
+        border-top-right-radius: 3px;
+        border-top-left-radius: 3px;
+        padding: 15px;
+        margin: 0 0 10px 0;
+    }
 
-.card h2 {
-    margin: 10px;
-    font-size: 14px;
-    color: #333;
-}
+    h2 {
+        margin: 10px;
+        font-size: 14px;
+        color: #333;
+    }
 
-.card #graphic {
-    padding: 20px;
-}
+    #graphic {
+        padding: 20px;
+    }
 
-.card .footer {
-    margin-top: -10px;
-    padding-bottom: 1px;
-}
+    .footer {
+        margin-top: -10px;
+        padding-bottom: 1px;
 
-.card .footer p {
-    margin: 10px;
+        p {
+            margin: 10px;
+        }
+
+    }
+
 }
 
 @media screen and (max-width: 500px) {
-    .card #graphic {
-        padding: 0;
-    }
+    .card {
 
-    .card .key {
-        margin: 0 0 10px 10px;
+        #graphic {
+            padding: 0;
+        }
+
+        .key {
+            margin: 0 0 10px 10px;
+        }
+
     }
 }
