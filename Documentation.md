@@ -169,14 +169,28 @@ For local development it is easier to create debug graphics so they don't requir
 Change directory to the dailygraphics repo before running `fab` commands.
 
 ~~~
-fab add_line_graph:graphname,debug=1
+fab add_line_chart:graphname,debug=1
 ~~~
 
-**Building a debug graphic**
+(Alternately you can FTP down an existing graphic from NewsDev3: `/var/www/html/tools/chart-builder/graphics/` )
+
+**(Re)Building a debug graphic**
+
+This rebuilds the local copy with any graphic template changes and content changes to the xlsx file in the graphic folder.
 
 ~~~
 fab debug_deploy:graphname,template=line_chart
 ~~~
+
+**Viewing a debug graphic**
+
+Navigate to the graphic folder and run a HTTP server:
+
+~~~
+python -m SimpleHTTPServer 8000
+~~~
+
+Then visit http://localhost:8000/build
 
 **Modifying the data**
 
