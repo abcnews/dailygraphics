@@ -49,9 +49,20 @@ Specify a custom aspect ratio. The graphic is responsive and resizable and will 
 Which function to use for smoothing the lines. Common values will be "linear" and "monotone". See https://github.com/mbostock/d3/wiki/SVG-Shapes#line_interpolate
 
 **parseDateFormat**
-> Default: `%d/%m/%y`
+> Default: `%d/%m/%y` 
 
 Specify the date format the data exists in. Use this guide to construct the template: https://github.com/mbostock/d3/wiki/Time-Formatting
+
+Some common formats would be:
+
+* `%d/%m/%y` (matches day/month/year with preceeding zeros and the abbreviated year, e.g. 01/01/16 -  31/12/16) THIS IS THE DEFAULT
+* `%d/%m/%Y` (matches day/month/year with preceeding zeros and the full year, e.g. 01/01/2016 -  31/12/2016)
+* `%-d/%-m/%y` (matches day/month/year with no preceeding zeros and the abbreviated year, e.g. 1/1/16 -  31/12/16)
+* `%-d/%-m/%Y` (matches day/month/year with no preceeding zeros and the full year, e.g. 1/1/2016 -  31/12/2016)
+* `%m/%d/%y` (matches month/day/year with preceeding zeros and the abbreviated year, e.g. 01/01/16 -  12/31/16)
+* `%m/%d/%Y` (matches month/day/year with preceeding zeros and the full year, e.g. 01/01/2016 -  12/31/2016)
+* `%-m/%-d/%y` (matches month/day/year with no preceeding zeros and the abbreviated year, e.g. 1/1/16 -  12/31/16)
+* `%-m/%-d/%Y` (matches month/day/year with no preceeding zeros and the full year, e.g. 1/1/2016 -  12/31/2016)
 
 **timeFormatLarge**
 > Default: `%b %Y`
@@ -159,6 +170,10 @@ A string to put in front of the ticks in the X axis. e.g. `$`.
 > Default: empty string
 
 A string to put at the end of the ticks in the X axis. e.g. `%`.
+
+## Common issues
+
+If your data is displaying but not being plotted in the correct coordinates it is likely that you are using a date format different to the default (or the one specified by `parseDateFormat`). You can either update your dates in the data to use the default date format, or define a `parseDateFormat` that matches the date format you are using. See `parseDateFormat` section of this page for more information.
 
 ## Development
 
