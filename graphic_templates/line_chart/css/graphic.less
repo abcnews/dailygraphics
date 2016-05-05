@@ -6,6 +6,10 @@
     stroke: #ccc;
 }
 
+.point {
+    stroke-width: 4px;
+}
+
 .value text, .axis-label {
     font-size: 12px;
     font-weight: bold;
@@ -19,6 +23,14 @@ tspan.text-label {
 @media screen and (max-width: 500px) {
     .value text, .axis-label {
         font-size: 10px;
+    }
+
+    .lines {
+        stroke-width: 1.5px;
+    }
+
+    .point {
+        stroke-width: 0;
     }
 }
 
