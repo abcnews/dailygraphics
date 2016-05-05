@@ -481,7 +481,8 @@ var renderLineChart = function(config) {
             .selectAll('circle')
             .data(flatData)
             .enter().append('circle')
-            .attr('r', 3.5)
+            .attr("class", "point")
+            .attr('r', 1.5)
             .attr("cx", function (d) {
                 return xScale(d.x);
             })
@@ -489,6 +490,9 @@ var renderLineChart = function(config) {
                 return yScale(d.amt);
             })
             .attr("fill", function (d, i) {
+                return colorScale(d.i);
+            })
+            .attr("stroke", function (d, i) {
                 return colorScale(d.i);
             });
     }
