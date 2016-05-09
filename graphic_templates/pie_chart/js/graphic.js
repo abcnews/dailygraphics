@@ -147,7 +147,6 @@ var renderPieChart = function(config) {
 
     var colorList = colorArray(graphicConfig, multiColors);
     var colorScale = d3.scale.ordinal()
-        .domain([0, colorList])
         .range(colorList);
 
     var radius = chartWidth / 2 - 10;

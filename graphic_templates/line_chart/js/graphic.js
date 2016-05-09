@@ -275,7 +275,6 @@ var renderLineChart = function(config) {
 
     var colorList = colorArray(graphicConfig, monochromeColors);
     var colorScale = d3.scale.ordinal()
-        .domain([0, colorList.length])
         .range(colorList);
 
     if (graphicConfig.xLabel) margins.bottom += 20;

@@ -217,7 +217,6 @@ var renderBarChart = function(config) {
 
     var colorList = colorArray(graphicConfig, singleColors);
     var colorScale = d3.scale.ordinal()
-        .domain([0, colorList])
         .range(colorList);
 
     /*
