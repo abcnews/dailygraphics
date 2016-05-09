@@ -147,14 +147,13 @@
 
         <div class="right">
 
-                {% if COPY_GOOGLE_DOC_KEY %}
-                {% if COPY_GOOGLE_DOC_KEY != 'None' %}
-                <div class="segment">
-                    <a class="btn" href="https://docs.google.com/spreadsheets/d/{{ COPY_GOOGLE_DOC_KEY }}/edit" target="_blank">spreadsheet &raquo;</a>
-                </div>
-                {% endif %}
-                {% endif %}
-            
+            {% if COPY_GOOGLE_DOC_KEY %}
+            {% if COPY_GOOGLE_DOC_KEY != 'None' %}
+            <div class="segment">
+                <a class="btn" href="https://docs.google.com/spreadsheets/d/{{ COPY_GOOGLE_DOC_KEY }}/edit" target="_blank">Google Sheet &raquo;</a>
+            </div>
+            {% endif %}
+            {% endif %}
         </div>
     </header>
 
