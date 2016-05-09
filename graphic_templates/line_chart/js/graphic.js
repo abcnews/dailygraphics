@@ -9,8 +9,6 @@ var graphicData = null;
 var graphicConfig = null;
 
 // D3 formatters
-var fmtYearAbbrev = d3.time.format('%y');
-var fmtYearFull = d3.time.format('%b\n%Y');
 var numFormat = d3.format(",");
 
 var bisectDate = d3.bisector(function(d) { return d.date; }).left;
@@ -21,15 +19,6 @@ var bisectDate = d3.bisector(function(d) { return d.date; }).left;
 var onWindowLoaded = function() {
     if (Modernizr.svg) {
         graphicConfig = GRAPHIC_CONFIG;
-        
-        if (graphicConfig.timeFormatLarge) {
-            fmtYearFull = d3.time.format(graphicConfig.timeFormatLarge);
-        }
-
-        if (graphicConfig.timeFormatSmall) {
-            fmtYearAbbrev = d3.time.format(graphicConfig.timeFormatSmall);
-        }
-
         loadLocalData(GRAPHIC_DATA);
     } else {
         pymChild = new pym.Child({});
@@ -243,13 +232,9 @@ var renderLineChart = function(config) {
     if (graphicData[0]['date']) {
 
         if (!isMobile && graphicConfig.timeFormatLarge) {
-            xFormat = function(d, i) {
-                return fmtYearFull(d);
-            };
+            xFormat = d3.time.format(graphicConfig.timeFormatLarge);
         } else if (isMobile && graphicConfig.timeFormatSmall) {
-            xFormat = function(d, i) {
-                return fmtYearAbbrev(d);
-            };
+            xFormat = d3.time.format(graphicConfig.timeFormatSmall);
         } else {
             xFormat = d3.time.format.multi([
                 [".%L", function(d) { return d.getMilliseconds(); }],
