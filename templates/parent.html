@@ -114,9 +114,14 @@
         }
 
         textarea {
+            font-family: Menlo, monospace;
             display: block;
             margin-bottom: 20px;
             width: 100%;
+        }
+
+        textarea.big {
+            font-size: 1.5em;
         }
     </style>
 </head>
@@ -164,8 +169,8 @@
             </div>
         </div>
 
-        <h2><span class="production">Embedded URL</span></h2>
-        <p><big>http://www.abc.net.au/news/interactives/chart/?chart={{ slug }}</big></p>
+        <h2><span class="production">Embed URL</span></h2>
+        <textarea readonly="readonly" rows="1" class="big">http://www.abc.net.au/news/interactives/chart/?chart={{ slug }}</textarea>
 
         <h2>Embed HTML</h2>
 
