@@ -1,6 +1,4 @@
 // Global config
-var GRAPHIC_DEFAULT_WIDTH = 600;
-var MOBILE_THRESHOLD = 500;
 var SIDEBAR_THRESHOLD = 280;
 
 // Global vars
@@ -48,14 +46,16 @@ var loadCSV = function(url) {
         pymChild = new pym.Child({
             renderCallback: render
         });
-    });
+    } else {
+        pymChild = new pym.Child({});
+    }
 }
 
 /*
  * Format graphic data for processing by D3.
  */
 var formatData = function() {
-    graphicData.forEach(function(d) {
+    DATA.forEach(function(d) {
         d['start'] = +d['start'];
         d['end'] = +d['end'];
     });
@@ -66,7 +66,7 @@ var formatData = function() {
  */
 var render = function(containerWidth) {
     if (!containerWidth) {
-        containerWidth = GRAPHIC_DEFAULT_WIDTH;
+        containerWidth = DEFAULT_WIDTH;
     }
 
     if (containerWidth <= MOBILE_THRESHOLD) {
@@ -83,10 +83,10 @@ var render = function(containerWidth) {
 
     // Render the chart!
     renderSlopegraph({
-        container: '#graphic',
+        container: '#slopegraph',
         width: containerWidth,
-        data: graphicData,
-        metadata: GRAPHIC_METADATA
+        data: DATA,
+        labels: LABELS
     });
 
     // Update iframe
@@ -108,8 +108,6 @@ var renderSlopegraph = function(config) {
 
     var startLabel = config['metadata']['start_label'];
     var endLabel = config['metadata']['end_label'];
-
-    console.log(config);
 
     var aspectWidth = 5;
     var aspectHeight = 3;
@@ -178,17 +176,18 @@ var renderSlopegraph = function(config) {
         .domain([startLabel, endLabel])
         .range([0, chartWidth])
 
-    console.log(startLabel, endLabel)
+    var min = d3.min(config['data'], function(d) {
+        var rowMin = d3.min([d[startColumn], d[endColumn]]);
+        return Math.floor(rowMin / roundTicksFactor) * roundTicksFactor;
+    });
+
+    var max = d3.max(config['data'], function(d) {
+        var rowMax = d3.max([d[startColumn], d[endColumn]]);
+        return Math.ceil(rowMax / roundTicksFactor) * roundTicksFactor;
+    });
 
     var yScale = d3.scale.linear()
-        .domain([
-            d3.min(config['data'], function(d) {
-                return Math.floor(d[startColumn] / roundTicksFactor) * roundTicksFactor;
-            }),
-            d3.max(config['data'], function(d) {
-                return Math.ceil(d[endColumn] / roundTicksFactor) * roundTicksFactor;
-            })
-        ])
+        .domain([min, max])
         .range([chartHeight, 0]);
 
     var colorList = colorArray(graphicConfig, monochromeColors);
@@ -324,10 +323,10 @@ var renderSlopegraph = function(config) {
             })
             .text(function(d) {
                 if (isSidebar) {
-                    return d[endColumn].toFixed(0) + '%';
+                    return d[startColumn].toFixed(0) + '%';
                 }
 
-                return d[startColumn] + '%';
+                return d[startColumn].toFixed(1) + '%';
             });
 
     chartElement.append('g')
@@ -351,7 +350,7 @@ var renderSlopegraph = function(config) {
                     return d[endColumn].toFixed(0) + '%';
                 }
 
-                return d[endColumn] + '%';
+                return d[endColumn].toFixed(1) + '%';
             });
 
     /*

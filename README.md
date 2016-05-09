@@ -15,6 +15,7 @@ dailygraphics
 * [Using Jinja filter functions](#using-jinja-filter-functions)
 * [Storing media assets](#storing-media-assets)
 * [Creating locator maps](#creating-locator-maps)
+* [Creating animated photos](#creating-animated-photos)
 * [Adding a new graphic template](#adding-a-new-graphic-template)
 * [Keeping the graphics directory clean](#keeping-the-graphics-directory-clean)
 
@@ -216,6 +217,8 @@ Build out your graphic in ```child_template.html```, and put your javascript in 
 | ![Locator map](https://raw.githubusercontent.com/nprapps/dailygraphics/master/graphic_templates/_thumbs/locator-map.png) | [Locator map](#creating-locator-maps) | ```fab add_map:$SLUG``` |
 | ![State grid map](https://raw.githubusercontent.com/nprapps/dailygraphics/master/graphic_templates/_thumbs/state-grid-map.png) | State grid map | ```fab add_state_grid_map:$SLUG``` |
 | ![Table](https://raw.githubusercontent.com/nprapps/dailygraphics/master/graphic_templates/_thumbs/table.png) | Responsive HTML table | ```fab add_table:$SLUG``` |
+| ![Issue Matrix](https://raw.githubusercontent.com/nprapps/dailygraphics/master/graphic_templates/_thumbs/issue-matrix.png) | A table comparing a list of candidates' positions on various issues | ```fab add_issue_matrix:$SLUG``` |
+| ![Animated photo](https://raw.githubusercontent.com/nprapps/dailygraphics/master/graphic_templates/_thumbs/animated-photo.gif) | Animated photo (GIF alternative) | ```fab add_animated_photo:$SLUG``` |
 
 **Note**: `$SLUG` should be URL-safe, e.g., lowercase and with dashes instead of spaces and no special characters.
 
@@ -233,7 +236,7 @@ When you create a new project, dailygraphics will check against your local proje
 Deploy to S3
 ------------
 
-When it's time to publish your graphic, it's better to deploy a single graphic rather than the entire repo, to minimize the risk of publishing edits that aren't yet ready to go live.
+When it's time to publish your graphic, it's better to deploy a specific graphic rather than the entire repo, to minimize the risk of publishing edits that aren't yet ready to go live.
 
 To deploy a specific graphic:
 
@@ -242,6 +245,16 @@ fab staging deploy:$SLUG
 ```
 ```
 fab production deploy:$SLUG
+```
+
+You can deploy multiple graphics with a single command by passing the
+slugs as a comma-separated list (no spaces). To deploy multiple graphics at once:
+
+```
+fab staging deploy:$SLUG1,$SLUG2
+```
+```
+fab production deploy:$SLUG1,$SLUG2
 ```
 
 
@@ -288,7 +301,7 @@ Using Jinja filter functions
 
 A [library of Jinja filter functions](https://github.com/nprapps/dailygraphics/blob/master/graphic_templates/_base/base_filters.py) for common tasks (ordinal, AP date format, etc.) is included with each graphic.
 
-If you're graphic requires complex number formatting or other nuanced presentation, you may need to write a custom filter function. This is supported through each project's ``graphic_config.py`` file. To add a custom filter function, simply define it and add it to the list called ``JINJA_FILTER_FUNCTIONS``, like so:
+If your graphic requires complex number formatting or other nuanced presentation, you may need to write a custom filter function. This is supported through each project's ``graphic_config.py`` file. To add a custom filter function, simply define it and add it to the list called ``JINJA_FILTER_FUNCTIONS``, like so:
 
 ```python
 def percent(value):
@@ -360,10 +373,67 @@ mapturner geodata.yaml data/geodata.json
 
 In your project ```js/graphic.js``` folder, change the ```PRIMARY_COUNTRY``` variable at the top from Nepal to the name of your featured country. You will also want to adjust the ```MAP_DEFAULT_SCALE``` and ```MAP_DEFAULT_HEIGHT``` variables so that your featured country fits onscreen.
 
+Creating animated photos
+------------------------
+
+The animated photo template uses the [canvid](https://github.com/gka/canvid) JavaScript library as an alternative to GIFs. With this solution, you composite a "filmstrip" of all the frames in your animation, and canvid plays them back in sequence on a canvas element. [See an example on NPR.org.](http://www.npr.org/2015/11/05/453239276/in-the-amazons-fire-season-you-either-burn-or-you-starve#res454735072)
+
+Benefits of this approach:
+
+* You can use JPGs rather than GIFs, allowing you to have better image quality _and_ smaller file sizes.
+* You can sub out different-sized images depending on the browser dimensions.
+* You can control playback -- play, pause, reverse, etc.
+* It will autoplay on iOS (unlike a video).
+
+Since it's code-based, it's not quite as portable as a GIF. (So our script that creates the filmstrips also [generates a GIF version](https://github.com/nprapps/dailygraphics/blob/master/graphic_templates/animated_photo/process.sh#L12-L15) for social media.) But in the context of a web page that you otherwise control, the benefits are pretty great. (A similar but more code-intensive approach: [Filmstrip animations with CSS/JS](http://blog.apps.npr.org/2014/01/08/animation-with-filmstrips.html).)
+
+This template relies on [ImageMagick](http://www.imagemagick.org/script/montage.php)'s montage function to create the filmstrip image and animated GIF. If you don't have it, install it with:
+
+```
+brew install imagemagick
+```
+
+To create a new animated photo, run:
+
+```
+fab add_animated_photo:$slug
+```
+
+Add the frames for your animation to `img/frames/` (in your project folder). (An image sequence from NASA is in there as an example. You can delete those.) All frames must be the same size.
+
+Then, on the command line, navigate to your project folder and run the image processing script to create filmstrips at three different sizes.
+
+```
+bash process.sh
+```
+
+In `js/graphic.js`, you will need to edit two lines of code.
+
+First, update the number of frames, columns and speed of your animation.
+
+```
+videos: {
+    // frames = # of stills
+    // cols = # of stills in a row in the filmstrip. in this case,
+    //        same as frames.
+    // fps = frames per second (animation speed). integers only
+    photo: { src: sprite, frames: 8, cols: 8, fps: 2 }
+```
+
+Second, adjust the image aspect ratio (so it scales correctly in the browser). If you do not know the exact aspect ratio (like 16:9, etc.), enter the height and width (in that order) of one of your frames.
+
+```
+// multiply by height, width of original image
+height: Math.floor(containerWidth * 1614/1500),
+```
+
+
 Adding a new graphic template
 -----------------------------
 
-To create and use a new graphic template, you will need to follow several steps. First, choose a suitable existing template and copy it's folder, for instance:
+To create and use a new graphic template, you will need to follow several steps:
+
+First, choose a suitable existing template and copy its folder. For example:
 
 ```
 cd graphic_templates
@@ -372,7 +442,7 @@ cp -r line_chart scatterplot
 
 Second, open the COPY Google Spreadsheet for the pre-existing graphic template ("line_chart" in the example above). Make a copy of this document and adjust the headline in the copy to match the new chart type. Be sure to make this new spreadsheet public. (Share > Get Shareable Link > Can View). Copy the key for the new spreadsheet from the URL and paste it into the `graphic_config.py` for your new template.
 
-Third, modify the new template to render your new chart type. Be sure to remove any dependencies you don't need for this graphic type. You can test your graphic template using the local server, for instance: [http://localhost:8000/templates/scatterplot/?refresh=1](http://localhost:8000/templates/scatterplot/?refresh=1)
+Third, modify the new template to render your new chart type. Remove any dependencies you don't need for this graphic type. You can test your graphic template using the local server, for instance: [http://localhost:8000/templates/scatterplot/?refresh=1](http://localhost:8000/templates/scatterplot/?refresh=1)
 
 Before you can use your new template you'll also need to add a fab command. In ``fabfile/__init__.py`` scroll down to the tasks for creating graphics and add a task for your new template, like this:
 
@@ -385,7 +455,7 @@ def add_scatterplot(slug):
     _add_graphic(slug, 'scatterplot')
 ```
 
-Lastly, commit your new graphic template and your fabfile changes. Your new graphic template is now ready to use.
+Finally, commit your new graphic template and your fabfile changes. Your new graphic template is now ready to use.
 
 Keeping the graphics directory clean
 ------------------------------------
@@ -396,7 +466,7 @@ If you are working with multiple users who are creating/deleting graphics, you m
 git clean -dn
 ```
 
-This will list folders with no committed files. To permanantly delete those folders, run:
+This will list folders with no committed files. To permenantly delete those folders, run:
 
 ```
 git clean -df

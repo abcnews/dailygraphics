@@ -1,7 +1,3 @@
-// Global config
-var GRAPHIC_DEFAULT_WIDTH = 600;
-var MOBILE_THRESHOLD = 500;
-
 // Global vars
 var pymChild = null;
 var isMobile = false;
@@ -47,14 +43,16 @@ var loadCSV = function(url) {
         pymChild = new pym.Child({
             renderCallback: render
         });
-    });
+    } else {
+        pymChild = new pym.Child({});
+    }
 }
 
 /*
  * Format graphic data for processing by D3.
  */
 var formatData = function() {
-    graphicData.forEach(function(d) {
+    DATA.forEach(function(d) {
         d['key'] = d['Group'];
         d['values'] = [];
 
@@ -76,7 +74,7 @@ var formatData = function() {
  */
 var render = function(containerWidth) {
     if (!containerWidth) {
-        containerWidth = GRAPHIC_DEFAULT_WIDTH;
+        containerWidth = DEFAULT_WIDTH;
     }
 
     if (containerWidth <= MOBILE_THRESHOLD) {
@@ -87,9 +85,9 @@ var render = function(containerWidth) {
 
     // Render the chart!
     renderGroupedBarChart({
-        container: '#graphic',
+        container: '#grouped-bar-chart',
         width: containerWidth,
-        data: graphicData
+        data: DATA
     });
 
     // Update iframe
@@ -145,7 +143,6 @@ var renderGroupedBarChart = function(config) {
     var ticksX = parseInt(graphicConfig.ticksX || 7, 10);
     var roundTicksFactor = parseInt(graphicConfig.roundTicksFactor || 5, 10);
 
-   
     // Clear existing graphic (for redraw)
     var containerElement = d3.select(config['container']);
     containerElement.html('');
@@ -162,9 +159,23 @@ var renderGroupedBarChart = function(config) {
     var chartHeight = (((((barHeight + barGapInner) * numGroupBars) - barGapInner) + barGap) * numGroups) - barGap + barGapInner;
 
     chartHeight = (groupHeight + 20) * (numGroups - 1);
+
     /*
      * Create D3 scale objects.
-     */  
+     */
+    var chartWrapper = containerElement.append('div')
+        .attr('class', 'graphic-wrapper');
+
+     // Calculate actual chart dimensions
+    var innerWidth = chartWrapper.node().getBoundingClientRect().width;
+    var chartWidth = innerWidth - margins['left'] - margins['right'];
+    var chartHeight = (((((barHeight + barGapInner) * numGroupBars) - barGapInner) + barGap) * numGroups) - barGap + barGapInner;
+
+    chartHeight = (groupHeight + 20) * (numGroups - 1);
+
+    /*
+     * Create D3 scale objects.
+     */
     var min = d3.min(config['data'], function(d) {
         return d3.min(d['values'], function(v) {
             return Math.floor(v[valueColumn] / roundTicksFactor) * roundTicksFactor;
@@ -172,7 +183,7 @@ var renderGroupedBarChart = function(config) {
     });
 
     if ('minX' in graphicConfig) {
-        min = parseFloat(graphicConfig.minX, 10);  
+        min = parseFloat(graphicConfig.minX, 10);
     } else if (min > 0) {
         min = 0;
     }
@@ -181,7 +192,7 @@ var renderGroupedBarChart = function(config) {
         return d3.max(d['values'], function(v) {
             return Math.ceil(v[valueColumn] / roundTicksFactor) * roundTicksFactor;
         });
-    })
+    });
 
     if ('maxX' in graphicConfig) {
         max = parseFloat(graphicConfig.maxX, 10);
@@ -201,7 +212,7 @@ var renderGroupedBarChart = function(config) {
     var colorScale = d3.scale.ordinal()
         .domain(_.pluck(config['data'][0]['values'], labelColumn))
         .range(colorList);
-    
+
     var chartElement = chartWrapper.append('svg')
         .attr('width', chartWidth + margins['left'] + margins['right'])
         .attr('height', chartHeight + margins['top'] + margins['bottom'])
@@ -297,6 +308,18 @@ var renderGroupedBarChart = function(config) {
             labelData.push(e.label)
         });
     });
+
+    /*
+     * Render 0-line.
+     */
+    if (min < 0) {
+        chartElement.append('line')
+            .attr('class', 'zero-line')
+            .attr('x1', xScale(0))
+            .attr('x2', xScale(0))
+            .attr('y1', 0)
+            .attr('y2', chartHeight);
+    }
 
     /*
      * Render bar labels.

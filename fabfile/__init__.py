@@ -73,15 +73,22 @@ has two primary functions: Pushing flat files to S3 and deploying
 code to a remote server if required.
 """
 @task
-def deploy(slug):
+def deploy(*slugs):
     """
-    Deploy the latest app to S3 and, if configured, to our servers.
+    Deploy the latest app(s) to S3 and, if configured, to our servers.
+    """
+    if slugs[0] == '':
+        print 'You must specify at least one slug, like this: "deploy:slug" or "deploy:slug,slug"'
+        return
+
+    for slug in slugs:
+        deploy_single(slug)
+
+def deploy_single(slug):
+    """
+    Deploy a single project to S3 and, if configured, to our servers.
     """
     require('settings', provided_by=[production, staging])
-
-    if not slug:
-        print 'You must specify a project slug, like this: "deploy:slug"'
-        return
 
     graphic_root = '%s/%s' % (app_config.GRAPHICS_PATH, slug)
     s3_root = '%s/graphics/%s' % (app_config.PROJECT_SLUG, slug)
@@ -243,8 +250,7 @@ def _check_slug(slug):
         return True
 
     try:
-        s3 = boto.connect_s3()
-        bucket = s3.get_bucket(app_config.PRODUCTION_S3_BUCKET['bucket_name'])
+        bucket = utils.get_bucket(app_config.PRODUCTION_S3_BUCKET['bucket_name'])
         key = bucket.get_key('%s/graphics/%s/child.html' % (app_config.PROJECT_SLUG, slug))
 
         if key:
@@ -263,6 +269,20 @@ def add_graphic(slug):
     Create a basic project.
     """
     _add_graphic(slug, 'graphic')
+
+@task
+def add_animated_photo(slug):
+    """
+    Create a new animated photo (GIF alternative).
+    """
+    _add_graphic(slug, 'animated_photo')
+
+@task
+def add_archive_graphic(slug):
+    """
+    Create a shell to archive an old project.
+    """
+    _add_graphic(slug, 'archive_graphic')
 
 @task
 def add_bar_chart(slug, debug=False):
@@ -354,6 +374,13 @@ def add_table(slug):
     Create a data table.
     """
     _add_graphic(slug, 'table')
+
+@task
+def add_issue_matrix(slug):
+    """
+    Create a table comparing positions on an issue.
+    """
+    _add_graphic(slug, 'issue_matrix')
 
 def _check_credentials():
     """

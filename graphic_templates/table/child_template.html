@@ -2,17 +2,29 @@
 
 {% block content %}
 
-    {% if COPY.labels.headline %}<h1>{{ COPY.labels.headline }}</h1>{% endif %}
-    {% if COPY.labels.subhed %}<h2>{{ render(COPY.labels.subhed) }}</h2>{% endif %}
+    {% if COPY.labels.headline %}<h1>{{ COPY.labels.headline|smarty }}</h1>{% endif %}
+    {% if COPY.labels.subhed %}<h2>{{ render(COPY.labels.subhed)|smarty }}</h2>{% endif %}
 
-    <div id="graphic">
-        <table>
+    <div class="graphic">
+        <table id="state-table">
             <thead>
                 <tr>
-                    <th>{{ COPY.labels.hdr_state }}</th>
-                    <th>{{ COPY.labels.hdr_usps }}</th>
-                    <th>{{ COPY.labels.hdr_ap }}</th>
-                    <th class="amt">{{ COPY.labels.hdr_value }}</th>
+                    <th>
+                        <div class="sorter"><div class="icon"></div></div>
+                        <div class="header">{{ COPY.labels.hdr_state }}</div>
+                    </th>
+                    <th>
+                        <div class="sorter"><div class="icon"></div></div>
+                        <div class="header">{{ COPY.labels.hdr_usps }}</div>
+                    </th>
+                    <th>
+                        <div class="sorter"><div class="icon"></div></div>
+                        <div class="header">{{ COPY.labels.hdr_ap }}</div>
+                    </th>
+                    <th class="amt">
+                        <div class="sorter"><div class="icon"></div></div>
+                        <div class="header">{{ COPY.labels.hdr_value }}</div>
+                    </th>
                 </tr>
             </thead>
 
@@ -31,19 +43,21 @@
     {% if COPY.labels.footnote %}
     <div class="footnotes">
         <h4>Notes</h4>
-        <p>{{ COPY.labels.footnote }}</p>
+        <p>{{ COPY.labels.footnote|smarty }}</p>
     </div>
     {% endif %}
 
     <div class="footer">
-        {% if COPY.labels.source %}<p>Source: {{ COPY.labels.source }}</p>{% endif %}
-        {% if COPY.labels.credit %}<p>Credit: {{ COPY.labels.credit }}</p>{% endif %}
+        {% if COPY.labels.source %}<p>Source: {{ COPY.labels.source|smarty }}</p>{% endif %}
+        {% if COPY.labels.credit %}<p>Credit: {{ COPY.labels.credit|smarty }}</p>{% endif %}
     </div>
 
 {% endblock content %}
 
 {% block js %}
 
+    {{ JS.push('js/lib/tablesort.js') }}
+    {{ JS.push('js/lib/tablesort.numeric.js') }}
     {{ JS.push('js/lib/pym.js') }}
     {{ JS.push('js/graphic.js') }}
     {{ JS.render('js/graphic-footer.js') }}
