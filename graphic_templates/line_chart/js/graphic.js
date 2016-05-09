@@ -170,8 +170,8 @@ var renderLineChart = function(config) {
     if (isMobile) {
         ticksX = 5;
         ticksY = 5;
-        margins['right'] = 45;
-    }    
+        margins.right = margins.right * 0.9;
+    }
 
     // Clear existing graphic (for redraw)
     var containerElement = d3.select(config['container']);
