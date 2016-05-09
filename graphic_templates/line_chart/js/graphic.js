@@ -142,7 +142,7 @@ var renderLineChart = function(config) {
     var margins = {
         top: 5,
         right: 50,
-        bottom: 20,
+        bottom: 35,
         left: 30
     };
 
@@ -241,6 +241,7 @@ var renderLineChart = function(config) {
     var xScale;
 
     if (graphicData[0]['date']) {
+        /*
         xFormat = function(d, i) {
             if (isMobile) {
                 return fmtYearAbbrev(d);
@@ -248,6 +249,18 @@ var renderLineChart = function(config) {
                 return fmtYearFull(d);
             }
         };
+        */
+
+        xFormat = d3.time.format.multi([
+          [".%L", function(d) { return d.getMilliseconds(); }],
+          [":%S", function(d) { return d.getSeconds(); }],
+          ["%-I:%M", function(d) { return d.getMinutes(); }],
+          ["%-I\n%p", function(d) { return d.getHours(); }],
+          ["%a\n%-d", function(d) { return d.getDay() && d.getDate() != 1; }],
+          ["%b\n%-d", function(d) { return d.getDate() != 1; }],
+          ["%B", function(d) { return d.getMonth(); }],
+          ["%Y", function() { return true; }]
+        ]);
 
         xScale = d3.time.scale()
         .domain(d3.extent(config['data'], function(d) {
@@ -646,6 +659,22 @@ var renderLineChart = function(config) {
         s.exit().remove();
     });
     }
+
+    // Finds "\n" in text and splits it into tspans
+    var insertLinebreaks = function () {
+        var el = d3.select(this);
+        var words = el.text().split("\n");
+        el.text('');
+
+        for (var i = 0; i < words.length; i++) {
+            var tspan = el.append('tspan').text(words[i]);
+            if (i > 0) {
+                tspan.attr('x', 0).attr('dy', '1em');
+            }
+        }
+    };
+
+    chartWrapper.selectAll('g.x.axis g text').each(insertLinebreaks);
 }
 
 
