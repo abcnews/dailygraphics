@@ -50,19 +50,19 @@ var highlightColors = [
 var highlightColor = '#478CCC';
 
 /*
-* Convert arbitrary strings to valid css classes.
-* via: https://gist.github.com/mathewbyrne/1280286
-*
-* NOTE: This implementation must be consistent with the Python classify
-* function defined in base_filters.py.
-*/
+ * Convert arbitrary strings to valid css classes.
+ * via: https://gist.github.com/mathewbyrne/1280286
+ *
+ * NOTE: This implementation must be consistent with the Python classify
+ * function defined in base_filters.py.
+ */
 var classify = function(str) {
     return str.toLowerCase()
-       .replace(/\s+/g, '-')           // Replace spaces with -
-       .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
-       .replace(/\-\-+/g, '-')         // Replace multiple - with single -
-       .replace(/^-+/, '')             // Trim - from start of text
-       .replace(/-+$/, '');            // Trim - from end of text
+        .replace(/\s+/g, '-')           // Replace spaces with -
+        .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
+        .replace(/\-\-+/g, '-')         // Replace multiple - with single -
+        .replace(/^-+/, '')             // Trim - from start of text
+        .replace(/-+$/, '');            // Trim - from end of text
 }
 
 /*

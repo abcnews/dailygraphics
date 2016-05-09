@@ -126,7 +126,7 @@ var renderBarChart = function(config) {
     var ticksX = parseInt(graphicConfig.ticksX || 4, 10);
     var roundTicksFactor = parseInt(graphicConfig.roundTicksFactor || 5, 10);
 
-    
+
 
     // Clear existing graphic (for redraw)
     var containerElement = d3.select(config['container']);

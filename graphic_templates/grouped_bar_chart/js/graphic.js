@@ -143,7 +143,6 @@ var renderGroupedBarChart = function(config) {
     var ticksX = parseInt(graphicConfig.ticksX || 7, 10);
     var roundTicksFactor = parseInt(graphicConfig.roundTicksFactor || 5, 10);
 
-   
     // Clear existing graphic (for redraw)
     var containerElement = d3.select(config['container']);
     containerElement.html('');
@@ -160,6 +159,20 @@ var renderGroupedBarChart = function(config) {
     var chartHeight = (((((barHeight + barGapInner) * numGroupBars) - barGapInner) + barGap) * numGroups) - barGap + barGapInner;
 
     chartHeight = (groupHeight + 20) * (numGroups - 1);
+
+    /*
+     * Create D3 scale objects.
+     */
+    var chartWrapper = containerElement.append('div')
+        .attr('class', 'graphic-wrapper');
+
+     // Calculate actual chart dimensions
+    var innerWidth = chartWrapper.node().getBoundingClientRect().width;
+    var chartWidth = innerWidth - margins['left'] - margins['right'];
+    var chartHeight = (((((barHeight + barGapInner) * numGroupBars) - barGapInner) + barGap) * numGroups) - barGap + barGapInner;
+
+    chartHeight = (groupHeight + 20) * (numGroups - 1);
+
     /*
      * Create D3 scale objects.
      */
@@ -199,7 +212,7 @@ var renderGroupedBarChart = function(config) {
     var colorScale = d3.scale.ordinal()
         .domain(_.pluck(config['data'][0]['values'], labelColumn))
         .range(colorList);
-    
+
     var chartElement = chartWrapper.append('svg')
         .attr('width', chartWidth + margins['left'] + margins['right'])
         .attr('height', chartHeight + margins['top'] + margins['bottom'])

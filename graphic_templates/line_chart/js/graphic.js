@@ -311,7 +311,6 @@ var renderLineChart = function(config) {
         .domain([ minY, maxY ])
         .range([ chartHeight, 0 ]);
 
-
     var colorList = colorArray(graphicConfig, monochromeColors);
     var colorScale = d3.scale.ordinal()
         .domain(d3.keys(config['data'][0]).filter(function(key) {
@@ -340,6 +339,11 @@ var renderLineChart = function(config) {
         .text(function(d) {
             return d['name'];
         });
+
+    var colorList = colorArray(graphicConfig, monochromeColors);
+    var colorScale = d3.scale.ordinal()
+        .domain([0, colorList.length])
+        .range(colorList);
 
     if (graphicConfig.xLabel) margins.bottom += 20;
     if (graphicConfig.yLabel) margins.top += 20;
@@ -524,6 +528,211 @@ var renderLineChart = function(config) {
             .attr("x", -20)
             .attr("y", -15)
             .attr("class", "axis-label");
+    }
+
+    if (graphicConfig.theme == "highlight") {
+        shadowLines.on("mouseover", function () {
+            var index = this.getAttribute('data-index');
+            chartElement.select(".visible-lines .line-" + index).attr('stroke', highlightColor);
+            chartElement.selectAll(".label-" + index + " tspan").attr('fill', highlightColor);
+        });
+
+        shadowLines.on("mouseout", function () {
+            var index = this.getAttribute('data-index');
+            chartElement.select(".visible-lines .line-" + index).attr('stroke', highlightColors[0]);
+            chartElement.selectAll(".label-" + index + " tspan").attr('fill', null);
+        });
+    }
+
+    var tooltipWrapper = chartWrapper.append("div").attr("class", "tooltip-wrapper");
+
+    if (graphicConfig.circleMarker !== 'off') {
+        chartElement.append('g')
+            .selectAll('circle')
+            .data(flatData)
+            .enter().append('circle')
+            .attr("class", "point")
+            .attr('r', 1.5)
+            .attr("cx", function (d) {
+                return xScale(d.x);
+            })
+            .attr("cy", function (d) {
+                return yScale(d.amt);
+            })
+            .attr("fill", function (d, i) {
+                return colorScale(d.i);
+            })
+            .attr("stroke", function (d, i) {
+                return colorScale(d.i);
+            });
+    }
+
+    if (graphicConfig.tooltip !== 'off') {
+    chartElement.on("mousemove", function (e) {
+        var pos = d3.mouse(overlay.node());
+        var domain = xScale.domain();
+        var range = xScale.range();
+        var xVal, obj;
+
+        if (dateColumn === 'date') {
+            var x = xScale.invert(pos[0]);
+            var index = bisectDate(graphicData, x, 1);
+            obj = _.clone(graphicData[index - 1]);
+            var obj2 = _.clone(graphicData[index]);
+
+            // choose the closest object to the mouse
+            if (index < graphicData.length - 1 && x - obj.date > obj2.date - x) {
+                obj = obj2;
+            }
+
+            xVal = obj.date;
+            delete obj.date;
+        } else {
+            var i = d3.bisect(range, pos[0]);
+            var left = domain[i - 1];
+            var right = domain[i];
+
+            // var obj = getObjectFromArray(graphicData, dateColumn, left);
+            obj = _.clone(_.findWhere(graphicData, {x: left}));
+            xVal = left;
+
+            if (i < domain.length - 1 && pos[0] - xScale(left) > xScale(right) - pos[0]) {
+                obj = _.clone(_.findWhere(graphicData, {x: right}));
+                xVal = right;
+            }
+
+            delete obj.x;
+        }
+
+        var couples = [];
+        var visited = {};
+        for (var key in obj) {
+            var y1 = yScale(obj[key]);
+
+            for (var key2 in obj) {
+                if (key === key2) continue;
+                if (visited[key + key2]) continue;
+                if (visited[key2 + key]) continue;
+
+                var y2 = yScale(obj[key2]);
+
+                // must have a gap of 40 pixels else be merged
+                var diff = y1 - y2;
+                if (Math.abs(diff) < 40) {
+                    // merge
+                    var o = {};
+                    o[key] = y1;
+                    o[key2] = y2;
+                    couples.push(o);
+
+                    visited[key + key2] = true;
+                    visited[key2 + key] = true;
+                }
+            }
+        }
+
+        var buckets = [];
+        visited = {};
+        for (var i = 0; i < couples.length; ++i) {
+            var keys = Object.keys(couples[i]);
+            var bucket;
+
+            for (var j = 0; j < buckets.length; ++j) {
+                var b = buckets[j];
+                if (b[keys[0]] || b[keys[1]]) {
+                    bucket = b;
+                }
+            }
+
+            if (!bucket) {
+                bucket = {};
+                bucket[keys[0]] = couples[i][keys[0]];
+                bucket[keys[1]] = couples[i][keys[1]];
+                buckets.push(bucket);
+            }
+
+            bucket[keys[0]] = couples[i][keys[0]];
+            bucket[keys[1]] = couples[i][keys[1]];
+            visited[keys[0]] = true;
+            visited[keys[1]] = true;
+        }
+
+        for (var k in obj) {
+            if (!visited[k]) {
+                var b = {};
+                b[k] = obj[k];
+                buckets.push(b);
+            }
+        }
+
+        var transformed = [];
+        for (var i = 0; i < buckets.length; ++i) {
+            var bucket = buckets[i];
+            var keys = Object.keys(bucket);
+            keys.sort(function (a, b) {
+                return bucket[a] - bucket[b];
+            });
+            transformed.push(keys);
+        }
+
+        var s = tooltipWrapper
+            .selectAll("div.tooltip")
+            .data(transformed)
+            .html(function (d) {
+                var h = "";
+                for (var i = 0; i < d.length; ++i) {
+                    h += "<div>"+d[i]+" <strong>"+obj[d[i]]+"</strong></div>"
+                }
+                return h;
+            })
+            .style("left", function (d) {
+                var offset = this.clientWidth / 2;
+                return (xScale(xVal) - offset + margins.left) + "px";
+            })
+            .style("top", function (d) {
+                return (yScale(obj[d[0]]) - this.clientHeight / 2) + "px";
+            });
+
+        s.enter()
+            .append("div")
+            .attr("class", "tooltip")
+            .html(function (d) {
+
+                var h = "";
+                for (var i = 0; i < d.length; ++i) {
+                    h += "<div>"+d[i]+" <strong>"+obj[d[i]]+"</strong></div>"
+                }
+                return h;
+            })
+            .style("left", function (d) {
+                var offset = this.clientWidth / 2;
+                return (xScale(xVal) - offset + margins.left) + "px";
+            })
+            .style("top", function (d) {
+                return (yScale(obj[d[0]]) - this.clientHeight / 2) + "px";
+            })
+
+
+        s.exit().remove();
+    });
+    }
+}
+
+    if (graphicConfig.xLabel) {
+        var t = chartElement.append("text")
+            .text(graphicConfig.xLabel)
+            .attr("y", chartHeight + margins.bottom - 5)
+            .attr("class", "axis-label");
+
+        t.attr("x", (chartWidth - t.node().getComputedTextLength()) / 2)
+    }
+
+    if (graphicConfig.yLabel) {
+        var t = chartElement.append("text")
+            .text(graphicConfig.yLabel)
+            .attr("x", -20)
+            .attr("y", -15)
+            .attr("class", "axis-label");
 
         t.attr("x", 0 - ((chartHeight + margins['top'] + margins['bottom']) / 2));
         t.attr("transform", "rotate(-90)");
@@ -692,7 +901,7 @@ var renderLineChart = function(config) {
             .append("div")
             .attr("class", "tooltip")
             .html(function (d) {
-                
+
                 var h = "";
                 for (var i = 0; i < d.length; ++i) {
                     h += "<div>"+d[i]+" <strong>"+obj[d[i]]+"</strong></div>"
@@ -706,8 +915,8 @@ var renderLineChart = function(config) {
             .style("top", function (d) {
                 return (yScale(obj[d[0]]) - this.clientHeight / 2) + "px";
             })
-            
-        
+
+
         s.exit().remove();
     });
     }
