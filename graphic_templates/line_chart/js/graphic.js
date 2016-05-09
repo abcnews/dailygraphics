@@ -10,7 +10,7 @@ var graphicConfig = null;
 
 // D3 formatters
 var fmtYearAbbrev = d3.time.format('%y');
-var fmtYearFull = d3.time.format('%b %Y');
+var fmtYearFull = d3.time.format('%b\n%Y');
 var numFormat = d3.format(",");
 
 var bisectDate = d3.bisector(function(d) { return d.date; }).left;
@@ -241,26 +241,27 @@ var renderLineChart = function(config) {
     var xScale;
 
     if (graphicData[0]['date']) {
-        /*
-        xFormat = function(d, i) {
-            if (isMobile) {
-                return fmtYearAbbrev(d);
-            } else {
-                return fmtYearFull(d);
-            }
-        };
-        */
 
-        xFormat = d3.time.format.multi([
-          [".%L", function(d) { return d.getMilliseconds(); }],
-          [":%S", function(d) { return d.getSeconds(); }],
-          ["%-I:%M", function(d) { return d.getMinutes(); }],
-          ["%-I\n%p", function(d) { return d.getHours(); }],
-          ["%a\n%-d", function(d) { return d.getDay() && d.getDate() != 1; }],
-          ["%b\n%-d", function(d) { return d.getDate() != 1; }],
-          ["%B", function(d) { return d.getMonth(); }],
-          ["%Y", function() { return true; }]
-        ]);
+        if (!isMobile && graphicConfig.timeFormatLarge) {
+            xFormat = function(d, i) {
+                return fmtYearFull(d);
+            };
+        } else if (isMobile && graphicConfig.timeFormatSmall) {
+            xFormat = function(d, i) {
+                return fmtYearAbbrev(d);
+            };
+        } else {
+            xFormat = d3.time.format.multi([
+                [".%L", function(d) { return d.getMilliseconds(); }],
+                [":%S", function(d) { return d.getSeconds(); }],
+                ["%-I:%M", function(d) { return d.getMinutes(); }],
+                ["%-I\n%p", function(d) { return d.getHours(); }],
+                ["%a\n%-d", function(d) { return d.getDay() && d.getDate() != 1; }],
+                ["%b\n%-d", function(d) { return d.getDate() != 1; }],
+                ["%B", function(d) { return d.getMonth(); }],
+                ["%Y", function() { return true; }]
+            ]);
+        }
 
         xScale = d3.time.scale()
         .domain(d3.extent(config['data'], function(d) {
