@@ -103,27 +103,11 @@ var renderBarChart = function(config) {
     var valueGap = parseInt(graphicConfig.valueGap || 6, 10);
 
     var margins = {
-        top: 0,
-        right: 15,
-        bottom: 20,
-        left: (labelWidth + labelMargin)
+        top: parseInt(graphicConfig.marginTop || 0, 10),
+        right: parseInt(graphicConfig.marginRight || 15, 10),
+        bottom: parseInt(graphicConfig.marginBottom || 20, 10),
+        left: parseInt(graphicConfig.marginLeft || (labelWidth + labelMargin), 10)
     };
-
-    if (graphicConfig.marginTop) {
-        margins.top = parseInt(graphicConfig.marginTop, 10);
-    }
-
-    if (graphicConfig.marginRight) {
-        margins.right = parseInt(graphicConfig.marginRight, 10);
-    }
-
-    if (graphicConfig.marginBottom) {
-        margins.bottom = parseInt(graphicConfig.marginBottom, 10);
-    }
-
-    if (graphicConfig.marginLeft) {
-        margins.left = parseInt(graphicConfig.marginLeft, 10);
-    }
 
     var ticksX = parseInt(graphicConfig.ticksX || 4, 10);
     var roundTicksFactor = parseInt(graphicConfig.roundTicksFactor || 5, 10);
