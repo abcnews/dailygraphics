@@ -84,15 +84,15 @@ def deploy(slug):
         return
 
     graphic_root = '%s/%s' % (app_config.GRAPHICS_PATH, slug)
-    s3_root = '%s/graphics/%s' % (app_config.PROJECT_SLUG, slug)
+    # s3_root = '%s/graphics/%s' % (app_config.PROJECT_SLUG, slug)
     graphic_assets = '%s/assets' % graphic_root
-    s3_assets = '%s/assets' % s3_root
+    # s3_assets = '%s/assets' % s3_root
 
     graphic_config = load_graphic_config(graphic_root)
 
-    use_assets = getattr(graphic_config, 'USE_ASSETS', True)
+    # use_assets = getattr(graphic_config, 'USE_ASSETS', True)
     default_max_age = getattr(graphic_config, 'DEFAULT_MAX_AGE', None) or app_config.DEFAULT_MAX_AGE
-    assets_max_age = getattr(graphic_config, 'ASSETS_MAX_AGE', None) or app_config.ASSETS_MAX_AGE
+    # assets_max_age = getattr(graphic_config, 'ASSETS_MAX_AGE', None) or app_config.ASSETS_MAX_AGE
 
     update_copy(slug)
 
