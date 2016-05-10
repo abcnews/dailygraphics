@@ -123,57 +123,6 @@ def deploy(slug):
     print 'Deployed'
 
 
-"""
-Deploy Assets
-"""
-@task
-def deploy_assets(slug):
-    """
-    Deploy the latest app to S3 and, if configured, to our servers.
-    """
-    require('settings', provided_by=[production, staging])
-
-    if not slug:
-        print 'You must specify a project slug, like this: "deploy:slug"'
-        return
-
-    graphic_root = '%s/%s' % (app_config.GRAPHICS_PATH, slug)
-    s3_root = '%s/graphics/%s' % (app_config.PROJECT_SLUG, slug)
-    graphic_assets = '%s/assets' % graphic_root
-    s3_assets = '%s/assets' % s3_root
-
-    graphic_config = load_graphic_config(graphic_root)
-
-    # use_assets = getattr(graphic_config, 'USE_ASSETS', True)
-    default_max_age = getattr(graphic_config, 'DEFAULT_MAX_AGE', None) or app_config.DEFAULT_MAX_AGE
-    assets_max_age = getattr(graphic_config, 'ASSETS_MAX_AGE', None) or app_config.ASSETS_MAX_AGE
-
-    #if use_assets:
-    assets.sync(slug)
-
-    render.render(slug)
-
-    flat.deploy_folder(
-        graphic_root,
-        slug,
-        headers={
-            'Cache-Control': 'max-age=%i' % default_max_age
-        },
-        ignore=['%s/*' % graphic_assets]
-    )
-
-    #if use_assets:
-    flat.deploy_folder(
-        graphic_assets,
-        s3_assets,
-        headers={
-            'Cache-Control': 'max-age=%i' % assets_max_age
-        }
-    )
-
-    print 'Assets Deployed'
-
-
 @task
 def debug_deploy(slug, template):
     """
