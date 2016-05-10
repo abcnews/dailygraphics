@@ -106,34 +106,35 @@ var urlToLocation = function(url) {
     return a;
 }
 
-var colorArray = function (config, d) {
-    var c = d;
-    if (config.theme) {
-        if (graphicConfig.theme == "monochrome") {
-            c = monochromeColors;
-        }
+/*
+ * Returns array of colors to use in the chart.
+ */
+var colorArray = function (config, defaultColorArr) {
+    var colorArr = defaultColorArr;
 
-        if (graphicConfig.theme == "multicolor") {
-            c = multiColors;
+    if (config.colors && (!config.theme || config.theme == "custom")) {
+        // use "color" content
+        colorArr = config.colors.split(/\s*,\s*/);
+    } else if (config.theme) {
+        // use predefined color "theme"
+        if (config.theme == "monochrome") {
+            colorArr = monochromeColors;
+        } else if (config.theme == "multicolor") {
+            colorArr = multiColors;
+        } else if (config.theme == "single") {
+            colorArr = singleColors;
+        } else if (config.theme == "highlight" || config.theme == "highlighted") {
+            colorArr = highlightColors;
         }
-
-        if (graphicConfig.theme == "single") {
-            c = singleColors;
-        }
-
-        if (graphicConfig.theme == "highlight" || graphicConfig.theme == "highlighted") {
-            c = highlightColors;
-        }
-    } else if (config.colors) {
-        c = config.colors.split(/\s*,\s*/);
     }
 
-    for (var i = 0; i < c.length; ++i) {
-        var color = c[i];
+    // replace political party color keywords with real hex colors
+    for (var i = 0; i < colorArr.length; ++i) {
+        var color = colorArr[i];
         if (color in PTYCOLORS) {
-            c[i] = PTYCOLORS[color];
+            colorArr[i] = PTYCOLORS[color];
         }
     }
 
-    return c;
-}
+    return colorArr;
+};
