@@ -15,9 +15,10 @@ Use one of the themes to render the chart. Each chart type has a different defau
 
 Comma separated list of colors for each line. e.g. "red, blue, green, yellow". You can also specify the colors as RGB hex values (see http://www.colorpicker.com/) preceded with `#`. You may use the code of political parties to use our standard party colors (e.g. `ptylab, ptylib, ptynat, ptygrn`).
 
-**nocard**
+**card**
+> Default: `on`
 
-By default the chart will be displayed in the ABC card container. Add this config option with any value to remove the card.
+By default the chart will be displayed in the ABC card container. Set to `off` to remove the card styling.
 
 **marginTop**
 > Default: `5`
