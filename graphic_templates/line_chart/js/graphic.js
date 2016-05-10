@@ -124,8 +124,10 @@ var renderLineChart = function(config) {
     var aspectHeight = isMobile ? 3 : 9;
     if ('ratio' in graphicConfig) {
         var parts = graphicConfig.ratio.split("x");
-        aspectWidth = parseInt(parts[0], 10);
-        aspectHeight = parseInt(parts[1], 10);
+        if (parts[0] && parts[1]) {
+            aspectWidth = parseInt(parts[0], 10);
+            aspectHeight = parseInt(parts[1], 10);
+        }
     }
 
     var margins = {
