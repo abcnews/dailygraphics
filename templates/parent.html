@@ -145,7 +145,7 @@
         -->
 
         <div class="segment">
-            <a id="resize-sidebar" class="btn" href="#">Sidebar (180px)</a>
+            <a id="resize-sidebar" class="btn" href="#">Sidebar (220px)</a>
         </div>
 
         <div class="segment">
@@ -153,7 +153,7 @@
         </div>
 
         <div class="segment">
-            <a id="resize-desktop" class="btn" href="#">Desktop (730px)</a>
+            <a id="resize-desktop" class="btn" href="#">Desktop (700px)</a>
         </div>
 
         <div class="segment">
@@ -227,7 +227,7 @@ $(function() {
         resizeSidebarEl.addEventListener('click', function(e) {
             e.preventDefault();
 
-            previewWrapperEl.style.width = '180px';
+            previewWrapperEl.style.width = '220px';
             pymParent.sendWidth();
 
             window.location.hash = 'sidebar';
@@ -245,7 +245,7 @@ $(function() {
         resizeDesktopEl.addEventListener('click', function(e) {
             e.preventDefault();
 
-            previewWrapperEl.style.width = '730px';
+            previewWrapperEl.style.width = '700px';
             pymParent.sendWidth();
 
             window.location.hash = 'desktop';
@@ -261,11 +261,11 @@ $(function() {
         });
 
         if (window.location.hash == '#sidebar') {
-            previewWrapperEl.style.width = '180px';
+            previewWrapperEl.style.width = '220px';
         } else if (window.location.hash == '#mobile') {
             previewWrapperEl.style.width = '300px';
         } else if (window.location.hash == '#desktop') {
-            previewWrapperEl.style.width = '730px';
+            previewWrapperEl.style.width = '700px';
         } else if (window.location.hash == '#fluid') {
             previewWrapperEl.style.width = '100%';
         }
