@@ -55,14 +55,14 @@ Specify the date format the data exists in. Use this guide to construct the temp
 
 Some common formats would be:
 
-* `%d/%m/%y` (matches day/month/year with preceeding zeros and the abbreviated year, e.g. 01/01/16 -  31/12/16) THIS IS THE DEFAULT
-* `%d/%m/%Y` (matches day/month/year with preceeding zeros and the full year, e.g. 01/01/2016 -  31/12/2016)
-* `%-d/%-m/%y` (matches day/month/year with no preceeding zeros and the abbreviated year, e.g. 1/1/16 -  31/12/16)
-* `%-d/%-m/%Y` (matches day/month/year with no preceeding zeros and the full year, e.g. 1/1/2016 -  31/12/2016)
-* `%m/%d/%y` (matches month/day/year with preceeding zeros and the abbreviated year, e.g. 01/01/16 -  12/31/16)
-* `%m/%d/%Y` (matches month/day/year with preceeding zeros and the full year, e.g. 01/01/2016 -  12/31/2016)
-* `%-m/%-d/%y` (matches month/day/year with no preceeding zeros and the abbreviated year, e.g. 1/1/16 -  12/31/16)
-* `%-m/%-d/%Y` (matches month/day/year with no preceeding zeros and the full year, e.g. 1/1/2016 -  12/31/2016)
+* `%d/%m/%y` (matches day/month/year with preceding zeros and the abbreviated year, e.g. 01/01/16 -  31/12/16) THIS IS THE DEFAULT
+* `%d/%m/%Y` (matches day/month/year with preceding zeros and the full year, e.g. 01/01/2016 -  31/12/2016)
+* `%-d/%-m/%y` (matches day/month/year with no preceding zeros and the abbreviated year, e.g. 1/1/16 -  31/12/16)
+* `%-d/%-m/%Y` (matches day/month/year with no preceding zeros and the full year, e.g. 1/1/2016 -  31/12/2016)
+* `%m/%d/%y` (matches month/day/year with preceding zeros and the abbreviated year, e.g. 01/01/16 -  12/31/16)
+* `%m/%d/%Y` (matches month/day/year with preceding zeros and the full year, e.g. 01/01/2016 -  12/31/2016)
+* `%-m/%-d/%y` (matches month/day/year with no preceding zeros and the abbreviated year, e.g. 1/1/16 -  12/31/16)
+* `%-m/%-d/%Y` (matches month/day/year with no preceding zeros and the full year, e.g. 1/1/2016 -  12/31/2016)
 
 **timeFormatLarge**
 > Default: a customized multi-resolution time format
