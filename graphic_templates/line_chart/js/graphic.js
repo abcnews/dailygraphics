@@ -131,27 +131,11 @@ var renderLineChart = function(config) {
     }
 
     var margins = {
-        top: 5,
-        right: 50,
-        bottom: 35,
-        left: 30
+        top: parseInt(graphicConfig.marginTop || 5, 10),
+        right: parseInt(graphicConfig.marginRight || 50, 10),
+        bottom: parseInt(graphicConfig.marginBottom || 35, 10),
+        left: parseInt(graphicConfig.marginLeft || 30, 10)
     };
-
-    if (graphicConfig.marginTop) {
-        margins.top = parseInt(graphicConfig.marginTop, 10);
-    }
-
-    if (graphicConfig.marginRight) {
-        margins.right = parseInt(graphicConfig.marginRight, 10);
-    }
-
-    if (graphicConfig.marginBottom) {
-        margins.bottom = parseInt(graphicConfig.marginBottom, 10);
-    }
-
-    if (graphicConfig.marginLeft) {
-        margins.left = parseInt(graphicConfig.marginLeft, 10);
-    }
 
     var ticksX = parseInt(graphicConfig.ticksX || 10, 10);
     var ticksY = parseInt(graphicConfig.ticksY || 10, 10);
@@ -214,14 +198,14 @@ var renderLineChart = function(config) {
      * Create D3 scale objects.
      */
 
-    var minY = 'minValue' in graphicConfig ? parseFloat(graphicConfig.minValue, 10) : d3.min(d3.entries(formattedData), function(c) {
+    var minY = graphicConfig.minValue ? parseFloat(graphicConfig.minValue, 10) : d3.min(d3.entries(formattedData), function(c) {
         return d3.min(c['value'], function(v) {
             var n = v[valueColumn];
             return Math.floor(n / roundTicksFactor) * roundTicksFactor;
         });
     });
 
-    var maxY = 'maxValue' in graphicConfig ? parseFloat(graphicConfig.maxValue, 10) : d3.max(d3.entries(formattedData), function(c) {
+    var maxY = graphicConfig.maxValue ? parseFloat(graphicConfig.maxValue, 10) : d3.max(d3.entries(formattedData), function(c) {
         return d3.max(c['value'], function(v) {
             var n = v[valueColumn];
             return Math.ceil(n / roundTicksFactor) * roundTicksFactor;
