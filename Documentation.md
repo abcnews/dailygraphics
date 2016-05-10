@@ -69,14 +69,14 @@ Some common formats would be:
 
 How to format dates and times when the graphic is large. See https://github.com/mbostock/d3/wiki/Time-Formatting
 
-Also you can use "\n" in this value to break the output over multiple lines.
+You can use `\n` in this value to break the output over multiple lines.
 
 **timeFormatSmall**
 > Default: a customized multi-resolution time format
 
 How to format dates and times when the graphic is small (such as on mobile).  See https://github.com/mbostock/d3/wiki/Time-Formatting
 
-Also you can use "\n" in this value to break the output over multiple lines.
+You can use `\n` in this value to break the output over multiple lines.
 
 **minValue**
 > Default: smallest value in the data rounded *down* to the nearest multiple of `roundTicksFactor`
@@ -122,6 +122,12 @@ Label the X axis. You may need to increase the margins if the label doesn't fit.
 > Default: none
 
 Label the Y axis.
+
+**circleMarker**
+> Default: `on`
+
+Set to `off` to hide the data point dots.
+
 
 ## Bar Chart
 
