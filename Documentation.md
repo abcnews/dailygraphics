@@ -36,7 +36,7 @@ Spacing at the top of the graphic in pixels.
 ## Line Chart
 
 ### Type of X axis
-Name the X axis in the data sheet `x` for ordinal data or `date` for time based data. You *must* specify a `parseDateFormat` option for dates so the chart builder knows how to interpret the dates correctly.
+Name the X axis in the data sheet `x` for ordinal data or `date` for time based data. You *must* ensure the `parseDateFormat` option matches the data so the chart builder knows how to interpret the dates correctly.
 
 **ratio**
 > Default: `4x3` on mobile, `16x9` otherwise
@@ -49,7 +49,7 @@ Specify a custom aspect ratio. The graphic is responsive and resizable and will 
 Which function to use for smoothing the lines. Common values will be "linear" and "monotone". See https://github.com/mbostock/d3/wiki/SVG-Shapes#line_interpolate
 
 **parseDateFormat**
-> Default: `%d/%m/%y` 
+> Default: `%d/%m/%y`
 
 Specify the date format the data exists in. Use this guide to construct the template: https://github.com/mbostock/d3/wiki/Time-Formatting
 
@@ -65,14 +65,18 @@ Some common formats would be:
 * `%-m/%-d/%Y` (matches month/day/year with no preceeding zeros and the full year, e.g. 1/1/2016 -  12/31/2016)
 
 **timeFormatLarge**
-> Default: `%b %Y`
+> Default: a customized multi-resolution time format
 
 How to format dates and times when the graphic is large. See https://github.com/mbostock/d3/wiki/Time-Formatting
 
-**timeFormatSmall**
-> Default: `%y`
+Also you can use "\n" in this value to break the output over multiple lines.
 
-How to format dates and times when the graphic is small (such as on mobile).
+**timeFormatSmall**
+> Default: a customized multi-resolution time format
+
+How to format dates and times when the graphic is small (such as on mobile).  See https://github.com/mbostock/d3/wiki/Time-Formatting
+
+Also you can use "\n" in this value to break the output over multiple lines.
 
 **minValue**
 > Default: smallest value in the data rounded *down* to the nearest multiple of `roundTicksFactor`
