@@ -128,6 +128,11 @@ Label the Y axis.
 
 Set to `off` to hide the data point dots.
 
+**tooltip**
+> Default: `on`
+
+Set to `off` to hide the tooltips.
+
 
 ## Bar Chart
 
