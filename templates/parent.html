@@ -32,20 +32,30 @@
             color: #bccae5;
         }
 
-        a.btn {
+        .btn {
             font-size: 12px;
             line-height: 28px;
             margin: 0;
             float: left;
             padding: 0 11px;
+            border: none;
             border-radius: 4px;
             background-color: #f7f7f7;
             font-weight: bold;
+            cursor: pointer;
             -webkit-font-smoothing: antialiased;
         }
-        a.btn:hover,
-        a.btn:active {
+        .btn:hover,
+        .btn:active {
             background-color: #fff;
+        }
+
+        button.btn {
+            color: #4774CC;
+        }
+        button.btn:hover,
+        button.btn:active {
+            color: #bccae5;
         }
 
         .graphics-list li {
@@ -159,6 +169,14 @@
             </div>
             {% endif %}
             {% endif %}
+
+            <div class="segment">
+                <form style="display:inline" action="http://newsdev3.aus.aunty.abc.net.au/tools/chart-builder/server.php?action=deploy" method="post">
+                    <input type="hidden" name="slug" value="{{ slug }}">
+                    <input type="hidden" name="redirect" value="{{ slug }}">
+                    <button class="btn" type="submit">Deploy Content Changes</button>
+                </form>
+            </div>
 
             <div class="segment">
                 <a class="btn" href="http://newsdev3.aus.aunty.abc.net.au/tools/chart-builder/" target="_blank">Chart Builder &raquo;</a>
