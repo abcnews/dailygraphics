@@ -120,27 +120,11 @@ var renderGroupedBarChart = function(config) {
     var groupHeight = (barHeight * numGroupBars) + (barGapInner * (numGroupBars - 1)) + 30;
 
     var margins = {
-        top: 0,
-        right: 15,
-        bottom: 20,
-        left: (labelWidth + labelMargin)
+        top: parseInt(graphicConfig.marginTop || 0, 10),
+        right: parseInt(graphicConfig.marginRight || 15, 10),
+        bottom: parseInt(graphicConfig.marginBottom || 20, 10),
+        left: parseInt(graphicConfig.marginLeft || (labelWidth + labelMargin), 10)
     };
-
-    if (graphicConfig.marginTop) {
-        margins.top = parseInt(graphicConfig.marginTop, 10);
-    }
-
-    if (graphicConfig.marginRight) {
-        margins.right = parseInt(graphicConfig.marginRight, 10);
-    }
-
-    if (graphicConfig.marginBottom) {
-        margins.bottom = parseInt(graphicConfig.marginBottom, 10);
-    }
-
-    if (graphicConfig.marginLeft) {
-        margins.left = parseInt(graphicConfig.marginLeft, 10);
-    }
 
     var ticksX = parseInt(graphicConfig.ticksX || 7, 10);
     var roundTicksFactor = parseInt(graphicConfig.roundTicksFactor || 5, 10);
@@ -171,8 +155,8 @@ var renderGroupedBarChart = function(config) {
         });
     });
 
-    if ('minX' in graphicConfig) {
-        min = parseFloat(graphicConfig.minX, 10);  
+    if ('minX' in graphicConfig && graphicConfig.minX !== '') {
+        min = parseFloat(graphicConfig.minX, 10);
     } else if (min > 0) {
         min = 0;
     }
@@ -183,7 +167,7 @@ var renderGroupedBarChart = function(config) {
         });
     })
 
-    if ('maxX' in graphicConfig) {
+    if ('maxX' in graphicConfig && graphicConfig.maxX !== '') {
         max = parseFloat(graphicConfig.maxX, 10);
     }
 
