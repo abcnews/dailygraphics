@@ -70,7 +70,7 @@ var formatData = function() {
             date = d3.time.format('%d/%m/%y').parse(d['date']);
             if (!date) {
                 date = d3.time.format('%d/%m/%Y').parse(d['date']);
-            }   
+            }
         }
 
         d['date'] = date;
@@ -246,8 +246,8 @@ var renderLineChart = function(config) {
 
         xScale = d3.scale.ordinal()
         .rangePoints([0, chartWidth])
-        .domain(graphicData.map(function (d) { 
-            return d['x']; 
+        .domain(graphicData.map(function (d) {
+            return d['x'];
         }))
         // .range([0, chartWidth]);
 
@@ -391,48 +391,124 @@ var renderLineChart = function(config) {
         return xScale(last[dateColumn] || last['x']) + 5;
     }
 
-    var labels = chartElement.append('g')
-        .attr('class', 'value')
-        .selectAll('text')
-        .data(d3.entries(formattedData))
-        .enter().append('text')
-            .attr('class', function (d, i) {
-                return 'label-group label-' + i;
+    var getTransformedData = function (obj) {
+        var couples = [];
+        var visited = {};
+        for (var key in obj) {
+            var y1 = yScale(obj[key]);
+
+            for (var key2 in obj) {
+                if (key === key2) continue;
+                if (visited[key + key2]) continue;
+                if (visited[key2 + key]) continue;
+
+                var y2 = yScale(obj[key2]);
+
+                // must have a gap of 40 pixels else be merged
+                var diff = y1 - y2;
+                if (Math.abs(diff) < 40) {
+                    // merge
+                    var o = {};
+                    o[key] = y1;
+                    o[key2] = y2;
+                    couples.push(o);
+
+                    visited[key + key2] = true;
+                    visited[key2 + key] = true;
+                }
+            }
+        }
+
+        var buckets = [];
+        visited = {};
+        for (var i = 0; i < couples.length; ++i) {
+            var keys = Object.keys(couples[i]);
+            var bucket;
+
+            for (var j = 0; j < buckets.length; ++j) {
+                var b = buckets[j];
+                if (b[keys[0]] || b[keys[1]]) {
+                    bucket = b;
+                }
+            }
+
+            if (!bucket) {
+                bucket = {};
+                bucket[keys[0]] = couples[i][keys[0]];
+                bucket[keys[1]] = couples[i][keys[1]];
+                buckets.push(bucket);
+            }
+
+            bucket[keys[0]] = couples[i][keys[0]];
+            bucket[keys[1]] = couples[i][keys[1]];
+            visited[keys[0]] = true;
+            visited[keys[1]] = true;
+        }
+
+        for (var k in obj) {
+            if (!visited[k]) {
+                var b = {};
+                b[k] = obj[k];
+                buckets.push(b);
+            }
+        }
+
+        var transformed = [];
+        for (var i = 0; i < buckets.length; ++i) {
+            var bucket = buckets[i];
+            var keys = Object.keys(bucket);
+            keys.sort(function (a, b) {
+                return bucket[a] - bucket[b];
+            });
+            transformed.push(keys);
+        }
+
+        return transformed;
+    };
+
+
+    // labels on right of data
+    var lastObj;
+    var lastObjxVal;
+
+    lastObj = _.clone(graphicData[graphicData.length - 1]);
+    if (dateColumn === 'date') {
+        lastObjxVal = lastObj.date;
+        delete lastObj.date;
+    } else {
+        lastObjxVal = lastObj.x;
+        delete lastObj.x;
+    }
+
+    chartWrapper.append("div").attr("class", "label-wrapper")
+        .selectAll("div.label")
+            .data(getTransformedData(lastObj))
+        .enter().append('div')
+            .attr("class", "label")
+            .html(function (d) {
+                var h = "";
+                for (var i = 0; i < d.length; ++i) {
+                    h += "<div>" + d[i] + " <strong>" + lastObj[d[i]] + "</strong></div>";
+                }
+                return h;
             })
-            .attr('x', labelXFunc)
-            .attr('y', function(d) {
-                var last = d['value'][d['value'].length - 1];
-
-                return yScale(last[valueColumn]) + 3;
+            .style({
+                left: function (d) {
+                    return (xScale(lastObjxVal) + margins.left + 10) + "px";
+                },
+                top: function (d) {
+                    return (yScale(lastObj[d[0]]) - this.clientHeight / 2) + "px";
+                },
             });
 
-    labels
-        .append("tspan")
-            .attr('dy', '-1em')
-            .attr('x', labelXFunc)
-            .attr('class', 'text-label')
-            .text(function(d) {
-                return d.key;
-            });
-    labels
-        .append("tspan")
-            .attr('dy', '1.2em')
-            .attr('x', labelXFunc)
-            .text(function (d) {
-                var last = d['value'][d['value'].length - 1];
-                var value = last[valueColumn];
 
-                var label = numFormat(last[valueColumn]);
-
-                return label;
-            });
 
     if (graphicConfig.xLabel) {
         var t = chartElement.append("text")
             .text(graphicConfig.xLabel)
             .attr("y", chartHeight + margins.bottom - 5)
             .attr("class", "axis-label");
-        
+
         t.attr("x", (chartWidth - t.node().getComputedTextLength()) / 2)
     }
 
@@ -458,8 +534,6 @@ var renderLineChart = function(config) {
         });
     }
 
-    var tooltipWrapper = chartWrapper.append("div").attr("class", "tooltip-wrapper");
-
     if (graphicConfig.circleMarker !== 'off') {
         chartElement.append('g')
             .selectAll('circle')
@@ -482,6 +556,8 @@ var renderLineChart = function(config) {
     }
 
     if (graphicConfig.tooltip !== 'off') {
+        var tooltipWrapper = chartWrapper.append("div").attr("class", "tooltip-wrapper");
+
         chartElement.on("mousemove", function (e) {
             var pos = d3.mouse(overlay.node());
             var domain = xScale.domain();
@@ -518,76 +594,7 @@ var renderLineChart = function(config) {
                 delete obj.x;
             }
 
-            var couples = [];
-            var visited = {};
-            for (var key in obj) {
-                var y1 = yScale(obj[key]);
-
-                for (var key2 in obj) {
-                    if (key === key2) continue;
-                    if (visited[key + key2]) continue;
-                    if (visited[key2 + key]) continue;
-
-                    var y2 = yScale(obj[key2]);
-
-                    // must have a gap of 40 pixels else be merged
-                    var diff = y1 - y2;
-                    if (Math.abs(diff) < 40) {
-                        // merge
-                        var o = {};
-                        o[key] = y1;
-                        o[key2] = y2;
-                        couples.push(o);
-
-                        visited[key + key2] = true;
-                        visited[key2 + key] = true;
-                    }
-                }
-            }
-
-            var buckets = [];
-            visited = {};
-            for (var i = 0; i < couples.length; ++i) {
-                var keys = Object.keys(couples[i]);
-                var bucket;
-
-                for (var j = 0; j < buckets.length; ++j) {
-                    var b = buckets[j];
-                    if (b[keys[0]] || b[keys[1]]) {
-                        bucket = b;
-                    }
-                }
-
-                if (!bucket) {
-                    bucket = {};
-                    bucket[keys[0]] = couples[i][keys[0]];
-                    bucket[keys[1]] = couples[i][keys[1]];
-                    buckets.push(bucket);
-                }
-
-                bucket[keys[0]] = couples[i][keys[0]];
-                bucket[keys[1]] = couples[i][keys[1]];
-                visited[keys[0]] = true;
-                visited[keys[1]] = true;
-            }
-
-            for (var k in obj) {
-                if (!visited[k]) {
-                    var b = {};
-                    b[k] = obj[k];
-                    buckets.push(b);
-                }
-            }
-
-            var transformed = [];
-            for (var i = 0; i < buckets.length; ++i) {
-                var bucket = buckets[i];
-                var keys = Object.keys(bucket);
-                keys.sort(function (a, b) {
-                    return bucket[a] - bucket[b];
-                });
-                transformed.push(keys);
-            }
+            var transformed = getTransformedData(obj);
 
             var s = tooltipWrapper
                 .selectAll("div.tooltip")
@@ -595,13 +602,13 @@ var renderLineChart = function(config) {
                 .html(function (d) {
                     var h = "";
                     for (var i = 0; i < d.length; ++i) {
-                        h += "<div>"+d[i]+" <strong>"+obj[d[i]]+"</strong></div>"
+                        h += "<div>"+d[i]+" <strong>"+obj[d[i]]+"</strong></div>";
                     }
                     return h;
                 })
                 .style({
                     left: function (d) {
-                        var offset = 0; // this.clientWidth / 2;
+                        var offset = this.clientWidth / 2;
                         return (xScale(xVal) - offset + margins.left) + "px";
                     },
                     top: function (d) {
