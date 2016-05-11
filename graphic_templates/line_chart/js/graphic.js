@@ -607,26 +607,7 @@ var renderLineChart = function(config) {
                 return (yScale(obj[d[0]]) - this.clientHeight / 2) + "px";
             });
 
-        s.enter()
-            .append("div")
-            .attr("class", "tooltip")
-            .html(function (d) {
-                
-                var h = "";
-                for (var i = 0; i < d.length; ++i) {
-                    h += "<div>"+d[i]+" <strong>"+obj[d[i]]+"</strong></div>"
-                }
-                return h;
-            })
-            .style("left", function (d) {
-                var offset = this.clientWidth / 2;
-                return (xScale(xVal) - offset + margins.left) + "px";
-            })
-            .style("top", function (d) {
-                return (yScale(obj[d[0]]) - this.clientHeight / 2) + "px";
-            })
-            
-        
+        s.enter().append("div").attr("class", "tooltip");
         s.exit().remove();
     });
     }
