@@ -482,136 +482,136 @@ var renderLineChart = function(config) {
     }
 
     if (graphicConfig.tooltip !== 'off') {
-    chartElement.on("mousemove", function (e) {
-        var pos = d3.mouse(overlay.node());
-        var domain = xScale.domain();
-        var range = xScale.range();
-        var xVal, obj;
+        chartElement.on("mousemove", function (e) {
+            var pos = d3.mouse(overlay.node());
+            var domain = xScale.domain();
+            var range = xScale.range();
+            var xVal, obj;
 
-        if (dateColumn === 'date') {
-            var x = xScale.invert(pos[0]);
-            var index = bisectDate(graphicData, x, 1);
-            obj = _.clone(graphicData[index - 1]);
-            var obj2 = _.clone(graphicData[index]);
+            if (dateColumn === 'date') {
+                var x = xScale.invert(pos[0]);
+                var index = bisectDate(graphicData, x, 1);
+                obj = _.clone(graphicData[index - 1]);
+                var obj2 = _.clone(graphicData[index]);
 
-            // choose the closest object to the mouse
-            if (index < graphicData.length - 1 && x - obj.date > obj2.date - x) {
-                obj = obj2;
-            }
-
-            xVal = obj.date;
-            delete obj.date;
-        } else {
-            var i = d3.bisect(range, pos[0]);
-            var left = domain[i - 1];
-            var right = domain[i];
-
-            // var obj = getObjectFromArray(graphicData, dateColumn, left);
-            obj = _.clone(_.findWhere(graphicData, {x: left}));
-            xVal = left;
-
-            if (i < domain.length - 1 && pos[0] - xScale(left) > xScale(right) - pos[0]) {
-                obj = _.clone(_.findWhere(graphicData, {x: right}));
-                xVal = right;
-            }
-
-            delete obj.x;
-        }
-
-        var couples = [];
-        var visited = {};
-        for (var key in obj) {
-            var y1 = yScale(obj[key]);
-
-            for (var key2 in obj) {
-                if (key === key2) continue;
-                if (visited[key + key2]) continue;
-                if (visited[key2 + key]) continue;
-
-                var y2 = yScale(obj[key2]);
-
-                // must have a gap of 40 pixels else be merged
-                var diff = y1 - y2;
-                if (Math.abs(diff) < 40) {
-                    // merge
-                    var o = {};
-                    o[key] = y1;
-                    o[key2] = y2;
-                    couples.push(o);
-
-                    visited[key + key2] = true;
-                    visited[key2 + key] = true;
+                // choose the closest object to the mouse
+                if (index < graphicData.length - 1 && x - obj.date > obj2.date - x) {
+                    obj = obj2;
                 }
+
+                xVal = obj.date;
+                delete obj.date;
+            } else {
+                var i = d3.bisect(range, pos[0]);
+                var left = domain[i - 1];
+                var right = domain[i];
+
+                // var obj = getObjectFromArray(graphicData, dateColumn, left);
+                obj = _.clone(_.findWhere(graphicData, {x: left}));
+                xVal = left;
+
+                if (i < domain.length - 1 && pos[0] - xScale(left) > xScale(right) - pos[0]) {
+                    obj = _.clone(_.findWhere(graphicData, {x: right}));
+                    xVal = right;
+                }
+
+                delete obj.x;
             }
-        }
 
-        var buckets = [];
-        visited = {};
-        for (var i = 0; i < couples.length; ++i) {
-            var keys = Object.keys(couples[i]);
-            var bucket;
+            var couples = [];
+            var visited = {};
+            for (var key in obj) {
+                var y1 = yScale(obj[key]);
 
-            for (var j = 0; j < buckets.length; ++j) {
-                var b = buckets[j];
-                if (b[keys[0]] || b[keys[1]]) {
-                    bucket = b;
+                for (var key2 in obj) {
+                    if (key === key2) continue;
+                    if (visited[key + key2]) continue;
+                    if (visited[key2 + key]) continue;
+
+                    var y2 = yScale(obj[key2]);
+
+                    // must have a gap of 40 pixels else be merged
+                    var diff = y1 - y2;
+                    if (Math.abs(diff) < 40) {
+                        // merge
+                        var o = {};
+                        o[key] = y1;
+                        o[key2] = y2;
+                        couples.push(o);
+
+                        visited[key + key2] = true;
+                        visited[key2 + key] = true;
+                    }
                 }
             }
 
-            if (!bucket) {
-                bucket = {};
+            var buckets = [];
+            visited = {};
+            for (var i = 0; i < couples.length; ++i) {
+                var keys = Object.keys(couples[i]);
+                var bucket;
+
+                for (var j = 0; j < buckets.length; ++j) {
+                    var b = buckets[j];
+                    if (b[keys[0]] || b[keys[1]]) {
+                        bucket = b;
+                    }
+                }
+
+                if (!bucket) {
+                    bucket = {};
+                    bucket[keys[0]] = couples[i][keys[0]];
+                    bucket[keys[1]] = couples[i][keys[1]];
+                    buckets.push(bucket);
+                }
+
                 bucket[keys[0]] = couples[i][keys[0]];
                 bucket[keys[1]] = couples[i][keys[1]];
-                buckets.push(bucket);
+                visited[keys[0]] = true;
+                visited[keys[1]] = true;
             }
 
-            bucket[keys[0]] = couples[i][keys[0]];
-            bucket[keys[1]] = couples[i][keys[1]];
-            visited[keys[0]] = true;
-            visited[keys[1]] = true;
-        }
-
-        for (var k in obj) {
-            if (!visited[k]) {
-                var b = {};
-                b[k] = obj[k];
-                buckets.push(b);
-            }
-        }
-
-        var transformed = [];
-        for (var i = 0; i < buckets.length; ++i) {
-            var bucket = buckets[i];
-            var keys = Object.keys(bucket);
-            keys.sort(function (a, b) {
-                return bucket[a] - bucket[b];
-            });
-            transformed.push(keys);
-        }
-
-        var s = tooltipWrapper
-            .selectAll("div.tooltip")
-            .data(transformed)
-            .html(function (d) {
-                var h = "";
-                for (var i = 0; i < d.length; ++i) {
-                    h += "<div>"+d[i]+" <strong>"+obj[d[i]]+"</strong></div>"
+            for (var k in obj) {
+                if (!visited[k]) {
+                    var b = {};
+                    b[k] = obj[k];
+                    buckets.push(b);
                 }
-                return h;
-            })
-            .style({
-                left: function (d) {
-                    var offset = 0; // this.clientWidth / 2;
-                    return (xScale(xVal) - offset + margins.left) + "px";
-                },
-                top: function (d) {
-                    return (yScale(obj[d[0]]) - this.clientHeight / 2) + "px";
-                },
-            });
+            }
 
-        s.enter().append("div").attr("class", "tooltip");
-        s.exit().remove();
-    });
+            var transformed = [];
+            for (var i = 0; i < buckets.length; ++i) {
+                var bucket = buckets[i];
+                var keys = Object.keys(bucket);
+                keys.sort(function (a, b) {
+                    return bucket[a] - bucket[b];
+                });
+                transformed.push(keys);
+            }
+
+            var s = tooltipWrapper
+                .selectAll("div.tooltip")
+                .data(transformed)
+                .html(function (d) {
+                    var h = "";
+                    for (var i = 0; i < d.length; ++i) {
+                        h += "<div>"+d[i]+" <strong>"+obj[d[i]]+"</strong></div>"
+                    }
+                    return h;
+                })
+                .style({
+                    left: function (d) {
+                        var offset = 0; // this.clientWidth / 2;
+                        return (xScale(xVal) - offset + margins.left) + "px";
+                    },
+                    top: function (d) {
+                        return (yScale(obj[d[0]]) - this.clientHeight / 2) + "px";
+                    },
+                });
+
+            s.enter().append("div").attr("class", "tooltip");
+            s.exit().remove();
+        });
     }
 
     // Finds "\n" in text and splits it into tspans
