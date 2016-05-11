@@ -145,7 +145,7 @@ Set to `off` to hide the data point dots.
 Set to `off` to hide the tooltips.
 
 
-## Bar Chart
+## Bar Chart & Grouped Bar Chart
 
 **valueGap**
 > Default: `6`
@@ -171,6 +171,11 @@ Width in pixels of the labels.
 > Default: `6`
 
 Spacing between the label and the bar.
+
+**minX**
+> Default: lowest value in the data rounded *down* to the nearest multiple of `roundTicksFactor` or rounded up to zero
+
+Minimum value on the X axis.
 
 **maxX**
 > Default: largest value in the data rounded *up* to the nearest multiple of `roundTicksFactor`
