@@ -2,6 +2,16 @@
 
 ## Common Options
 
+**headline**
+
+**subhed**
+
+**footnote**
+
+**source**
+
+**credit**
+
 **theme**
 > single, monochrome, multicolor, highlight.
 Use one of the themes to render the chart. Each chart type has a different default theme.
