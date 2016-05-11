@@ -599,12 +599,14 @@ var renderLineChart = function(config) {
                 }
                 return h;
             })
-            .style("left", function (d) {
-                var offset = this.clientWidth / 2;
-                return (xScale(xVal) - offset + margins.left) + "px";
-            })
-            .style("top", function (d) {
-                return (yScale(obj[d[0]]) - this.clientHeight / 2) + "px";
+            .style({
+                left: function (d) {
+                    var offset = 0; // this.clientWidth / 2;
+                    return (xScale(xVal) - offset + margins.left) + "px";
+                },
+                top: function (d) {
+                    return (yScale(obj[d[0]]) - this.clientHeight / 2) + "px";
+                },
             });
 
         s.enter().append("div").attr("class", "tooltip");
