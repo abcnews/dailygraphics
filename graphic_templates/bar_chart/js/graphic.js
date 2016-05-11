@@ -112,7 +112,7 @@ var renderBarChart = function(config) {
     var ticksX = parseInt(graphicConfig.ticksX || 4, 10);
     var roundTicksFactor = parseInt(graphicConfig.roundTicksFactor || 5, 10);
 
-    
+
 
     // Clear existing graphic (for redraw)
     var containerElement = d3.select(config['container']);
@@ -147,8 +147,8 @@ var renderBarChart = function(config) {
         return Math.floor(d[valueColumn] / roundTicksFactor) * roundTicksFactor;
     });
 
-    if ('minX' in graphicConfig) {
-        min = parseFloat(graphicConfig.minX, 10);  
+    if (graphicConfig.minX !== '') {
+        min = parseFloat(graphicConfig.minX, 10);
     } else if (min > 0) {
         min = 0;
     }
@@ -157,7 +157,7 @@ var renderBarChart = function(config) {
         return Math.ceil(d[valueColumn] / roundTicksFactor) * roundTicksFactor;
     });
 
-    if ('maxX' in graphicConfig) {
+    if (graphicConfig.maxX !== '') {
         max = parseFloat(graphicConfig.maxX, 10);
     }
 
