@@ -147,7 +147,7 @@ var renderBarChart = function(config) {
         return Math.floor(d[valueColumn] / roundTicksFactor) * roundTicksFactor;
     });
 
-    if (graphicConfig.minX !== '') {
+    if ('minX' in graphicConfig && graphicConfig.minX !== '') {
         min = parseFloat(graphicConfig.minX, 10);
     } else if (min > 0) {
         min = 0;
@@ -157,7 +157,7 @@ var renderBarChart = function(config) {
         return Math.ceil(d[valueColumn] / roundTicksFactor) * roundTicksFactor;
     });
 
-    if (graphicConfig.maxX !== '') {
+    if ('maxX' in graphicConfig && graphicConfig.maxX !== '') {
         max = parseFloat(graphicConfig.maxX, 10);
     }
 
