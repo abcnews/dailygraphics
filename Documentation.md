@@ -66,6 +66,11 @@ Spacing at the top of the graphic in pixels.
 **marginLeft**
 > Default: `30`
 
+**maxDecimalPlaces**
+> Default: 10
+
+Maximum number of decimal places to show on the formatted data labels. Any trailing zeros will be omitted.
+
 ## Line Chart
 
 ### Type of X axis
@@ -120,11 +125,6 @@ Minimum value on the Y axis.
 > Default: largest value in the data rounded *up* to the nearest multiple of `roundTicksFactor`
 
 Maximum value on the Y axis.
-
-**maxDecimalPlaces**
-> Default: 10
-
-Maximum number of decimal places to show on the formatted data labels. Any trailing zeros will be omitted.
 
 **roundTicksFactor**
 > Default: `5`

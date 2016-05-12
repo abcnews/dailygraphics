@@ -9,8 +9,6 @@ var graphicData = null;
 var graphicConfig = null;
 
 // D3 formatters
-var numFormat = d3.format(",");
-
 var bisectDate = d3.bisector(function(d) { return d.date; }).left;
 
 /*
@@ -291,7 +289,7 @@ var renderLineChart = function(config) {
         .orient('left')
         .ticks(ticksY)
         .tickFormat(function (d) {
-            return (graphicConfig.prefixY || '') + numFormat(d) + (graphicConfig.suffixY || '');
+            return formattedNumber(d);
         });
 
     /*
@@ -488,7 +486,7 @@ var renderLineChart = function(config) {
             .html(function (d) {
                 var h = "";
                 for (var i = 0; i < d.length; ++i) {
-                    h += "<div>" + d[i] + " <strong>" + lastObj[d[i]] + "</strong></div>";
+                    h += "<div>" + d[i] + " <strong>" + formattedNumber(lastObj[d[i]]) + "</strong></div>";
                 }
                 return h;
             })
@@ -602,7 +600,7 @@ var renderLineChart = function(config) {
                 .html(function (d) {
                     var h = "";
                     for (var i = 0; i < d.length; ++i) {
-                        h += "<div>"+d[i]+" <strong>"+obj[d[i]]+"</strong></div>";
+                        h += "<div>"+d[i]+" <strong>"+formattedNumber(obj[d[i]])+"</strong></div>";
                     }
                     return h;
                 })

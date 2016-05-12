@@ -7,7 +7,6 @@ var pymChild = null;
 var isMobile = false;
 var graphicData = null;
 var graphicConfig = null;
-var numFormat = d3.format(",");
 
 /*
  * Initialize the graphic.
@@ -95,8 +94,6 @@ var renderBarChart = function(config) {
      */
     var labelColumn = 'label';
     var valueColumn = 'amt';
-
-    var maxDecimalPlaces = parseInt(graphicConfig.maxDecimalPlaces || 10, 10);
 
     var barHeight = parseInt(graphicConfig.barHeight || 30, 10);
     var barGap = parseInt(graphicConfig.barGap || 5, 10);
@@ -299,8 +296,7 @@ var renderBarChart = function(config) {
         .enter()
         .append('text')
             .text(function(d) {
-                var formattedNumber = numFormat(parseFloat(d[valueColumn].toFixed(maxDecimalPlaces)));
-                return (graphicConfig.prefixX || '') + formattedNumber + (graphicConfig.suffixX || '');
+                return formattedNumber(d[valueColumn]);
             })
             .attr('x', function(d) {
                 return xScale(d[valueColumn]);

@@ -7,7 +7,6 @@ var pymChild = null;
 var isMobile = false;
 var graphicData = null;
 var graphicConfig = null;
-var numFormat = d3.format(",");
 
 /*
  * Initialize the graphic.
@@ -110,8 +109,6 @@ var renderGroupedBarChart = function(config) {
 
     var numGroups = config.data.length;
     var numGroupBars = config.data[0].values.length;
-
-    var maxDecimalPlaces = parseInt(graphicConfig.maxDecimalPlaces || 10, 10);
 
     var barHeight = parseInt(graphicConfig.barHeight || 25, 10);
     var barGap = parseInt(graphicConfig.barGap || 2, 10);
@@ -355,8 +352,7 @@ var renderGroupedBarChart = function(config) {
         .enter()
         .append('text')
             .text(function(d) {
-                var formattedNumber = numFormat(parseFloat(d[valueColumn].toFixed(maxDecimalPlaces)));
-                return (graphicConfig.prefixX || '') + formattedNumber + (graphicConfig.suffixX || '');
+                return formattedNumber(d[valueColumn]);
             })
             .attr('x', function(d) {
                 return xScale(d[valueColumn]);
