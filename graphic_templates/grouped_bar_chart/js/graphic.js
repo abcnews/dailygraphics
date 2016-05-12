@@ -368,11 +368,7 @@ var renderGroupedBarChart = function(config) {
                 return xScale(d[valueColumn]);
             })
             .attr('y', function(d, i) {
-                if (i == 0) {
-                    return 0;
-                }
-
-                return (barHeight * i) + barGapInner;
+                return (barHeight + barGapInner) * i;
             })
             .attr('dx', function(d) {
                 var xStart = xScale(d[valueColumn]);
