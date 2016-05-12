@@ -121,6 +121,11 @@ Minimum value on the Y axis.
 
 Maximum value on the Y axis.
 
+**maxDecimalPlaces**
+> Default: 10
+
+Maximum number of decimal places to show on the formatted data labels. Any trailing zeros will be omitted.
+
 **roundTicksFactor**
 > Default: `5`
 

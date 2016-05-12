@@ -111,6 +111,8 @@ var renderGroupedBarChart = function(config) {
     var numGroups = config.data.length;
     var numGroupBars = config.data[0].values.length;
 
+    var maxDecimalPlaces = parseInt(graphicConfig.maxDecimalPlaces || 10, 10);
+
     var barHeight = parseInt(graphicConfig.barHeight || 25, 10);
     var barGap = parseInt(graphicConfig.barGap || 2, 10);
     var groupGap = parseInt(graphicConfig.groupGap || 30, 10);
@@ -353,7 +355,8 @@ var renderGroupedBarChart = function(config) {
         .enter()
         .append('text')
             .text(function(d) {
-                return (graphicConfig.prefixX || '') + numFormat(d[valueColumn]) + (graphicConfig.suffixX || '');
+                var formattedNumber = numFormat(parseFloat(d[valueColumn].toFixed(maxDecimalPlaces)));
+                return (graphicConfig.prefixX || '') + formattedNumber + (graphicConfig.suffixX || '');
             })
             .attr('x', function(d) {
                 return xScale(d[valueColumn]);

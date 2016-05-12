@@ -96,6 +96,8 @@ var renderBarChart = function(config) {
     var labelColumn = 'label';
     var valueColumn = 'amt';
 
+    var maxDecimalPlaces = parseInt(graphicConfig.maxDecimalPlaces || 10, 10);
+
     var barHeight = parseInt(graphicConfig.barHeight || 30, 10);
     var barGap = parseInt(graphicConfig.barGap || 5, 10);
     var labelWidth = parseInt(graphicConfig.labelWidth || 85, 10);
@@ -297,7 +299,8 @@ var renderBarChart = function(config) {
         .enter()
         .append('text')
             .text(function(d) {
-                return (graphicConfig.prefixX || '') + numFormat(d[valueColumn]) + (graphicConfig.suffixX || '');
+                var formattedNumber = numFormat(parseFloat(d[valueColumn].toFixed(maxDecimalPlaces)));
+                return (graphicConfig.prefixX || '') + formattedNumber + (graphicConfig.suffixX || '');
             })
             .attr('x', function(d) {
                 return xScale(d[valueColumn]);
