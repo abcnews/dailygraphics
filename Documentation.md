@@ -34,7 +34,8 @@ Use one of the themes to render the chart. Each chart type has a different defau
 - `single` - only one color, the ABC blue
 - `monochrome` -  variations of ABC blue and grey
 - `multicolor` - multiple colors designed for color blindness
-- `highlight` - Line, bar and column chart support the highlight theme that renders everything a dull grey and blue when hovered or "highlighted"
+- `highlight` - line, bar and column chart support the highlight theme that renders everything a dull grey and blue when hovered or "highlighted"
+- `custom` - use the colors defined in the `colors` label below
 
 **colors**
 
