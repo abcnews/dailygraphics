@@ -39,7 +39,13 @@ Use one of the themes to render the chart. Each chart type has a different defau
 
 **colors**
 
-Comma separated list of colors for each line. e.g. "red, blue, green, yellow". You can also specify the colors as RGB hex values (see http://www.colorpicker.com/) preceded with `#`. You may use the code of political parties to use our standard party colors (e.g. `ptylab, ptylib, ptynat, ptygrn`).
+Comma separated list of colors for each data set. These can be defined in a few different ways:
+
+1. RGB hex values preceded with `#`. e.g. `#f00, #f12e41, #def78e` (see http://www.colorpicker.com/)
+2. Color keywords. e.g. `red, blue, green, yellow` (see https://developer.mozilla.org/en/docs/Web/CSS/color_value for full list of available color keywords).
+3. Special political party keywords to use ABC News standard party colors. e.g. `ptylab, ptylib, ptynat, ptygrn`
+
+These different value types can be combined. e.g. `red, #abcdef, ptynat, #333`
 
 **card**
 > Default: `on`
