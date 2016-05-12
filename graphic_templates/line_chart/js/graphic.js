@@ -484,9 +484,17 @@ var renderLineChart = function(config) {
         .enter().append('div')
             .attr("class", "label")
             .html(function (d) {
-                var h = "";
+                var h = '';
                 for (var i = 0; i < d.length; ++i) {
-                    h += "<div>" + d[i] + " <strong>" + formattedNumber(lastObj[d[i]]) + "</strong></div>";
+                    var x = 0;
+                    for (var key in lastObj) {
+                       if (lastObj.hasOwnProperty(key) && key === d[i]) { break; }
+                       x++;
+                    }
+                    h += '<div style="color: ' + colorScale(x) + '">';
+                    h += d[i];
+                    h += ' <strong>' + formattedNumber(lastObj[d[i]]) + '</strong>';
+                    h += '</div>';
                 }
                 return h;
             })
@@ -598,9 +606,17 @@ var renderLineChart = function(config) {
                 .selectAll("div.tooltip")
                 .data(transformed)
                 .html(function (d) {
-                    var h = "";
+                    var h = '';
                     for (var i = 0; i < d.length; ++i) {
-                        h += "<div>"+d[i]+" <strong>"+formattedNumber(obj[d[i]])+"</strong></div>";
+                        var x = 0;
+                        for (var key in obj) {
+                           if (obj.hasOwnProperty(key) && key === d[i]) { break; }
+                           x++;
+                        }
+                        h += '<div style="color: ' + colorScale(x) + '">';
+                        h += d[i];
+                        h += ' <strong>' + formattedNumber(obj[d[i]]) + '</strong>';
+                        h += '</div>';
                     }
                     return h;
                 })
