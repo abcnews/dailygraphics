@@ -3,14 +3,29 @@
 ## Common Options
 
 **headline**
+> Default: empty string
+
+Heading that appears above the graph.
 
 **subhed**
+> Default: empty string
+
+Text that appears above the graph.
 
 **footnote**
+> Default: empty string
+
+Small text that appears below the graph under a heading of "Notes".
 
 **source**
+> Default: empty string
+
+Small text that appears below the graph prefixed with "Source: ".
 
 **credit**
+> Default: empty string
+
+Small text that appears below the graph prefixed with "Credit: ".
 
 **theme**
 > single, monochrome, multicolor, highlight.
