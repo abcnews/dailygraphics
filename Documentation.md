@@ -224,6 +224,15 @@ A string to put in front of the ticks in the X axis. e.g. `$`.
 
 A string to put at the end of the ticks in the X axis. e.g. `%`.
 
+## Grouped Bar Chart
+
+Same as "Bar Chart" with one extra:
+
+**groupGap**
+> Default: `30`
+
+Vertical spacing between each bar group.
+
 ## Common issues
 
 If your data is displaying but not being plotted in the correct coordinates it is likely that you are using a date format different to the default (or the one specified by `parseDateFormat`). You can either update your dates in the data to use the default date format, or define a `parseDateFormat` that matches the date format you are using. See `parseDateFormat` section of this page for more information.
