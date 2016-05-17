@@ -86,7 +86,7 @@ Maximum number of decimal places to show on the formatted data labels. Any trail
 
 ### Line Chart
 
-Name the X axis in the data sheet `x` for ordinal data or `date` for time based data. You *must* ensure the [parseDateFormat](#parseDateFormat) option matches the data so the chart builder knows how to interpret the dates correctly.
+Name the X axis in the data sheet `x` for ordinal data or `date` for time based data. If it is time based data you *must* ensure it matches the [parseDateFormat](#parseDateFormat) option so the chart builder knows how to interpret the dates correctly.
 
 #### ratio
 > Default: `4x3` on mobile, `16x9` otherwise
