@@ -55,7 +55,7 @@ var render = function(containerWidth) {
 
     // Render the chart!
     renderSlopegraph({
-        container: '#graphic',
+        container: '#slopegraph',
         width: containerWidth,
         data: DATA,
         metadata: LABELS

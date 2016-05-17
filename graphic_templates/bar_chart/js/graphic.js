@@ -46,7 +46,7 @@ var render = function(containerWidth) {
 
     // Render the chart!
     renderBarChart({
-        container: '#graphic',
+        container: '#bar-chart',
         width: containerWidth,
         data: DATA
     });

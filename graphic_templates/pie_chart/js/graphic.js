@@ -47,7 +47,7 @@ var render = function(containerWidth) {
 
     // Render the chart!
     renderPieChart({
-        container: '#graphic',
+        container: '#pie-chart',
         width: containerWidth,
         data: DATA
     });

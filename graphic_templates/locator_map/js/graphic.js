@@ -68,7 +68,7 @@ var render = function(containerWidth) {
 
     // Render the chart!
     renderLocatorMap({
-        container: '#graphic',
+        container: '#locator-map',
         width: containerWidth,
         data: geoData,
         primaryCountry: 'Nepal'

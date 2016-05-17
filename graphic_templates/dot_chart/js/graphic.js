@@ -48,7 +48,7 @@ var render = function(containerWidth) {
 
     // Render the chart!
     renderDotChart({
-        container: '#graphic',
+        container: '#dot-chart',
         width: containerWidth,
         data: DATA
     });

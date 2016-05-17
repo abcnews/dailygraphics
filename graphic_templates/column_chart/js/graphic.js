@@ -49,7 +49,7 @@ var render = function(containerWidth) {
 
     // Render the chart!
     renderColumnChart({
-        container: '#graphic',
+        container: '#column-chart',
         width: containerWidth,
         data: DATA
     });
