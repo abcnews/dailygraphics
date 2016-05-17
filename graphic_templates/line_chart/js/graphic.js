@@ -5,7 +5,6 @@ var MOBILE_THRESHOLD = 500;
 // Global vars
 var pymChild = null;
 var isMobile = false;
-var graphicData = null;
 var graphicConfig = null;
 
 // D3 formatters
@@ -17,32 +16,23 @@ var bisectDate = d3.bisector(function(d) { return d.date; }).left;
 var onWindowLoaded = function() {
     if (Modernizr.svg) {
         graphicConfig = GRAPHIC_CONFIG;
-        loadLocalData(GRAPHIC_DATA);
+        if (DATA[0].date) {
+            formatData();
+        }
+
+        pymChild = new pym.Child({
+            renderCallback: render
+        });
     } else {
         pymChild = new pym.Child({});
     }
 }
 
 /*
- * Load graphic data from a local source.
- */
-var loadLocalData = function(data) {
-    graphicData = data;
-
-    if (graphicData[0].date) {
-        formatData();
-    }
-
-    pymChild = new pym.Child({
-        renderCallback: render
-    });
-}
-
-/*
  * Format graphic data for processing by D3.
  */
 var formatData = function() {
-    graphicData.forEach(function(d) {
+    DATA.forEach(function(d) {
         var date;
 
         if (graphicConfig.parseDateFormat) {
@@ -82,7 +72,7 @@ var render = function(containerWidth) {
     renderLineChart({
         container: '#graphic',
         width: containerWidth,
-        data: graphicData
+        data: DATA
     });
 
     // Update iframe
@@ -151,19 +141,19 @@ var renderLineChart = function(config) {
      * Restructure tabular data for easier charting.
      */
     var i = 0;
-    for (var column in graphicData[0]) {
+    for (var column in DATA[0]) {
         if (column == dateColumn || column == 'x') {
             continue;
         }
 
-        formattedData[column] = graphicData.map(function(d) {
+        formattedData[column] = DATA.map(function(d) {
             return {
                 'x': d[dateColumn] || d['x'],
                 'amt': +d[column]
             };
         });
 
-        flatData = flatData.concat(graphicData.map(function(d) {
+        flatData = flatData.concat(DATA.map(function(d) {
             return {
                 'x': d[dateColumn] || d['x'],
                 'amt': +d[column],
@@ -196,7 +186,7 @@ var renderLineChart = function(config) {
     var xFormat;
     var xScale;
 
-    if (graphicData[0]['date']) {
+    if (DATA[0]['date']) {
 
         if (!isMobile && graphicConfig.timeFormatLarge) {
             xFormat = d3.time.format(graphicConfig.timeFormatLarge);
@@ -227,7 +217,7 @@ var renderLineChart = function(config) {
 
         xScale = d3.scale.ordinal()
         .rangePoints([0, chartWidth])
-        .domain(graphicData.map(function (d) {
+        .domain(DATA.map(function (d) {
             return d['x'];
         }))
         // .range([0, chartWidth]);
@@ -452,7 +442,7 @@ var renderLineChart = function(config) {
     var lastObj;
     var lastObjxVal;
 
-    lastObj = _.clone(graphicData[graphicData.length - 1]);
+    lastObj = _.clone(DATA[DATA.length - 1]);
     if (dateColumn === 'date') {
         lastObjxVal = lastObj.date;
         delete lastObj.date;
@@ -554,12 +544,12 @@ var renderLineChart = function(config) {
             var xVal, obj;
             if (dateColumn === 'date') {
                 var x = xScale.invert(pos[0]);
-                var index = bisectDate(graphicData, x, 1);
-                obj = _.clone(graphicData[index - 1]);
-                var obj2 = _.clone(graphicData[index]);
+                var index = bisectDate(DATA, x, 1);
+                obj = _.clone(DATA[index - 1]);
+                var obj2 = _.clone(DATA[index]);
 
                 // choose the closest object to the mouse
-                if (index < graphicData.length - 1 && x - obj.date > obj2.date - x) {
+                if (index < DATA.length - 1 && x - obj.date > obj2.date - x) {
                     obj = obj2;
                 }
 
@@ -570,8 +560,8 @@ var renderLineChart = function(config) {
                 var left = domain[i - 1];
                 var right = domain[i];
 
-                // var obj = getObjectFromArray(graphicData, dateColumn, left);
-                obj = _.clone(_.findWhere(graphicData, {x: left}));
+                // var obj = getObjectFromArray(DATA, dateColumn, left);
+                obj = _.clone(_.findWhere(DATA, {x: left}));
                 if (!obj) {
                     return;
                 }
@@ -579,7 +569,7 @@ var renderLineChart = function(config) {
                 xVal = left;
 
                 if (i < domain.length - 1 && pos[0] - xScale(left) > xScale(right) - pos[0]) {
-                    obj = _.clone(_.findWhere(graphicData, {x: right}));
+                    obj = _.clone(_.findWhere(DATA, {x: right}));
                     xVal = right;
                 }
 

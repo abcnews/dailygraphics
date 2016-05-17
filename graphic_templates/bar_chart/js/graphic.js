@@ -5,7 +5,6 @@ var MOBILE_THRESHOLD = 500;
 // Global vars
 var pymChild = null;
 var isMobile = false;
-var graphicData = null;
 var graphicConfig = null;
 
 /*
@@ -14,30 +13,21 @@ var graphicConfig = null;
 var onWindowLoaded = function() {
     if (Modernizr.svg) {
         graphicConfig = GRAPHIC_CONFIG;
-        loadLocalData(GRAPHIC_DATA);
+        formatData();
+
+        pymChild = new pym.Child({
+            renderCallback: render
+        });
     } else {
         pymChild = new pym.Child({});
     }
 }
 
 /*
- * Load graphic data from a local source.
- */
-var loadLocalData = function(data) {
-    graphicData = data;
-
-    formatData();
-
-    pymChild = new pym.Child({
-        renderCallback: render
-    });
-}
-
-/*
  * Format graphic data for processing by D3.
  */
 var formatData = function() {
-    graphicData.forEach(function(d) {
+    DATA.forEach(function(d) {
         d['amt'] = +d['amt'];
     });
 }
@@ -60,7 +50,7 @@ var render = function(containerWidth) {
     renderBarChart({
         container: '#graphic',
         width: containerWidth,
-        data: graphicData
+        data: DATA
     });
 
     // Update iframe
