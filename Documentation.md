@@ -1,5 +1,14 @@
 # Chart Builder
 
+* [Common Options](#common-options)
+* [Line Chart](#line-chart)
+* [Bar Chart & Grouped Bar Chart](#bar-chart--grouped-bar-chart)
+* [Grouped Bar Chart](#grouped-bar-chart)
+* [Column Chart](#column-chart)
+* [Pie Chart](#pie-chart)
+* [Common issues](#common-issues)
+* [Development](#development)
+
 ## Common Options
 
 **headline**
@@ -237,6 +246,18 @@ Same as "Bar Chart" with one extra:
 > Default: `30`
 
 Vertical spacing between each bar group.
+
+## Column Chart
+
+**valueGap**
+> Default: `6`
+
+**roundTicksFactor**
+> Default: `50`
+
+## Pie Chart
+
+**showLabels**
 
 ## Common issues
 
