@@ -1,3 +1,7 @@
+/*
+ * Basic Javascript helpers used in analytics.js and graphics code.
+ */
+
 var COLORS = {
     'red1': '#6C2315', 'red2': '#A23520', 'red3': '#D8472B', 'red4': '#E27560', 'red5': '#ECA395', 'red6': '#F5D1CA',
     'orange1': '#714616', 'orange2': '#AA6A21', 'orange3': '#E38D2C', 'orange4': '#EAAA61', 'orange5': '#F1C696', 'orange6': '#F8E2CA',
@@ -16,31 +20,19 @@ var PTYCOLORS = {
 };
 
 var multiColors = [
-    "#1F79CD",
-    "#FF7C0A",
-    "#00B3A7",
-    "#D662B1",
-    "#71A12D",
-    "#926CB5",
-    "#F55446"
+    '#1F79CD', '#FF7C0A', '#00B3A7', '#D662B1', '#71A12D', '#926CB5', '#F55446'
 ];
 
 var monochromeColors = [
-    "#1B79CC",
-    "#47A6FF",
-    "#136C9C",
-    "#8796A1",
-    "#2B4E78",
-    "#5686B0",
-    "#5E6F7A"
+    '#1B79CC', '#47A6FF', '#136C9C', '#8796A1', '#2B4E78', '#5686B0', '#5E6F7A'
 ];
 
 var singleColors = [
-    "#478CCC"
+    '#478CCC'
 ];
 
 var highlightColors = [
-    "#CCCCCC"
+    '#CCCCCC'
 ];
 
 var highlightColor = '#478CCC';
