@@ -7,14 +7,12 @@ var SIDEBAR_THRESHOLD = 280;
 var pymChild = null;
 var isMobile = false;
 var isSidebar = false;
-var graphicConfig = null;
 
 /*
  * Initialize graphic
  */
 var onWindowLoaded = function() {
     if (Modernizr.svg) {
-        graphicConfig = GRAPHIC_METADATA;
         formatData();
 
         pymChild = new pym.Child({
@@ -60,7 +58,7 @@ var render = function(containerWidth) {
         container: '#graphic',
         width: containerWidth,
         data: DATA,
-        metadata: GRAPHIC_METADATA
+        metadata: LABELS
     });
 
     // Update iframe
@@ -89,10 +87,10 @@ var renderSlopegraph = function(config) {
     var aspectHeight = 3;
 
     var margins = {
-        top: parseInt(graphicConfig.marginTop || 20, 10),
-        right: parseInt(graphicConfig.marginRight || 185, 10),
-        bottom: parseInt(graphicConfig.marginBottom || 20, 10),
-        left: parseInt(graphicConfig.marginLeft || 40, 10),
+        top: parseInt(LABELS.marginTop || 20, 10),
+        right: parseInt(LABELS.marginRight || 185, 10),
+        bottom: parseInt(LABELS.marginBottom || 20, 10),
+        left: parseInt(LABELS.marginLeft || 40, 10),
     };
 
     var ticksX = 2;
@@ -149,7 +147,7 @@ var renderSlopegraph = function(config) {
         ])
         .range([chartHeight, 0]);
 
-    var colorList = colorArray(graphicConfig, monochromeColors);
+    var colorList = colorArray(LABELS, monochromeColors);
     var colorScale = d3.scale.ordinal()
         .domain([0, colorList.length])
         .range(colorList);

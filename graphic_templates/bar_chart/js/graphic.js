@@ -5,14 +5,12 @@ var MOBILE_THRESHOLD = 500;
 // Global vars
 var pymChild = null;
 var isMobile = false;
-var graphicConfig = null;
 
 /*
  * Initialize the graphic.
  */
 var onWindowLoaded = function() {
     if (Modernizr.svg) {
-        graphicConfig = GRAPHIC_CONFIG;
         formatData();
 
         pymChild = new pym.Child({
@@ -69,21 +67,21 @@ var renderBarChart = function(config) {
     var labelColumn = 'label';
     var valueColumn = 'amt';
 
-    var barHeight = parseInt(graphicConfig.barHeight || 30, 10);
-    var barGap = parseInt(graphicConfig.barGap || 5, 10);
-    var labelWidth = parseInt(graphicConfig.labelWidth || 85, 10);
-    var labelMargin = parseInt(graphicConfig.labelMargin || 6, 10);
-    var valueGap = parseInt(graphicConfig.valueGap || 6, 10);
+    var barHeight = parseInt(LABELS.barHeight || 30, 10);
+    var barGap = parseInt(LABELS.barGap || 5, 10);
+    var labelWidth = parseInt(LABELS.labelWidth || 85, 10);
+    var labelMargin = parseInt(LABELS.labelMargin || 6, 10);
+    var valueGap = parseInt(LABELS.valueGap || 6, 10);
 
     var margins = {
-        top: parseInt(graphicConfig.marginTop || 0, 10),
-        right: parseInt(graphicConfig.marginRight || 15, 10),
-        bottom: parseInt(graphicConfig.marginBottom || 20, 10),
-        left: parseInt(graphicConfig.marginLeft || (labelWidth + labelMargin), 10)
+        top: parseInt(LABELS.marginTop || 0, 10),
+        right: parseInt(LABELS.marginRight || 15, 10),
+        bottom: parseInt(LABELS.marginBottom || 20, 10),
+        left: parseInt(LABELS.marginLeft || (labelWidth + labelMargin), 10)
     };
 
-    var ticksX = parseInt(graphicConfig.ticksX || 4, 10);
-    var roundTicksFactor = parseInt(graphicConfig.roundTicksFactor || 5, 10);
+    var ticksX = parseInt(LABELS.ticksX || 4, 10);
+    var roundTicksFactor = parseInt(LABELS.roundTicksFactor || 5, 10);
 
 
 
@@ -120,8 +118,8 @@ var renderBarChart = function(config) {
         return Math.floor(d[valueColumn] / roundTicksFactor) * roundTicksFactor;
     });
 
-    if ('minX' in graphicConfig && graphicConfig.minX !== '') {
-        min = parseFloat(graphicConfig.minX, 10);
+    if ('minX' in LABELS && LABELS.minX !== '') {
+        min = parseFloat(LABELS.minX, 10);
     } else if (min > 0) {
         min = 0;
     }
@@ -130,8 +128,8 @@ var renderBarChart = function(config) {
         return Math.ceil(d[valueColumn] / roundTicksFactor) * roundTicksFactor;
     });
 
-    if ('maxX' in graphicConfig && graphicConfig.maxX !== '') {
-        max = parseFloat(graphicConfig.maxX, 10);
+    if ('maxX' in LABELS && LABELS.maxX !== '') {
+        max = parseFloat(LABELS.maxX, 10);
     }
 
     var xScale = d3.scale.linear()
@@ -172,7 +170,7 @@ var renderBarChart = function(config) {
     //         .tickFormat('')
     //     );
 
-    var colorList = colorArray(graphicConfig, singleColors);
+    var colorList = colorArray(LABELS, singleColors);
     var colorScale = d3.scale.ordinal()
         .range(colorList);
 
@@ -206,7 +204,7 @@ var renderBarChart = function(config) {
                 return colorScale(i);
             });
 
-    if (graphicConfig.theme == "highlight") {
+    if (LABELS.theme == "highlight") {
         chartWrapper.on("mousemove", function (e) {
             var pos = d3.mouse(chartWrapper.node())
             var index = Math.floor(pos[1] / (barHeight + barGap)) + 1;

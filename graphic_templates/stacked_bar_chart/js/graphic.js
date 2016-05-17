@@ -5,14 +5,12 @@ var MOBILE_THRESHOLD = 500;
 // Global vars
 var pymChild = null;
 var isMobile = false;
-var graphicConfig = null;
 
 /*
  * Initialize the graphic.
  */
 var onWindowLoaded = function() {
     if (Modernizr.svg) {
-        graphicConfig = GRAPHIC_CONFIG;
         formatData();
 
         pymChild = new pym.Child({
@@ -141,7 +139,7 @@ var renderStackedBarChart = function(config) {
         ])
         .rangeRound([0, chartWidth]);
 
-    var colorList = colorArray(graphicConfig, multiColors);
+    var colorList = colorArray(LABELS, multiColors);
     var colorScale = d3.scale.ordinal()
         .domain(d3.keys(config['data'][0]).filter(function(d) {
             return d != labelColumn && d != 'values';

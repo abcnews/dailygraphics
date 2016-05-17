@@ -5,7 +5,6 @@ var MOBILE_THRESHOLD = 500;
 // Global vars
 var pymChild = null;
 var isMobile = false;
-var graphicConfig = null;
 
 // D3 formatters
 var bisectDate = d3.bisector(function(d) { return d.date; }).left;
@@ -15,7 +14,6 @@ var bisectDate = d3.bisector(function(d) { return d.date; }).left;
  */
 var onWindowLoaded = function() {
     if (Modernizr.svg) {
-        graphicConfig = GRAPHIC_CONFIG;
         if (DATA[0].date) {
             formatData();
         }
@@ -35,8 +33,8 @@ var formatData = function() {
     DATA.forEach(function(d) {
         var date;
 
-        if (graphicConfig.parseDateFormat) {
-            date = d3.time.format(graphicConfig.parseDateFormat).parse(d['date']);
+        if (LABELS.parseDateFormat) {
+            date = d3.time.format(LABELS.parseDateFormat).parse(d['date']);
         } else {
             date = d3.time.format('%d/%m/%y').parse(d['date']);
             if (!date) {
@@ -93,8 +91,8 @@ var renderLineChart = function(config) {
 
     var aspectWidth = isMobile ? 4 : 16;
     var aspectHeight = isMobile ? 3 : 9;
-    if ('ratio' in graphicConfig) {
-        var parts = graphicConfig.ratio.split("x");
+    if ('ratio' in LABELS) {
+        var parts = LABELS.ratio.split("x");
         if (parts[0] && parts[1]) {
             aspectWidth = parseInt(parts[0], 10);
             aspectHeight = parseInt(parts[1], 10);
@@ -102,15 +100,15 @@ var renderLineChart = function(config) {
     }
 
     var margins = {
-        top: parseInt(graphicConfig.marginTop || 5, 10),
-        right: parseInt(graphicConfig.marginRight || 50, 10),
-        bottom: parseInt(graphicConfig.marginBottom || 35, 10),
-        left: parseInt(graphicConfig.marginLeft || 30, 10)
+        top: parseInt(LABELS.marginTop || 5, 10),
+        right: parseInt(LABELS.marginRight || 50, 10),
+        bottom: parseInt(LABELS.marginBottom || 35, 10),
+        left: parseInt(LABELS.marginLeft || 30, 10)
     };
 
-    var ticksX = parseInt(graphicConfig.ticksX || 10, 10);
-    var ticksY = parseInt(graphicConfig.ticksY || 10, 10);
-    var roundTicksFactor = parseInt(graphicConfig.roundTicksFactor || 5, 10);
+    var ticksX = parseInt(LABELS.ticksX || 10, 10);
+    var ticksY = parseInt(LABELS.ticksY || 10, 10);
+    var roundTicksFactor = parseInt(LABELS.roundTicksFactor || 5, 10);
 
     // Mobile
     if (isMobile) {
@@ -169,14 +167,14 @@ var renderLineChart = function(config) {
      * Create D3 scale objects.
      */
 
-    var minY = graphicConfig.minValue ? parseFloat(graphicConfig.minValue, 10) : d3.min(d3.entries(formattedData), function(c) {
+    var minY = LABELS.minValue ? parseFloat(LABELS.minValue, 10) : d3.min(d3.entries(formattedData), function(c) {
         return d3.min(c['value'], function(v) {
             var n = v[valueColumn];
             return Math.floor(n / roundTicksFactor) * roundTicksFactor;
         });
     });
 
-    var maxY = graphicConfig.maxValue ? parseFloat(graphicConfig.maxValue, 10) : d3.max(d3.entries(formattedData), function(c) {
+    var maxY = LABELS.maxValue ? parseFloat(LABELS.maxValue, 10) : d3.max(d3.entries(formattedData), function(c) {
         return d3.max(c['value'], function(v) {
             var n = v[valueColumn];
             return Math.ceil(n / roundTicksFactor) * roundTicksFactor;
@@ -188,10 +186,10 @@ var renderLineChart = function(config) {
 
     if (DATA[0]['date']) {
 
-        if (!isMobile && graphicConfig.timeFormatLarge) {
-            xFormat = d3.time.format(graphicConfig.timeFormatLarge);
-        } else if (isMobile && graphicConfig.timeFormatSmall) {
-            xFormat = d3.time.format(graphicConfig.timeFormatSmall);
+        if (!isMobile && LABELS.timeFormatLarge) {
+            xFormat = d3.time.format(LABELS.timeFormatLarge);
+        } else if (isMobile && LABELS.timeFormatSmall) {
+            xFormat = d3.time.format(LABELS.timeFormatSmall);
         } else {
             xFormat = d3.time.format.multi([
                 [".%L", function(d) { return d.getMilliseconds(); }],
@@ -230,12 +228,12 @@ var renderLineChart = function(config) {
         .range([ chartHeight, 0 ]);
 
 
-    var colorList = colorArray(graphicConfig, monochromeColors);
+    var colorList = colorArray(LABELS, monochromeColors);
     var colorScale = d3.scale.ordinal()
         .range(colorList);
 
-    if (graphicConfig.xLabel) margins.bottom += 20;
-    if (graphicConfig.yLabel) margins.top += 20;
+    if (LABELS.xLabel) margins.bottom += 20;
+    if (LABELS.yLabel) margins.top += 20;
 
     var chartElement = chartWrapper.append('svg')
         .attr('width', chartWidth + margins['left'] + margins['right'])
@@ -307,7 +305,7 @@ var renderLineChart = function(config) {
      * Render lines to chart.
      */
     var line = d3.svg.line()
-        .interpolate(graphicConfig.interpolate || 'monotone')
+        .interpolate(LABELS.interpolate || 'monotone')
         .x(function(d) {
             return xScale(d[dateColumn] || d['x']);
         })
@@ -315,7 +313,7 @@ var renderLineChart = function(config) {
             return yScale(d[valueColumn]);
         });
 
-    var highlighted = graphicConfig.highlighted ? graphicConfig.highlighted.split(/\s*,\s*/) : [];
+    var highlighted = LABELS.highlighted ? LABELS.highlighted.split(/\s*,\s*/) : [];
     var lines = chartElement.append('g')
         .attr('class', 'lines visible-lines')
         .selectAll('path')
@@ -336,7 +334,7 @@ var renderLineChart = function(config) {
                 return line(d['value']);
             });
 
-    if (graphicConfig.theme == "highlight") {
+    if (LABELS.theme == "highlight") {
         var shadowLines = chartElement.append('g')
             .attr('class', 'lines shadow-lines')
             .selectAll('path')
@@ -482,24 +480,24 @@ var renderLineChart = function(config) {
 
 
 
-    if (graphicConfig.xLabel) {
+    if (LABELS.xLabel) {
         var t = chartElement.append("text")
-            .text(graphicConfig.xLabel)
+            .text(LABELS.xLabel)
             .attr("y", chartHeight + margins.bottom - 5)
             .attr("class", "axis-label");
 
         t.attr("x", (chartWidth - t.node().getComputedTextLength()) / 2)
     }
 
-    if (graphicConfig.yLabel) {
+    if (LABELS.yLabel) {
         var t = chartElement.append("text")
-            .text(graphicConfig.yLabel)
+            .text(LABELS.yLabel)
             .attr("x", -20)
             .attr("y", -15)
             .attr("class", "axis-label");
     }
 
-    if (graphicConfig.theme == "highlight") {
+    if (LABELS.theme == "highlight") {
         shadowLines.on("mouseover", function () {
             var index = this.getAttribute('data-index');
             chartElement.select(".visible-lines .line-" + index).attr('stroke', highlightColor);
@@ -513,7 +511,7 @@ var renderLineChart = function(config) {
         });
     }
 
-    if (graphicConfig.circleMarker !== 'off') {
+    if (LABELS.circleMarker !== 'off') {
         chartElement.append('g')
             .selectAll('circle')
             .data(flatData)
@@ -534,7 +532,7 @@ var renderLineChart = function(config) {
             });
     }
 
-    if (graphicConfig.tooltip !== 'off') {
+    if (LABELS.tooltip !== 'off') {
         var tooltipWrapper = chartWrapper.append("div").attr("class", "tooltip-wrapper");
 
         chartElement.on("mousemove", function (e) {

@@ -5,7 +5,6 @@ var MOBILE_THRESHOLD = 500;
 // Global vars
 var pymChild = null;
 var isMobile = false;
-var graphicConfig = null;
 
 // D3 formatters
 var fmtComma = d3.format(',');
@@ -15,7 +14,6 @@ var fmtComma = d3.format(',');
  */
 var onWindowLoaded = function() {
     if (Modernizr.svg) {
-        graphicConfig = GRAPHIC_CONFIG;
         formatData();
 
         pymChild = new pym.Child({
@@ -74,17 +72,17 @@ var renderColumnChart = function(config) {
 
     var aspectWidth = isMobile ? 4 : 16;
     var aspectHeight = isMobile ? 3 : 9;
-    var valueGap = parseInt(graphicConfig.valueGap || 6, 10);
+    var valueGap = parseInt(LABELS.valueGap || 6, 10);
 
     var margins = {
-        top: parseInt(graphicConfig.marginTop || 5, 10),
-        right: parseInt(graphicConfig.marginRight || 0, 10),
-        bottom: parseInt(graphicConfig.marginBottom || 20, 10),
-        left: parseInt(graphicConfig.marginLeft || 0, 10),
+        top: parseInt(LABELS.marginTop || 5, 10),
+        right: parseInt(LABELS.marginRight || 0, 10),
+        bottom: parseInt(LABELS.marginBottom || 20, 10),
+        left: parseInt(LABELS.marginLeft || 0, 10),
     };
 
     var ticksY = 4;
-    var roundTicksFactor = parseInt(graphicConfig.roundTicksFactor || 50, 10);
+    var roundTicksFactor = parseInt(LABELS.roundTicksFactor || 50, 10);
 
     // Clear existing graphic (for redraw)
     var containerElement = d3.select(config['container']);
@@ -186,7 +184,7 @@ var renderColumnChart = function(config) {
     //         .tickFormat('')
     //     );
 
-    var colorList = colorArray(graphicConfig, singleColors);
+    var colorList = colorArray(LABELS, singleColors);
     var colorScale = d3.scale.ordinal()
         .range(colorList);
 
@@ -225,7 +223,7 @@ var renderColumnChart = function(config) {
             });
 
 
-    if (graphicConfig.theme == "highlight") {
+    if (LABELS.theme == "highlight") {
         chartWrapper.on("mousemove", function (e) {
             var pos = d3.mouse(chartWrapper.node())
             var index = Math.floor(pos[0] / (xScale.rangeBand() + valueGap)) + 1;
