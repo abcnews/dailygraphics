@@ -11,12 +11,12 @@ var COLORS = {
 };
 
 var PTYCOLORS = {
-    'ptyalp': '#C04745',
-    'ptylab': '#C04745',
-    'ptylib': '#4776BE',
-    'ptylnp': '#4776BE',
-    'ptynat': '#009966',
-    'ptygrn': '#86AB00',
+    'ptyalp': '#C93636',
+    'ptylab': '#C93636',
+    'ptylib': '#006DBD',
+    'ptylnp': '#006DBD',
+    'ptynat': '#008761',
+    'ptygrn': '#7AAC00',
 };
 
 var multiColors = [
