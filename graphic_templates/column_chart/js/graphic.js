@@ -103,30 +103,14 @@ var renderColumnChart = function(config) {
     var valueGap = parseInt(graphicConfig.valueGap || 6, 10);
 
     var margins = {
-        top: 5,
-        right: 0,
-        bottom: 20,
-        left: 0
+        top: parseInt(graphicConfig.marginTop || 5, 10),
+        right: parseInt(graphicConfig.marginRight || 0, 10),
+        bottom: parseInt(graphicConfig.marginBottom || 20, 10),
+        left: parseInt(graphicConfig.marginLeft || 0, 10),
     };
 
     var ticksY = 4;
     var roundTicksFactor = parseInt(graphicConfig.roundTicksFactor || 50, 10);
-
-    if (graphicConfig.marginTop) {
-        margins.top = parseInt(graphicConfig.marginTop, 10);
-    }
-
-    if (graphicConfig.marginRight) {
-        margins.right = parseInt(graphicConfig.marginRight, 10);
-    }
-
-    if (graphicConfig.marginBottom) {
-        margins.bottom = parseInt(graphicConfig.marginBottom, 10);
-    }
-
-    if (graphicConfig.marginLeft) {
-        margins.left = parseInt(graphicConfig.marginLeft, 10);
-    }
 
     // Clear existing graphic (for redraw)
     var containerElement = d3.select(config['container']);

@@ -115,27 +115,11 @@ var renderSlopegraph = function(config) {
     var aspectHeight = 3;
 
     var margins = {
-        top: 20,
-        right: 185,
-        bottom: 20,
-        left: 40
+        top: parseInt(graphicConfig.marginTop || 20, 10),
+        right: parseInt(graphicConfig.marginRight || 185, 10),
+        bottom: parseInt(graphicConfig.marginBottom || 20, 10),
+        left: parseInt(graphicConfig.marginLeft || 40, 10),
     };
-
-    if (graphicConfig.marginTop) {
-        margins.top = parseInt(graphicConfig.marginTop, 10);
-    }
-
-    if (graphicConfig.marginRight) {
-        margins.right = parseInt(graphicConfig.marginRight, 10);
-    }
-
-    if (graphicConfig.marginBottom) {
-        margins.bottom = parseInt(graphicConfig.marginBottom, 10);
-    }
-
-    if (graphicConfig.marginLeft) {
-        margins.left = parseInt(graphicConfig.marginLeft, 10);
-    }
 
     var ticksX = 2;
     var ticksY = 10;

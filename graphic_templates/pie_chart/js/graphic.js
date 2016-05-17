@@ -97,27 +97,11 @@ var renderPieChart = function(config) {
     var valueColumn = 'amt';
 
     var margins = {
-        top: 0,
-        right: 15,
-        bottom: 20,
-        left: 15
+        top: parseInt(graphicConfig.marginTop || 0, 10),
+        right: parseInt(graphicConfig.marginRight || 15, 10),
+        bottom: parseInt(graphicConfig.marginBottom || 20, 10),
+        left: parseInt(graphicConfig.marginLeft || 15, 10),
     };
-
-    if (graphicConfig.marginTop) {
-        margins.top = parseInt(graphicConfig.marginTop, 10);
-    }
-
-    if (graphicConfig.marginRight) {
-        margins.right = parseInt(graphicConfig.marginRight, 10);
-    }
-
-    if (graphicConfig.marginBottom) {
-        margins.bottom = parseInt(graphicConfig.marginBottom, 10);
-    }
-
-    if (graphicConfig.marginLeft) {
-        margins.left = parseInt(graphicConfig.marginLeft, 10);
-    }    
 
     // Clear existing graphic (for redraw)
     var containerElement = d3.select(config['container']);
@@ -173,8 +157,8 @@ var renderPieChart = function(config) {
             .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
             .style("text-anchor", "middle")
             .attr("fill", "white")
-            .text(function(d) { 
-                return d.data[labelColumn]; 
+            .text(function(d) {
+                return d.data[labelColumn];
             });
     }
 }
