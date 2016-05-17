@@ -569,7 +569,6 @@ var renderLineChart = function(config) {
             var domain = xScale.domain();
             var range = xScale.range();
             var xVal, obj;
-
             if (dateColumn === 'date') {
                 var x = xScale.invert(pos[0]);
                 var index = bisectDate(graphicData, x, 1);
@@ -590,6 +589,10 @@ var renderLineChart = function(config) {
 
                 // var obj = getObjectFromArray(graphicData, dateColumn, left);
                 obj = _.clone(_.findWhere(graphicData, {x: left}));
+                if (!obj) {
+                    return;
+                }
+
                 xVal = left;
 
                 if (i < domain.length - 1 && pos[0] - xScale(left) > xScale(right) - pos[0]) {
