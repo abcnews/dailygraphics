@@ -39,23 +39,6 @@ var loadLocalData = function(data) {
 }
 
 /*
- * Load graphic data from a CSV.
- */
-var loadCSV = function(url) {
-    d3.csv(GRAPHIC_DATA_URL, function(error, data) {
-        graphicData = data;
-
-        if (graphicData[0].date) {
-            formatData();
-        }
-
-        pymChild = new pym.Child({
-            renderCallback: render
-        });
-    });
-}
-
-/*
  * Format graphic data for processing by D3.
  */
 var formatData = function() {
