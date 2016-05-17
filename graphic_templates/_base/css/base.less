@@ -1,6 +1,6 @@
-// Colors
-// -------------------------
-
+/*
+ * Colors
+ */
 @red1       : #6C2315;
 @red2       : #A23520;
 @red3       : #D8472B;
@@ -38,9 +38,11 @@
 
 @hover      : #478CCC;
 
-
-/* base styles */
+/*
+ * Base styles
+ */
 html { -webkit-text-size-adjust: none; }
+
 body {
     margin: 0;
     padding: 0 0 3px 0;
@@ -98,8 +100,14 @@ a, a:link, a:visited {
 }
 a:hover, a:active { color: #bccae5; }
 
+/*
+ * Standard graphic styles
+ */
+.graphic-wrapper {
+    position: relative;
+}
 
-#graphic {
+.graphic {
     position: relative;
     margin-bottom: 11px;
 
@@ -128,10 +136,6 @@ a:hover, a:active { color: #bccae5; }
     }
 }
 
-.graphic-wrapper { position: relative; }
-
-
-/* key */
 .key {
     margin: -11px 0 33px 0;
     padding: 0;
@@ -160,10 +164,6 @@ a:hover, a:active { color: #bccae5; }
         }
     }
 }
-
-
-/* chart styles */
-.chart { position: relative; }
 
 line,
 rect {
@@ -233,7 +233,7 @@ rect {
         color: #333;
     }
 
-    #graphic {
+    .graphic {
         padding: 20px;
     }
 
@@ -261,7 +261,7 @@ rect {
             padding: 5px 10px;
         }
 
-        #graphic {
+        .graphic {
             padding: 0;
         }
 

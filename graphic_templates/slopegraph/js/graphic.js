@@ -1,61 +1,31 @@
 // Global config
-var GRAPHIC_DEFAULT_WIDTH = 600;
-var MOBILE_THRESHOLD = 500;
 var SIDEBAR_THRESHOLD = 280;
 
 // Global vars
 var pymChild = null;
 var isMobile = false;
 var isSidebar = false;
-var graphicData = null;
-var graphicConfig = null;
 
 /*
  * Initialize graphic
  */
 var onWindowLoaded = function() {
     if (Modernizr.svg) {
-        graphicConfig = GRAPHIC_METADATA;
-        loadLocalData(GRAPHIC_DATA);
-        //loadCSV('data.csv')
+        formatData();
+
+        pymChild = new pym.Child({
+            renderCallback: render
+        });
     } else {
         pymChild = new pym.Child({});
     }
 }
 
 /*
- * Load graphic data from a local source.
- */
-var loadLocalData = function(data) {
-    graphicData = data;
-
-    formatData();
-
-    pymChild = new pym.Child({
-        renderCallback: render
-    });
-}
-
-/*
- * Load graphic data from a CSV.
- */
-var loadCSV = function(url) {
-    d3.csv(GRAPHIC_DATA_URL, function(error, data) {
-        graphicData = data;
-
-        formatData();
-
-        pymChild = new pym.Child({
-            renderCallback: render
-        });
-    });
-}
-
-/*
  * Format graphic data for processing by D3.
  */
 var formatData = function() {
-    graphicData.forEach(function(d) {
+    DATA.forEach(function(d) {
         d['start'] = +d['start'];
         d['end'] = +d['end'];
     });
@@ -66,7 +36,7 @@ var formatData = function() {
  */
 var render = function(containerWidth) {
     if (!containerWidth) {
-        containerWidth = GRAPHIC_DEFAULT_WIDTH;
+        containerWidth = DEFAULT_WIDTH;
     }
 
     if (containerWidth <= MOBILE_THRESHOLD) {
@@ -83,10 +53,10 @@ var render = function(containerWidth) {
 
     // Render the chart!
     renderSlopegraph({
-        container: '#graphic',
+        container: '#slopegraph',
         width: containerWidth,
-        data: graphicData,
-        metadata: GRAPHIC_METADATA
+        data: DATA,
+        metadata: LABELS
     });
 
     // Update iframe
@@ -115,10 +85,10 @@ var renderSlopegraph = function(config) {
     var aspectHeight = 3;
 
     var margins = {
-        top: parseInt(graphicConfig.marginTop || 20, 10),
-        right: parseInt(graphicConfig.marginRight || 185, 10),
-        bottom: parseInt(graphicConfig.marginBottom || 20, 10),
-        left: parseInt(graphicConfig.marginLeft || 40, 10),
+        top: parseInt(LABELS.marginTop || 20, 10),
+        right: parseInt(LABELS.marginRight || 185, 10),
+        bottom: parseInt(LABELS.marginBottom || 20, 10),
+        left: parseInt(LABELS.marginLeft || 40, 10),
     };
 
     var ticksX = 2;
@@ -175,7 +145,7 @@ var renderSlopegraph = function(config) {
         ])
         .range([chartHeight, 0]);
 
-    var colorList = colorArray(graphicConfig, monochromeColors);
+    var colorList = colorArray(LABELS, monochromeColors);
     var colorScale = d3.scale.ordinal()
         .domain([0, colorList.length])
         .range(colorList);

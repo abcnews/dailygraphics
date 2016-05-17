@@ -1,12 +1,6 @@
-// Global config
-var GRAPHIC_DEFAULT_WIDTH = 600;
-var MOBILE_THRESHOLD = 500;
-
 // Global vars
 var pymChild = null;
 var isMobile = false;
-var graphicData = null;
-var graphicConfig = null;
 var numFormat = d3.format(",");
 
 /*
@@ -14,47 +8,21 @@ var numFormat = d3.format(",");
  */
 var onWindowLoaded = function() {
     if (Modernizr.svg) {
-        graphicConfig = GRAPHIC_CONFIG;
-        loadLocalData(GRAPHIC_DATA);
-        //loadCSV('data.csv')
+        formatData();
+
+        pymChild = new pym.Child({
+            renderCallback: render
+        });
     } else {
         pymChild = new pym.Child({});
     }
 }
 
 /*
- * Load graphic data from a local source.
- */
-var loadLocalData = function(data) {
-    graphicData = data;
-
-    formatData();
-
-    pymChild = new pym.Child({
-        renderCallback: render
-    });
-}
-
-/*
- * Load graphic data from a CSV.
- */
-var loadCSV = function(url) {
-    d3.csv(GRAPHIC_DATA_URL, function(error, data) {
-        graphicData = data;
-
-        formatData();
-
-        pymChild = new pym.Child({
-            renderCallback: render
-        });
-    });
-}
-
-/*
  * Format graphic data for processing by D3.
  */
 var formatData = function() {
-    graphicData.forEach(function(d) {
+    DATA.forEach(function(d) {
         d['amt'] = +d['amt'];
     });
 }
@@ -64,7 +32,7 @@ var formatData = function() {
  */
 var render = function(containerWidth) {
     if (!containerWidth) {
-        containerWidth = GRAPHIC_DEFAULT_WIDTH;
+        containerWidth = DEFAULT_WIDTH;
     }
 
     if (containerWidth <= MOBILE_THRESHOLD) {
@@ -75,9 +43,9 @@ var render = function(containerWidth) {
 
     // Render the chart!
     renderPieChart({
-        container: '#graphic',
+        container: '#pie-chart',
         width: containerWidth,
-        data: graphicData
+        data: DATA
     });
 
     // Update iframe
@@ -97,10 +65,10 @@ var renderPieChart = function(config) {
     var valueColumn = 'amt';
 
     var margins = {
-        top: parseInt(graphicConfig.marginTop || 0, 10),
-        right: parseInt(graphicConfig.marginRight || 15, 10),
-        bottom: parseInt(graphicConfig.marginBottom || 20, 10),
-        left: parseInt(graphicConfig.marginLeft || 15, 10),
+        top: parseInt(LABELS.marginTop || 0, 10),
+        right: parseInt(LABELS.marginRight || 15, 10),
+        bottom: parseInt(LABELS.marginBottom || 20, 10),
+        left: parseInt(LABELS.marginLeft || 15, 10),
     };
 
     // Clear existing graphic (for redraw)
@@ -129,7 +97,7 @@ var renderPieChart = function(config) {
         .attr('height', chartHeight)
         .attr('fill', 'transparent');
 
-    var colorList = colorArray(graphicConfig, multiColors);
+    var colorList = colorArray(LABELS, multiColors);
     var colorScale = d3.scale.ordinal()
         .range(colorList);
 
@@ -143,7 +111,7 @@ var renderPieChart = function(config) {
         .value(function(d) { return d[valueColumn]; });
 
     var g = chartElement.selectAll(".arc")
-        .data(pie(graphicData))
+        .data(pie(DATA))
         .enter().append("g")
         .attr("class", "arc")
         .attr("transform", "translate("+(chartWidth/2)+","+(chartHeight/2)+")");
@@ -152,7 +120,7 @@ var renderPieChart = function(config) {
         .attr("d", arc)
         .style("fill", function(d, i) { return colorScale(i); });
 
-    if (graphicConfig.showLabels) {
+    if (LABELS.showLabels) {
         g.append("text")
             .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
             .style("text-anchor", "middle")
