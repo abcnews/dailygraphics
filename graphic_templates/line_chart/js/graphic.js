@@ -424,7 +424,10 @@ var renderLineChart = function(config) {
                     return (xScale(lastObjxVal) + margins.left + 10) + "px";
                 },
                 top: function (d) {
-                    return (d[0].yPos - this.clientHeight / 2) + "px";
+                    var yPosAvg = _.reduce(d, function(memo, num){
+                        return memo + num.yPos;
+                    }, 0) / d.length;
+                    return (yPosAvg - (this.clientHeight / 2)) + "px";
                 },
             });
 
@@ -546,7 +549,10 @@ var renderLineChart = function(config) {
                         return (xScale(xVal) - offset + margins.left) + "px";
                     },
                     top: function (d) {
-                        return (d[0].yPos - this.clientHeight / 2) + "px";
+                        var yPosAvg = _.reduce(d, function(memo, num){
+                            return memo + num.yPos;
+                        }, 0) / d.length;
+                        return (yPosAvg - (this.clientHeight / 2)) + "px";
                     },
                 });
 
