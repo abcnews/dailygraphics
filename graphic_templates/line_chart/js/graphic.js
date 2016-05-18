@@ -356,79 +356,37 @@ var renderLineChart = function(config) {
         return xScale(last[dateColumn] || last['x']) + 5;
     }
 
-    var getTransformedData = function (obj) {
-        var couples = [];
-        var visited = {};
+    var getGroupedData = function (obj, pixelThreshold) {
+        pixelThreshold = pixelThreshold || 40;
+
+        // convert object into array of objects
+        var dataArr = [];
         for (var key in obj) {
-            var y1 = yScale(obj[key]);
-
-            for (var key2 in obj) {
-                if (key === key2) continue;
-                if (visited[key + key2]) continue;
-                if (visited[key2 + key]) continue;
-
-                var y2 = yScale(obj[key2]);
-
-                // must have a gap of 40 pixels else be merged
-                var diff = y1 - y2;
-                if (Math.abs(diff) < 40) {
-                    // merge
-                    var o = {};
-                    o[key] = y1;
-                    o[key2] = y2;
-                    couples.push(o);
-
-                    visited[key + key2] = true;
-                    visited[key2 + key] = true;
-                }
-            }
-        }
-
-        var buckets = [];
-        visited = {};
-        for (var i = 0; i < couples.length; ++i) {
-            var keys = Object.keys(couples[i]);
-            var bucket;
-
-            for (var j = 0; j < buckets.length; ++j) {
-                var b = buckets[j];
-                if (b[keys[0]] || b[keys[1]]) {
-                    bucket = b;
-                }
-            }
-
-            if (!bucket) {
-                bucket = {};
-                bucket[keys[0]] = couples[i][keys[0]];
-                bucket[keys[1]] = couples[i][keys[1]];
-                buckets.push(bucket);
-            }
-
-            bucket[keys[0]] = couples[i][keys[0]];
-            bucket[keys[1]] = couples[i][keys[1]];
-            visited[keys[0]] = true;
-            visited[keys[1]] = true;
-        }
-
-        for (var k in obj) {
-            if (!visited[k]) {
-                var b = {};
-                b[k] = obj[k];
-                buckets.push(b);
-            }
-        }
-
-        var transformed = [];
-        for (var i = 0; i < buckets.length; ++i) {
-            var bucket = buckets[i];
-            var keys = Object.keys(bucket);
-            keys.sort(function (a, b) {
-                return bucket[a] - bucket[b];
+            dataArr.push({
+                label: key,
+                value: obj[key],
+                yPos: yScale(obj[key]),
+                color: colorScale(dataArr.length),
             });
-            transformed.push(keys);
         }
 
-        return transformed;
+        // sort by yPos
+        dataArr.sort(function(a, b) {
+            return a.yPos - b.yPos;
+        });
+
+        // group
+        var groupedArr = [];
+        for (var i = 0; i < dataArr.length; ++i) {
+            var thisData = dataArr[i];
+            if (i === 0 || Math.abs(thisData.yPos - dataArr[i-1].yPos) > pixelThreshold) {
+                groupedArr.push([thisData]);
+            } else {
+                groupedArr[groupedArr.length - 1].push(thisData);
+            }
+        }
+
+        return groupedArr;
     };
 
 
@@ -447,20 +405,16 @@ var renderLineChart = function(config) {
 
     chartWrapper.append("div").attr("class", "label-wrapper")
         .selectAll("div.label")
-            .data(getTransformedData(lastObj))
+            .data(getGroupedData(lastObj))
         .enter().append('div')
             .attr("class", "label")
             .html(function (d) {
                 var h = '';
                 for (var i = 0; i < d.length; ++i) {
-                    var x = 0;
-                    for (var key in lastObj) {
-                       if (lastObj.hasOwnProperty(key) && key === d[i]) { break; }
-                       x++;
-                    }
-                    h += '<div style="color: ' + colorScale(x) + '">';
-                    h += d[i];
-                    h += ' <strong>' + formattedNumber(lastObj[d[i]]) + '</strong>';
+                    var thisData = d[i];
+                    h += '<div style="color: ' + thisData.color + '">';
+                    h += thisData.label;
+                    h += ' <strong>' + formattedNumber(thisData.value) + '</strong>';
                     h += '</div>';
                 }
                 return h;
@@ -470,7 +424,7 @@ var renderLineChart = function(config) {
                     return (xScale(lastObjxVal) + margins.left + 10) + "px";
                 },
                 top: function (d) {
-                    return (yScale(lastObj[d[0]]) - this.clientHeight / 2) + "px";
+                    return (d[0].yPos - this.clientHeight / 2) + "px";
                 },
             });
 
@@ -570,7 +524,7 @@ var renderLineChart = function(config) {
                 delete obj.x;
             }
 
-            var transformed = getTransformedData(obj);
+            var transformed = getGroupedData(obj);
 
             var s = tooltipWrapper
                 .selectAll("div.tooltip")
@@ -578,14 +532,10 @@ var renderLineChart = function(config) {
                 .html(function (d) {
                     var h = '';
                     for (var i = 0; i < d.length; ++i) {
-                        var x = 0;
-                        for (var key in obj) {
-                           if (obj.hasOwnProperty(key) && key === d[i]) { break; }
-                           x++;
-                        }
-                        h += '<div style="color: ' + colorScale(x) + '">';
-                        h += d[i];
-                        h += ' <strong>' + formattedNumber(obj[d[i]]) + '</strong>';
+                        var thisData = d[i];
+                        h += '<div style="color: ' + thisData.color + '">';
+                        h += thisData.label;
+                        h += ' <strong>' + formattedNumber(thisData.value) + '</strong>';
                         h += '</div>';
                     }
                     return h;
@@ -596,7 +546,7 @@ var renderLineChart = function(config) {
                         return (xScale(xVal) - offset + margins.left) + "px";
                     },
                     top: function (d) {
-                        return (yScale(obj[d[0]]) - this.clientHeight / 2) + "px";
+                        return (d[0].yPos - this.clientHeight / 2) + "px";
                     },
                 });
 
