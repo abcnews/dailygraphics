@@ -228,6 +228,13 @@ var renderLineChart = function(config) {
     var colorScale = d3.scale.ordinal()
         .range(colorList);
 
+    var accessibleColorList = [];
+    for (var j = 0; j < colorList.length; j++) {
+        accessibleColorList[j] = getAccessibleColor(colorList[j]);
+    }
+    var accessibleColorScale = d3.scale.ordinal()
+        .range(accessibleColorList);
+
     if (LABELS.xLabel) margins.bottom += 20;
     if (LABELS.yLabel) margins.top += 20;
 
@@ -366,7 +373,7 @@ var renderLineChart = function(config) {
                 label: key,
                 value: obj[key],
                 yPos: yScale(obj[key]),
-                color: colorScale(dataArr.length),
+                accessibleColor: accessibleColorScale(dataArr.length),
             });
         }
 
@@ -412,7 +419,7 @@ var renderLineChart = function(config) {
                 var h = '';
                 for (var i = 0; i < d.length; ++i) {
                     var thisData = d[i];
-                    h += '<div style="color: ' + thisData.color + '">';
+                    h += '<div style="color: ' + thisData.accessibleColor + '">';
                     h += thisData.label;
                     h += '<br><strong>' + formattedNumber(thisData.value) + '</strong>';
                     h += '</div>';
@@ -536,7 +543,7 @@ var renderLineChart = function(config) {
                     var h = '';
                     for (var i = 0; i < d.length; ++i) {
                         var thisData = d[i];
-                        h += '<div style="color: ' + thisData.color + '">';
+                        h += '<div style="color: ' + thisData.accessibleColor + '">';
                         h += thisData.label;
                         h += ' <strong>' + formattedNumber(thisData.value) + '</strong>';
                         h += '</div>';
@@ -577,7 +584,6 @@ var renderLineChart = function(config) {
 
     chartWrapper.selectAll('g.x.axis g text').each(insertLinebreaks);
 }
-
 
 /*
  * Initially load the graphic

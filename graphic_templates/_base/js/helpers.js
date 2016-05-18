@@ -150,3 +150,59 @@ var formattedNumber = function (num) {
         (LABELS.suffixX || '') // add any set suffix (e.g. %)
     );
 };
+
+// returns an adjusted foreground color that is WCAG AA accessible
+var getAccessibleColor = function (foreground, background) {
+    background = background || '#fff';
+
+    var AA_CONTRAST_RATIO_THRESHOLD = 4.53;
+    var testColor = foreground;
+    var isDarkTextOnLightBackground;
+
+    var colorFormula = function (val) {
+        val = val / 255;
+        if (val <= 0.03928) {
+            return val / 12.92;
+        } else {
+            return Math.pow(((val + 0.055) / 1.055), 2.4);
+        }
+    };
+
+    var relativeLuminance = function (rgb) {
+        var r = colorFormula(rgb.r);
+        var g = colorFormula(rgb.g);
+        var b = colorFormula(rgb.b);
+
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    };
+
+    var testContrastRatio = function (foreground, background) {
+        var fl = relativeLuminance(d3.rgb(foreground));
+        var bl = relativeLuminance(d3.rgb(background));
+
+        isDarkTextOnLightBackground = bl > fl;
+
+        var l1 = isDarkTextOnLightBackground ? bl : fl;
+        var l2 = isDarkTextOnLightBackground ? fl : bl;
+
+        var contrastRatio = (l1 + 0.05) / (l2 + 0.05);
+
+        return contrastRatio >= AA_CONTRAST_RATIO_THRESHOLD;
+    };
+
+    var getAdjustedColor = function (color) {
+        var rgb = d3.rgb(color);
+        rgb = isDarkTextOnLightBackground ? rgb.darker(0.1) : rgb.brighter(0.1);
+        return rgb.toString();
+    };
+
+    while (!testContrastRatio(testColor, background)) {
+        testColor = getAdjustedColor(testColor);
+        if (testColor === foreground) {
+            break;
+        }
+    }
+
+    return testColor;
+
+};
