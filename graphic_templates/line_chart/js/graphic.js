@@ -419,10 +419,10 @@ var renderLineChart = function(config) {
                 var h = '';
                 for (var i = 0; i < d.length; ++i) {
                     var thisData = d[i];
-                    h += '<div style="color: ' + thisData.accessibleColor + '">';
-                    h += thisData.label;
-                    h += '<br><strong>' + formattedNumber(thisData.value) + '</strong>';
-                    h += '</div>';
+                    h += '<div style="color: ' + thisData.accessibleColor + '">' +
+                        thisData.label +
+                        '<br><strong>' + formattedNumber(thisData.value) + '</strong>' +
+                        '</div>';
                 }
                 return h;
             })
@@ -495,77 +495,83 @@ var renderLineChart = function(config) {
     if (LABELS.tooltip !== 'off') {
         var tooltipWrapper = chartWrapper.append("div").attr("class", "tooltip-wrapper");
 
-        chartElement.on("mousemove", function (e) {
-            var pos = d3.mouse(overlay.node());
-            var domain = xScale.domain();
-            var range = xScale.range();
-            var xVal, obj;
-            if (dateColumn === 'date') {
-                var x = xScale.invert(pos[0]);
-                var index = bisectDate(DATA, x, 1);
-                obj = _.clone(DATA[index - 1]);
-                var obj2 = _.clone(DATA[index]);
+        chartElement.on({
+            mousemove: function (e) {
+                var posX = d3.mouse(overlay.node())[0];
+                var xVal, obj;
+                if (dateColumn === 'date') {
+                    var x = xScale.invert(posX);
+                    var index = bisectDate(DATA, x, 1);
+                    obj = _.clone(DATA[index - 1]);
+                    var obj2 = _.clone(DATA[index]);
 
-                // choose the closest object to the mouse
-                if (index < DATA.length - 1 && x - obj.date > obj2.date - x) {
-                    obj = obj2;
-                }
-
-                xVal = obj.date;
-                delete obj.date;
-            } else {
-                var i = d3.bisect(range, pos[0]);
-                var left = domain[i - 1];
-                var right = domain[i];
-
-                // var obj = getObjectFromArray(DATA, dateColumn, left);
-                obj = _.clone(_.findWhere(DATA, {x: left}));
-                if (!obj) {
-                    return;
-                }
-
-                xVal = left;
-
-                if (i < domain.length - 1 && pos[0] - xScale(left) > xScale(right) - pos[0]) {
-                    obj = _.clone(_.findWhere(DATA, {x: right}));
-                    xVal = right;
-                }
-
-                delete obj.x;
-            }
-
-            var transformed = getGroupedData(obj);
-
-            var s = tooltipWrapper
-                .selectAll("div.tooltip")
-                .data(transformed)
-                .html(function (d) {
-                    var h = '';
-                    for (var i = 0; i < d.length; ++i) {
-                        var thisData = d[i];
-                        h += '<div style="color: ' + thisData.accessibleColor + '">';
-                        h += thisData.label;
-                        h += ' <strong>' + formattedNumber(thisData.value) + '</strong>';
-                        h += '</div>';
+                    // choose the closest object to the mouse
+                    if (index < DATA.length - 1 && x - obj.date > obj2.date - x) {
+                        obj = obj2;
                     }
-                    return h;
-                })
-                .style({
-                    left: function (d) {
-                        var offset = this.clientWidth / 2;
-                        return (xScale(xVal) - offset + margins.left) + "px";
-                    },
-                    top: function (d) {
-                        var yPosAvg = _.reduce(d, function(memo, num){
-                            return memo + num.yPos;
-                        }, 0) / d.length;
-                        return (yPosAvg - (this.clientHeight / 2)) + "px";
-                    },
-                });
 
-            s.enter().append("div").attr("class", "tooltip");
-            s.exit().remove();
+                    xVal = obj.date;
+                    delete obj.date;
+                } else {
+                    var domain = xScale.domain();
+                    var range = xScale.range();
+                    var i = d3.bisect(range, posX);
+                    var left = domain[i - 1];
+                    var right = domain[i];
+
+                    // var obj = getObjectFromArray(DATA, dateColumn, left);
+                    obj = _.clone(_.findWhere(DATA, {x: left}));
+                    if (!obj) {
+                        return;
+                    }
+
+                    xVal = left;
+
+                    if (i < domain.length - 1 && posX - xScale(left) > xScale(right) - posX) {
+                        obj = _.clone(_.findWhere(DATA, {x: right}));
+                        xVal = right;
+                    }
+
+                    delete obj.x;
+                }
+
+                var s = tooltipWrapper
+                    .selectAll("div.tooltip")
+                    .data(getGroupedData(obj));
+
+                s.enter().append("div").attr("class", "tooltip");
+                s.exit().remove();
+
+                s.html(function (d) {
+                        var h = '';
+                        for (var i = 0; i < d.length; ++i) {
+                            var thisData = d[i];
+                            h += '<div style="color: ' + thisData.accessibleColor + '">' +
+                                thisData.label +
+                                ' <strong>' + formattedNumber(thisData.value) + '</strong>' +
+                                '</div>';
+                        }
+                        return h;
+                    })
+                    .style({
+                        left: function (d) {
+                            var offset = this.clientWidth / 2;
+                            return (xScale(xVal) - offset + margins.left) + "px";
+                        },
+                        top: function (d) {
+                            var yPosAvg = _.reduce(d, function(memo, num){
+                                return memo + num.yPos;
+                            }, 0) / d.length;
+                            return (yPosAvg - (this.clientHeight / 2)) + "px";
+                        },
+                    });
+
+            },
+            mouseout: function (e) {
+                tooltipWrapper.selectAll("div.tooltip").remove();
+            }
         });
+
     }
 
     // Finds "\n" in text and splits it into tspans
