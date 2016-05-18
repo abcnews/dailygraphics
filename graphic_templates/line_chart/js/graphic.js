@@ -414,7 +414,7 @@ var renderLineChart = function(config) {
                     var thisData = d[i];
                     h += '<div style="color: ' + thisData.color + '">';
                     h += thisData.label;
-                    h += ' <strong>' + formattedNumber(thisData.value) + '</strong>';
+                    h += '<br><strong>' + formattedNumber(thisData.value) + '</strong>';
                     h += '</div>';
                 }
                 return h;
