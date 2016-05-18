@@ -269,7 +269,13 @@ Vertical spacing between each bar group.
 
 ## Common issues
 
-If your data is displaying but not being plotted in the correct coordinates it is likely that you are using a date format different to the default (or the one specified by `parseDateFormat`). You can either update your dates in the data to use the default date format, or define a `parseDateFormat` that matches the date format you are using. See [parseDateFormat](#parseDateFormat) for more information.
+If your data is displaying but not being plotted in the correct coordinates it is possible that you are either:
+
+1. Using a date format different to the default (or the one specified by `parseDateFormat`). You can either update your dates in the data to use the default date format, or define a `parseDateFormat` that matches the date format you are using. See [parseDateFormat](#parseDateFormat) for more information.
+
+2. The date cells in the Google Sheets are being formatted in the sheet itself. This means that what is presented in the sheet is a different format to the underlying data. In this case there are two options:
+  1. Change the date cells to be formatted as "Plain text" via the `Format` > `Number` menu.
+  2. Update the `parseDateFormat` to match the underlying data format as seen in the function bar. This appears to be `%-m/%-d/%Y` for dates (have not confirmed this works)
 
 ## Development
 
