@@ -151,13 +151,18 @@ var formattedNumber = function (num) {
     );
 };
 
-// returns an adjusted foreground color that is WCAG AA accessible
+/*
+ * Takes a foreground color and optional background color and returns a
+ * foreground color that is WCAG AA accessible. It tests the contrast and
+ * darkens / brightens the foreground color until it is compliant.
+ * Using color contrast logic from https://www.w3.org/TR/WCAG20-TECHS/G17.html
+ */
 var getAccessibleColor = function (foreground, background) {
     background = background || '#fff';
 
     var AA_CONTRAST_RATIO_THRESHOLD = 4.53;
-    var testColor = foreground;
     var isDarkTextOnLightBackground;
+    var adjustedForeground;
 
     var colorFormula = function (val) {
         val = val / 255;
@@ -196,13 +201,15 @@ var getAccessibleColor = function (foreground, background) {
         return rgb.toString();
     };
 
-    while (!testContrastRatio(testColor, background)) {
-        testColor = getAdjustedColor(testColor);
-        if (testColor === foreground) {
-            break;
+    while (!testContrastRatio(foreground, background)) {
+        adjustedForeground = getAdjustedColor(foreground);
+        if (adjustedForeground === foreground) {
+            // can't get any darker/brighter so return false
+            return false;
         }
+        foreground = adjustedForeground;
     }
 
-    return testColor;
+    return foreground;
 
 };
