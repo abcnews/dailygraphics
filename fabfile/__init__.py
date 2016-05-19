@@ -94,13 +94,16 @@ def deploy(slug):
     default_max_age = getattr(graphic_config, 'DEFAULT_MAX_AGE', None) or app_config.DEFAULT_MAX_AGE
     # assets_max_age = getattr(graphic_config, 'ASSETS_MAX_AGE', None) or app_config.ASSETS_MAX_AGE
 
+    print '\nUpdating content...'
     update_copy(slug)
 
     # if use_assets:
     #     assets.sync(slug)
 
+    print '\nRebuilding...'
     render.render(slug)
 
+    print '\nDeploying...'
     flat.deploy_folder(
         graphic_root,
         slug,
@@ -235,6 +238,7 @@ def _add_graphic(slug, template, debug=False):
     if not debug:
         _check_credentials()
 
+    print '\nCopying templates...'
     local('cp -r graphic_templates/_base %s' % (graphic_path))
     local('cp -r graphic_templates/%s/* %s' % (template, graphic_path))
 
@@ -244,7 +248,7 @@ def _add_graphic(slug, template, debug=False):
     config_path = os.path.join(graphic_path, 'graphic_config.py')
 
     if not debug and os.path.isfile(config_path):
-        print 'Creating spreadsheet...'
+        print '\nCreating spreadsheet...'
 
         success = copy_spreadsheet(slug)
 
@@ -257,7 +261,7 @@ def _add_graphic(slug, template, debug=False):
     else:
         print 'No graphic_config.py found, not creating spreadsheet'
 
-    print 'Run `fab app` and visit http://127.0.0.1:8000/graphics/%s to view' % slug
+    # print 'Run `fab app` and visit http://127.0.0.1:8000/graphics/%s to view' % slug
 
 def _check_slug(slug):
     """
