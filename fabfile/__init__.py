@@ -122,17 +122,41 @@ def deploy(slug):
 
     print 'Deployed'
 
-
 @task
-def debug_deploy(slug, template):
-    """
-    Deploy the latest app to S3 and, if configured, to our servers.
-    """
+def deploy_template(slug, template):
     graphic_path = '%s/%s' % (app_config.GRAPHICS_PATH, slug)
     require('settings', provided_by=[production, staging])
 
     if not slug:
-        print 'You must specify a project slug, like this: "deploy:slug"'
+        print 'You must specify a project slug and template, like this: "deploy_template:slug,template=template"'
+        return
+
+    print 'Copying latest templates...'
+    local('cp -r graphic_templates/_base/ %s' % (graphic_path))
+    local('cp -r graphic_templates/%s/* %s' % (template, graphic_path))
+
+    print 'Rebuilding...'
+    render.render(slug)
+
+    print 'Deploying...'
+    flat.deploy_folder(
+        graphic_root,
+        slug,
+        headers={
+            'Cache-Control': 'max-age=%i' % default_max_age
+        },
+        ignore=['%s/*' % graphic_assets]
+    )
+
+    print 'Templates redeployed'
+
+@task
+def debug_deploy(slug, template):
+    graphic_path = '%s/%s' % (app_config.GRAPHICS_PATH, slug)
+    require('settings', provided_by=[production, staging])
+
+    if not slug:
+        print 'You must specify a project slug and template, like this: "debug_deploy:slug,template=template"'
         return
 
     local('cp -r graphic_templates/_base/ %s' % (graphic_path))
