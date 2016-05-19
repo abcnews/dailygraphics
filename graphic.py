@@ -30,7 +30,7 @@ def _graphics_detail(slug):
 
     template = 'parent.html'
 
-    if not os.path.exists('%s/%s/js/lib/pym.js' % (app_config.GRAPHICS_PATH, slug)):
+    if not os.path.exists('%s/%s/js/lib/pym.min.js' % (app_config.GRAPHICS_PATH, slug)):
         template = 'parent_old.html'
 
     try:
