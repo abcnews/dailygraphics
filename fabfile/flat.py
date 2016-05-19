@@ -81,7 +81,6 @@ def deploy_folder(src, dst, headers={}, ignore=[]):
     """
     Deploy a folder to S3, checking each file to see if it has changed.
     """
-    print '\nDeploying...'
     to_deploy = []
 
     for local_path, subdirs, filenames in os.walk(src, topdown=True):

@@ -48,13 +48,13 @@ def deploy_file(connection, src, dst, headers={}):
     """
     Deploy a single file to S3, if the local version is different.
     """
-    
+
 
 def deploy_folder(src, dst, headers={}, ignore=[]):
     """
     Deploy a folder to ContentFTP
     """
-
+    print '\nDeploying...'
     ftp = FTP(app_config.FTP_URL)
     ftp.login(app_config.FTP_USER, app_config.FTP_PASS)
     ftp.cwd(app_config.FTP_PATH)
