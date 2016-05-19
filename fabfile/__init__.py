@@ -137,8 +137,10 @@ def deploy_template(slug, template):
     default_max_age = getattr(graphic_config, 'DEFAULT_MAX_AGE', None) or app_config.DEFAULT_MAX_AGE
 
     print 'Copying latest templates...'
+    local('mv %s/graphic_config.py %s/graphic_config.py.BACKUP' % (graphic_path))
     local('cp -r graphic_templates/_base/ %s' % (graphic_path))
     local('cp -r graphic_templates/%s/* %s' % (template, graphic_path))
+    local('mv %s/graphic_config.py.BACKUP %s/graphic_config.py' % (graphic_path))
 
     print '\nRebuilding...'
     render.render(slug)
