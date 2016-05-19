@@ -263,6 +263,12 @@ Vertical spacing between each bar group.
 #### roundTicksFactor
 > Default: `50`
 
+### Slopegraph
+
+#### start_label
+
+#### end_label
+
 ### Pie Chart
 
 #### showLabels
