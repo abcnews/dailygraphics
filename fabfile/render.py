@@ -15,6 +15,7 @@ def render(slug=''):
     """
     Render HTML templates and compile assets.
     """
+    print '\nRendering graphic...'
     if slug:
         _render_graphics(['%s/%s' % (app_config.GRAPHICS_PATH, slug)])
     else:
@@ -44,7 +45,7 @@ def _render_graphics(paths):
         with app.app.test_request_context(path='graphics/%s/' % slug):
             g.compile_includes = True
             g.compiled_includes = {}
-            
+
             view = app.graphic.__dict__['_graphics_detail']
             content = view(slug).data
 

@@ -94,16 +94,13 @@ def deploy(slug):
     default_max_age = getattr(graphic_config, 'DEFAULT_MAX_AGE', None) or app_config.DEFAULT_MAX_AGE
     # assets_max_age = getattr(graphic_config, 'ASSETS_MAX_AGE', None) or app_config.ASSETS_MAX_AGE
 
-    print '\nUpdating content...'
     update_copy(slug)
 
     # if use_assets:
     #     assets.sync(slug)
 
-    print '\nRebuilding...'
     render.render(slug)
 
-    print '\nDeploying...'
     flat.deploy_folder(
         graphic_root,
         slug,
@@ -123,8 +120,6 @@ def deploy(slug):
     #         }
     #     )
 
-    print 'Deployed'
-
 @task
 def deploy_template(slug, template):
     require('settings', provided_by=[production, staging])
@@ -137,19 +132,17 @@ def deploy_template(slug, template):
     graphic_assets = '%s/assets' % graphic_root
     graphic_path = '%s/%s' % (app_config.GRAPHICS_PATH, slug)
 
-    print 'Copying latest templates...'
+    print 'Copying templates...'
     local('mv %s/graphic_config.py %s/graphic_config.py.BACKUP' % (graphic_path, graphic_path))
     local('cp -r graphic_templates/_base/* %s' % (graphic_path))
     local('cp -r graphic_templates/%s/* %s' % (template, graphic_path))
     local('mv %s/graphic_config.py.BACKUP %s/graphic_config.py' % (graphic_path, graphic_path))
 
-    print '\nRebuilding...'
     render.render(slug)
 
     graphic_config = load_graphic_config(graphic_root)
     default_max_age = getattr(graphic_config, 'DEFAULT_MAX_AGE', None) or app_config.DEFAULT_MAX_AGE
 
-    print '\nDeploying...'
     flat.deploy_folder(
         graphic_root,
         slug,
@@ -158,8 +151,6 @@ def deploy_template(slug, template):
         },
         ignore=['%s/*' % graphic_assets]
     )
-
-    print 'Templates redeployed'
 
 @task
 def debug_deploy(slug, template):
@@ -178,10 +169,7 @@ def debug_deploy(slug, template):
 
     # update_copy(slug)
 
-    print '\nRebuilding...'
     render.render(slug)
-
-    print 'Deployed'
 
 def download_copy(slug):
     """
@@ -207,6 +195,8 @@ def update_copy(slug=None):
     """
     Fetches the latest Google Doc and updates local JSON.
     """
+    print '\nUpdating content...'
+
     if slug:
         download_copy(slug)
         return
