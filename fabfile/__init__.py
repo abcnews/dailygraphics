@@ -167,10 +167,15 @@ def debug_deploy(slug, template):
         print 'You must specify a project slug and template, like this: "debug_deploy:slug,template=template"'
         return
 
+    print 'Copying latest templates...'
+    local('mv %s/graphic_config.py %s/graphic_config.py.BACKUP' % (graphic_path, graphic_path))
     local('cp -r graphic_templates/_base/ %s' % (graphic_path))
     local('cp -r graphic_templates/%s/* %s' % (template, graphic_path))
+    local('mv %s/graphic_config.py.BACKUP %s/graphic_config.py' % (graphic_path, graphic_path))
 
     # update_copy(slug)
+
+    print '\nRebuilding...'
     render.render(slug)
 
     print 'Deployed'
