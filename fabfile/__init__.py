@@ -125,14 +125,16 @@ def deploy(slug):
 @task
 def deploy_template(slug, template):
     require('settings', provided_by=[production, staging])
-    graphic_root = '%s/%s' % (app_config.GRAPHICS_PATH, slug)
-    graphic_assets = '%s/assets' % graphic_root
-    graphic_path = '%s/%s' % (app_config.GRAPHICS_PATH, slug)
-    default_max_age = getattr(graphic_config, 'DEFAULT_MAX_AGE', None) or app_config.DEFAULT_MAX_AGE
 
     if not slug:
         print 'You must specify a project slug and template, like this: "deploy_template:slug,template=template"'
         return
+
+    graphic_root = '%s/%s' % (app_config.GRAPHICS_PATH, slug)
+    graphic_assets = '%s/assets' % graphic_root
+    graphic_path = '%s/%s' % (app_config.GRAPHICS_PATH, slug)
+    graphic_config = load_graphic_config(graphic_root)
+    default_max_age = getattr(graphic_config, 'DEFAULT_MAX_AGE', None) or app_config.DEFAULT_MAX_AGE
 
     print 'Copying latest templates...'
     local('cp -r graphic_templates/_base/ %s' % (graphic_path))
