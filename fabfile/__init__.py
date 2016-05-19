@@ -124,8 +124,11 @@ def deploy(slug):
 
 @task
 def deploy_template(slug, template):
-    graphic_path = '%s/%s' % (app_config.GRAPHICS_PATH, slug)
     require('settings', provided_by=[production, staging])
+    graphic_root = '%s/%s' % (app_config.GRAPHICS_PATH, slug)
+    graphic_assets = '%s/assets' % graphic_root
+    graphic_path = '%s/%s' % (app_config.GRAPHICS_PATH, slug)
+    default_max_age = getattr(graphic_config, 'DEFAULT_MAX_AGE', None) or app_config.DEFAULT_MAX_AGE
 
     if not slug:
         print 'You must specify a project slug and template, like this: "deploy_template:slug,template=template"'
@@ -135,10 +138,10 @@ def deploy_template(slug, template):
     local('cp -r graphic_templates/_base/ %s' % (graphic_path))
     local('cp -r graphic_templates/%s/* %s' % (template, graphic_path))
 
-    print 'Rebuilding...'
+    print '\nRebuilding...'
     render.render(slug)
 
-    print 'Deploying...'
+    print '\nDeploying...'
     flat.deploy_folder(
         graphic_root,
         slug,
