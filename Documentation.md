@@ -1,5 +1,7 @@
 # Chart Builder
 
+[Chart Builder](http://newsdev3.aus.aunty.abc.net.au/tools/chart-builder/) is a web interface for the [ABC News fork of the dailygraphics project](https://github.com/abcnews/dailygraphics).
+
 * [Chart configuration options](#chart-configuration-options)
   * [Common](#common-options)
   * [Line Chart](#line-chart)
