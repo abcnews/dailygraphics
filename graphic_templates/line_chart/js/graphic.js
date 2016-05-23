@@ -479,7 +479,7 @@ var renderLineChart = function (config) {
                 for (var i = 0; i < d.length; ++i) {
                     var thisData = d[i];
                     h += '<div style="color: ' + thisData.accessibleColor + '">' +
-                        thisData.label +
+                        thisData.label.replace('\\n', '<br>') +
                         '<br><strong>' + formattedNumber(thisData.value) + '</strong>' +
                         '</div>';
                 }
@@ -606,7 +606,7 @@ var renderLineChart = function (config) {
                         for (var i = 0; i < d.length; ++i) {
                             var thisData = d[i];
                             h += '<div style="color: ' + thisData.accessibleColor + '">' +
-                                thisData.label +
+                                thisData.label.replace('\\n', ' ') +
                                 ' <strong>' + formattedNumber(thisData.value) + '</strong>' +
                                 '</div>';
                         }
