@@ -280,7 +280,8 @@ var renderLineChart = function (config) {
         .scale(xScale)
         .orient('bottom')
         .ticks(ticksX)
-        .tickFormat(xFormat);
+        .tickFormat(xFormat)
+        .outerTickSize(0);
 
     var yAxis = d3.svg.axis()
         .scale(yScale)
