@@ -122,8 +122,8 @@ var renderLineChart = function (config) {
 
     // Mobile
     if (isMobile) {
-        ticksX = 5;
-        ticksY = 5;
+        ticksX = parseInt(LABELS.mobileTicksX || 5, 10);
+        ticksY = parseInt(LABELS.mobileTicksY || 5, 10);
         margins.right = margins.right * 0.9;
     }
 
@@ -471,7 +471,7 @@ var renderLineChart = function (config) {
 
     var labelLines;
     for (var key in lastObj) {
-        labelLines = (key.match(/\\n/g) || []).length + 2;
+        labelLines = key.split('\\n').length + 1;
         break;
     }
 

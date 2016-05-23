@@ -167,10 +167,16 @@ Use this when relying on the default min or max value. When calculating the min 
 
 How many ticks on the X axis.
 
+#### mobileTicksX
+> Default: `5`
+
 #### ticksY
 > Default: `10`
 
 How many ticks on the Y axis.
+
+#### mobileTicksY
+> Default: `5`
 
 #### prefixY
 > Default: empty string
