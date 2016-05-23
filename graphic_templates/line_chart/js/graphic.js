@@ -288,7 +288,7 @@ var renderLineChart = function (config) {
         .orient('left')
         .ticks(ticksY)
         .tickFormat(function (d) {
-            return formattedNumber(d);
+            return formattedNumber(d, LABELS.prefixY, LABELS.suffixY, LABELS.maxDecimalPlaces);
         });
 
     /*
@@ -480,7 +480,9 @@ var renderLineChart = function (config) {
                     var thisData = d[i];
                     h += '<div style="color: ' + thisData.accessibleColor + '">' +
                         thisData.label.replace('\\n', '<br>') +
-                        '<br><strong>' + formattedNumber(thisData.value) + '</strong>' +
+                        '<br><strong>' +
+                        formattedNumber(thisData.value, LABELS.prefixY, LABELS.suffixY, LABELS.maxDecimalPlaces) +
+                        '</strong>' +
                         '</div>';
                 }
 
@@ -607,7 +609,9 @@ var renderLineChart = function (config) {
                             var thisData = d[i];
                             h += '<div style="color: ' + thisData.accessibleColor + '">' +
                                 thisData.label.replace('\\n', ' ') +
-                                ' <strong>' + formattedNumber(thisData.value) + '</strong>' +
+                                ' <strong>' +
+                                formattedNumber(thisData.value, LABELS.prefixY, LABELS.suffixY, LABELS.maxDecimalPlaces) +
+                                '</strong>' +
                                 '</div>';
                         }
 

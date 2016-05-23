@@ -136,18 +136,18 @@ var colorArray = function (config, defaultColorArr) {
  * Takes a number and returns a formatted string that includes the correct
  * number of decimals, commas as thousand seperators, and suffix / prefix.
  */
-var formattedNumber = function (num) {
+var formattedNumber = function (num, prefix, suffix, maxDecimalPlaces) {
     return (
-        (LABELS.prefixX || '') + // add any set prefix (e.g. $)
+        (prefix || '') + // add any set prefix (e.g. $)
         d3.format(",")( // d3 formatter that adds the comma
             parseFloat( // convert back to float again (this drops any trailing zeros)
                 parseFloat(num) // convert to float (in case it is passed in as a string )
                   .toFixed( // reduce decimal places
-                      parseInt(LABELS.maxDecimalPlaces || 10, 10) // get number of decimal places to show
+                      parseInt(maxDecimalPlaces || 10, 10) // get number of decimal places to show
                   )
             )
         ) +
-        (LABELS.suffixX || '') // add any set suffix (e.g. %)
+        (suffix || '') // add any set suffix (e.g. %)
     );
 };
 

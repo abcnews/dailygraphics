@@ -320,7 +320,7 @@ var renderGroupedBarChart = function(config) {
         .enter()
         .append('text')
             .text(function(d) {
-                return formattedNumber(d[valueColumn]);
+                return formattedNumber(d[valueColumn], LABELS.prefixX, LABELS.suffixX, LABELS.maxDecimalPlaces);
             })
             .attr('x', function(d) {
                 return xScale(d[valueColumn]);
