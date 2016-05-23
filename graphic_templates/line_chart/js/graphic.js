@@ -477,7 +477,7 @@ var renderLineChart = function (config) {
 
     chartWrapper.append('div').attr('class', 'label-wrapper')
         .selectAll('div.label')
-            .data(getGroupedData(lastObj, labelLines * 15))
+            .data(getGroupedData(lastObj, labelLines * 20))
         .enter().append('div')
             .attr('class', 'label')
             .html(function (d) {
