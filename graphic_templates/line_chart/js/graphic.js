@@ -423,8 +423,8 @@ var renderLineChart = function (config) {
         return xScale(last[dateColumn] || last.x) + 5;
     }
 
-    var getGroupedData = function (obj, pixelThreshold) {
-        pixelThreshold = pixelThreshold || 40;
+    var getGroupedData = function (obj, labelHeight) {
+        labelHeight = labelHeight || 40;
 
         // convert object into array of objects
         var dataArr = [];
@@ -442,14 +442,24 @@ var renderLineChart = function (config) {
             return a.yPos - b.yPos;
         });
 
-        // group
+        // grouping
         var groupedArr = [];
         for (var i = 0; i < dataArr.length; ++i) {
             var thisData = dataArr[i];
-            if (i === 0 || Math.abs(thisData.yPos - dataArr[i - 1].yPos) > pixelThreshold) {
+            if (i === 0) {
+                // start new group
                 groupedArr.push([thisData]);
             } else {
-                groupedArr[groupedArr.length - 1].push(thisData);
+                var noOfItemsInLastGroup = groupedArr[groupedArr.length - 1].length;
+                var actualPixelDiff = Math.abs(thisData.yPos - dataArr[i - 1].yPos);
+                var minPixelDiff = (noOfItemsInLastGroup * labelHeight / 2) + (labelHeight / 2);
+                if (actualPixelDiff > minPixelDiff) {
+                    // start new group
+                    groupedArr.push([thisData]);
+                } else {
+                    // add to previous group
+                    groupedArr[groupedArr.length - 1].push(thisData);
+                }
             }
         }
 
