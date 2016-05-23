@@ -495,6 +495,9 @@ var renderLineChart = function (config) {
                     var yPosAvg = _.reduce(d, function (memo, num) {
                         return memo + num.yPos;
                     }, 0) / d.length;
+                    if (LABELS.yLabel) {
+                        yPosAvg += 20;
+                    }
                     return (yPosAvg - (this.clientHeight / 2)) + 'px';
                 },
             });
@@ -515,9 +518,9 @@ var renderLineChart = function (config) {
         chartElement.append('text')
             .text(LABELS.yLabel)
             .attr({
+                'class': 'axis-label',
                 x: -20,
                 y: -15,
-                'class': 'axis-label',
             });
     }
 
