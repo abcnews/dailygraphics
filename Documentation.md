@@ -105,6 +105,18 @@ Specify a custom aspect ratio. The graphic is responsive and resizable and will 
 
 Which function to use for smoothing the lines. Common values will be "linear" and "monotone". See https://github.com/mbostock/d3/wiki/SVG-Shapes#line_interpolate
 
+#### lineStyles
+> Default: `solid`
+
+Comma separated list of line style for each data set. There are 4 line style options:
+
+1. `solid`
+2. `dotted`
+3. `dashed1`
+4. `dashed2`
+
+E.g. `solid, dotted, solid, dotted, dashed1`
+
 #### parseDateFormat
 > Default: `%d/%m/%y`
 

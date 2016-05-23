@@ -84,6 +84,13 @@ var renderLineChart = function (config) {
     var dateColumn = 'date';
     var valueColumn = 'amt';
 
+    var strokeDashArrayAliases = {
+        solid: '0',
+        dotted: '1, 4',
+        dashed1: '18, 5',
+        dashed2: '7, 5',
+    };
+
     var aspectWidth = isMobile ? 4 : 16;
     var aspectHeight = isMobile ? 3 : 9;
     if ('ratio' in LABELS) {
@@ -340,6 +347,7 @@ var renderLineChart = function (config) {
         });
 
     var highlighted = LABELS.highlighted ? LABELS.highlighted.split(/\s*,\s*/) : [];
+    var lineStyleArr = LABELS.lineStyles ? LABELS.lineStyles.split(/\s*,\s*/) : [];
     var lines = chartElement.append('g')
         .attr('class', 'lines visible-lines')
         .selectAll('path')
@@ -349,6 +357,10 @@ var renderLineChart = function (config) {
             .attr({
                 'class': function (d, i) {
                     return 'line line-' + i + ' ' + classify(d.key);
+                },
+                'stroke-linecap': 'round',
+                'stroke-dasharray': function (d, i) {
+                    return strokeDashArrayAliases[lineStyleArr[i]];
                 },
                 stroke: function (d, i) {
                     if (highlighted.indexOf(d.key) !== -1) {
@@ -373,15 +385,12 @@ var renderLineChart = function (config) {
                     'class': function (d, i) {
                         return 'line line-' + i + ' ' + classify(d.key);
                     },
-
                     stroke: function (d) {
                         return 'transparent';
                     },
-
                     d: function (d) {
                         return line(d.value);
                     },
-
                     'data-index': function (d, i) {
                         return i;
                     },
