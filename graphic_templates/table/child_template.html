@@ -3,7 +3,8 @@
 {% block content %}
     {% if COPY.labels.card != 'off' %}<div class="card">{% endif %}
     {% if COPY.labels.headline %}<h1>{{ COPY.labels.headline }}</h1>{% endif %}
-    {% if COPY.labels.subhed %}<h2>{{ render(COPY.labels.subhed) }}</h2>{% endif %}
+    {% if COPY.labels.card != 'off' %}<div class="inner">{% endif %}
+    {% if COPY.labels.subhed %}<p>{{ render(COPY.labels.subhed) }}</p>{% endif %}
 
     <div class="graphic">
         <table id="state-table">
@@ -40,7 +41,7 @@
         {% if COPY.labels.credit %}<p>Credit: {{ COPY.labels.credit }}</p>{% endif %}
     </div>
 
-    {% if COPY.labels.card != 'off' %}</div>{% endif %}
+    {% if COPY.labels.card != 'off' %}</div></div>{% endif %}
 
 {% endblock content %}
 
