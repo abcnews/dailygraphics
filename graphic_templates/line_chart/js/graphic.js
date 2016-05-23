@@ -469,9 +469,15 @@ var renderLineChart = function (config) {
         delete lastObj.x;
     }
 
+    var labelLines;
+    for (var key in lastObj) {
+        labelLines = (key.match(/\\n/g) || []).length + 2;
+        break;
+    }
+
     chartWrapper.append('div').attr('class', 'label-wrapper')
         .selectAll('div.label')
-            .data(getGroupedData(lastObj))
+            .data(getGroupedData(lastObj, labelLines * 15))
         .enter().append('div')
             .attr('class', 'label')
             .html(function (d) {
@@ -500,7 +506,7 @@ var renderLineChart = function (config) {
                     if (LABELS.yLabel) {
                         yPosAvg += 20;
                     }
-                    return (yPosAvg - (this.clientHeight / 2)) + 'px';
+                    return Math.max(-10, (yPosAvg - (this.clientHeight / 2))) + 'px';
                 },
             });
 
