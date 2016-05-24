@@ -15,16 +15,16 @@ var onWindowLoaded = function() {
     } else {
         pymChild = new pym.Child({});
     }
-}
+};
 
 /*
  * Format graphic data for processing by D3.
  */
 var formatData = function() {
     DATA.forEach(function(d) {
-        d['amt'] = +d['amt'];
+        d.amt = +d.amt;
     });
-}
+};
 
 /*
  * Render the graphic(s). Called by pym with the container width.
@@ -44,14 +44,13 @@ var render = function(containerWidth) {
     renderColumnChart({
         container: '#column-chart',
         width: containerWidth,
-        data: DATA
     });
 
     // Update iframe
     if (pymChild) {
         pymChild.sendHeight();
     }
-}
+};
 
 /*
  * Render a column chart.
@@ -78,41 +77,43 @@ var renderColumnChart = function(config) {
     var roundTicksFactor = parseInt(LABELS.roundTicksFactor || 50, 10);
 
     // Clear existing graphic (for redraw)
-    var containerElement = d3.select(config['container']);
+    var containerElement = d3.select(config.container);
     containerElement.html('');
 
     /*
      * Create the root SVG element.
      */
     var chartWrapper = containerElement.append('div')
-        .attr('class', 'graphic-wrapper');
+        .classed('graphic-wrapper', true);
 
     // Calculate actual chart dimensions
     var innerWidth = chartWrapper.node().getBoundingClientRect().width;
-    var chartWidth = innerWidth - margins['left'] - margins['right'];
-    var chartHeight = Math.ceil((config['width'] * aspectHeight) / aspectWidth) - margins['top'] - margins['bottom'];
+    var chartWidth = innerWidth - margins.left - margins.right;
+    var chartHeight = Math.ceil((config.width * aspectHeight) / aspectWidth) - margins.top - margins.bottom;
 
     var chartElement = chartWrapper.append('svg')
-        .attr('width', chartWidth + margins['left'] + margins['right'])
-        .attr('height', chartHeight + margins['top'] + margins['bottom'])
+        .attr('width', chartWidth + margins.left + margins.right)
+        .attr('height', chartHeight + margins.top + margins.bottom)
         .append('g')
-        .attr('transform', 'translate(' + margins['left'] + ',' + margins['top'] + ')');
+            .attr('transform', 'translate(' + margins.left + ',' + margins.top + ')');
 
     var overlay = chartElement.append('rect')
-        .attr('width', chartWidth)
-        .attr('height', chartHeight)
-        .attr('fill', 'transparent');
+        .attr({
+            width: chartWidth,
+            height: chartHeight,
+            fill: 'transparent',
+        });
 
     /*
      * Create D3 scale objects.
      */
     var xScale = d3.scale.ordinal()
-        .rangeRoundBands([0, chartWidth], .1)
-        .domain(config['data'].map(function (d) {
+        .rangeRoundBands([0, chartWidth], 0.1)
+        .domain(DATA.map(function (d) {
             return d[labelColumn];
         }));
 
-    var min = d3.min(config['data'], function(d) {
+    var min = d3.min(DATA, function(d) {
         return Math.floor(d[valueColumn] / roundTicksFactor) * roundTicksFactor;
     });
 
@@ -123,7 +124,7 @@ var renderColumnChart = function(config) {
     var yScale = d3.scale.linear()
         .domain([
             min,
-            d3.max(config['data'], function(d) {
+            d3.max(DATA, function(d) {
                 return d[valueColumn];
             })
         ])
@@ -137,19 +138,20 @@ var renderColumnChart = function(config) {
         .orient('bottom')
         .ticks(0)
         .tickSize(0)
-        .tickPadding(5)
+        .tickPadding(5);
         // .tickFormat(function(d, i) {
         //     return d;
         // });
 
-    // var yAxis = d3.svg.axis()
-    //     .scale(yScale)
-    //     .orient('left')
-    //     .ticks(ticksY)
-    //     .tickFormat(function(d) {
-    //         return fmtComma(d);
-    //     });
-
+    /*
+    var yAxis = d3.svg.axis()
+        .scale(yScale)
+        .orient('left')
+        .ticks(ticksY)
+        .tickFormat(function(d) {
+            return fmtComma(d);
+        });
+    */
     /*
      * Render axes to chart.
      */
@@ -157,7 +159,7 @@ var renderColumnChart = function(config) {
         .attr('class', 'x axis')
         .attr('transform', makeTranslate(0, chartHeight))
         .call(xAxis)
-        .select("path").remove();
+        .select('path').remove();
 
     // chartElement.append('g')
     //     .attr('class', 'y axis')
@@ -187,48 +189,54 @@ var renderColumnChart = function(config) {
     chartElement.append('g')
         .attr('class', 'bars')
         .selectAll('rect')
-        .data(config['data'])
+        .data(DATA)
         .enter()
         .append('rect')
-            .attr('x', function(d) {
-                return xScale(d[labelColumn]);
-            })
-            .attr('y', function(d) {
-                if (d[valueColumn] < 0) {
-                    return yScale(0);
-                }
-
-                return yScale(d[valueColumn]);
-            })
-            .attr('width', xScale.rangeBand())
-            .attr('height', function(d) {
-                if (d[valueColumn] < 0) {
-                    return yScale(d[valueColumn]) - yScale(0);
-                }
-
-                return yScale(0) - yScale(d[valueColumn]);
-            })
-            .attr('class', function(d) {
+            .attr('class', function (d) {
                 return 'bar bar-' + d[labelColumn];
             })
-            .attr('fill', function(d, i) {
-                return colorScale(i);
+            .attr({
+                x: function (d) {
+                    return xScale(d[labelColumn]);
+                },
+                y: function (d) {
+                    if (d[valueColumn] < 0) {
+                        return yScale(0);
+                    }
+
+                    return yScale(d[valueColumn]);
+                },
+                width: xScale.rangeBand(),
+                height: function (d) {
+                    if (d[valueColumn] < 0) {
+                        return yScale(d[valueColumn]) - yScale(0);
+                    }
+
+                    return yScale(0) - yScale(d[valueColumn]);
+                },
+                fill: function (d, i) {
+                    return colorScale(i);
+                },
             });
 
-
-    if (LABELS.theme == "highlight") {
-        chartWrapper.on("mousemove", function (e) {
-            var pos = d3.mouse(chartWrapper.node())
+    if (LABELS.theme == 'highlight') {
+        chartWrapper.on('mousemove', function (e) {
+            var pos = d3.mouse(chartWrapper.node());
             var index = Math.floor(pos[0] / (xScale.rangeBand() + valueGap)) + 1;
 
-            chartWrapper.selectAll(".bars rect").attr('fill', function (d, i) {
-                return colorScale(i);
-            });
+            chartWrapper.selectAll('.bars rect')
+                .attr('fill', function (d, i) {
+                    return colorScale(i);
+                });
 
-            chartWrapper.selectAll(".value text.over").classed('over', false);
+            chartWrapper.selectAll('.value text.over')
+                .classed('over', false);
 
-            chartWrapper.selectAll(".bars rect:nth-child(" + index + ")").attr('fill', highlightColor);
-            chartWrapper.selectAll(".value text.out:nth-child(" + index + ")").classed('over', true);
+            chartWrapper.selectAll('.bars rect:nth-child(' + index + ')')
+                .attr('fill', highlightColor);
+
+            chartWrapper.selectAll('.value text.out:nth-child(' + index + ')')
+                .classed('over', true);
         });
     }
 
@@ -236,9 +244,9 @@ var renderColumnChart = function(config) {
      * Render bar values.
      */
     chartElement.append('g')
-        .attr('class', 'value')
+        .classed('value', true)
         .selectAll('text')
-        .data(config['data'])
+        .data(DATA)
         .enter()
         .append('text')
             .text(function(d) {
@@ -261,23 +269,23 @@ var renderColumnChart = function(config) {
                         d3.select(this).classed('in', true);
                         return -(textHeight - valueGap / 2);
                     } else {
-                        d3.select(this).classed('out', true)
+                        d3.select(this).classed('out', true);
                         return textHeight + valueGap;
                     }
                 } else {
                     barHeight = yScale(0) - yScale(d[valueColumn]);
 
                     if (textHeight + valueGap * 2 < barHeight) {
-                        d3.select(this).classed('in', true)
+                        d3.select(this).classed('in', true);
                         return textHeight + valueGap;
                     } else {
-                        d3.select(this).classed('out', true)
+                        d3.select(this).classed('out', true);
                         return -(textHeight - valueGap / 2);
                     }
                 }
             })
-            .attr('text-anchor', 'middle')
-}
+            .attr('text-anchor', 'middle');
+};
 
 /*
  * Initially load the graphic
