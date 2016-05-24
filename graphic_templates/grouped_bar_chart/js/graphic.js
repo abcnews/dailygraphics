@@ -151,6 +151,14 @@ var renderGroupedBarChart = function (config) {
         .domain(_.pluck(DATA[0].values, labelColumn))
         .range(colorList);
 
+    var accessibleColorList = [];
+    for (var j = 0; j < colorList.length; j++) {
+        accessibleColorList[j] = getAccessibleColor(colorList[j]);
+    }
+
+    var accessibleColorScale = d3.scale.ordinal()
+        .range(accessibleColorList);
+
     var chartElement = chartWrapper.append('svg')
         .attr({
             width: chartWidth + margins.left + margins.right,
@@ -361,7 +369,10 @@ var renderGroupedBarChart = function (config) {
                     }
                 }
             })
-            .attr('dy', (barHeight / 2) + 4);
+            .attr('dy', (barHeight / 2) + 4)
+            .attr('fill', function (d, i) {
+                return accessibleColorScale(i);
+            });
 };
 
 

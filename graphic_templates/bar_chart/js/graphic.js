@@ -171,6 +171,14 @@ var renderBarChart = function (config) {
     var colorScale = d3.scale.ordinal()
         .range(colorList);
 
+    var accessibleColorList = [];
+    for (var j = 0; j < colorList.length; j++) {
+        accessibleColorList[j] = getAccessibleColor(colorList[j]);
+    }
+
+    var accessibleColorScale = d3.scale.ordinal()
+        .range(accessibleColorList);
+
     /*
      * Render bars to chart.
      */
@@ -319,6 +327,11 @@ var renderBarChart = function (config) {
                 },
 
                 dy: (barHeight / 2) + 3,
+
+                fill: function (d, i) {
+                    return accessibleColorScale(i);
+                },
+
             });
 };
 
