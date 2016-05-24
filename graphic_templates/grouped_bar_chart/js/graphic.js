@@ -291,7 +291,7 @@ var renderGroupedBarChart = function (config) {
     if (LABELS.theme == 'highlight') {
         chartWrapper.on('mousemove', function (e) {
             var pos = d3.mouse(chartWrapper.node());
-            var gh = groupHeight + 10;
+            var gh = groupHeight + groupGap;
             var index = Math.floor(pos[1] / gh);
             var relativeY = pos[1] - index * gh;
             var barIndex = Math.floor((relativeY - 20) / (barHeight + barGap));
