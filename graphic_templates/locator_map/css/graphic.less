@@ -16,7 +16,9 @@ svg {
     }
 }
 
-path.landmass { fill: #a8d5ef; }
+path.landmass {
+    fill: #a8d5ef;
+}
 
 .lakes path {
     fill: #d3eaf7;
@@ -33,7 +35,9 @@ path.landmass { fill: #a8d5ef; }
 .cities path {
     fill: #999;
 
-    &.admin-0-capital { fill: #333; }
+    &.admin-0-capital {
+        fill: #333;
+    }
 }
 
 .city-labels text {
@@ -69,7 +73,9 @@ path.landmass { fill: #a8d5ef; }
         font-weight: 700;
         font-size: 90%;
     }
-    &.bhutan { display: none; }
+    &.bhutan {
+        display: none;
+    }
 }
 
 .scale-bar {
@@ -87,16 +93,26 @@ path.landmass { fill: #a8d5ef; }
 
 // responsive styles
 @media screen and (max-width: 500px) {
-    svg { font-size: 12px; }
-    .countries path { stroke-width: 2px; }
+    svg {
+        font-size: 12px;
+    }
+    .countries path {
+        stroke-width: 2px;
+    }
     .country-labels text {
         &.bangladesh,
         &.bhutan {
             display: none;
         }
     }
-    .city-labels text { letter-spacing: .5px; }
-    .city-labels.shadow { display: none; }
+    .city-labels {
+        text {
+            letter-spacing: .5px;
+        }
+        &.shadow {
+            display: none;
+        }
+    }
     .city-labels text,
     .cities path {
         &.scalerank-4,
