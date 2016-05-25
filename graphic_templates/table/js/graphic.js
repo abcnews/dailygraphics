@@ -1,10 +1,9 @@
 /*
  * Initialize the graphic.
  */
-var onWindowLoaded = function() {
+var onWindowLoaded = function () {
     pymChild = new pym.Child({});
-}
-
+};
 
 /*
  * Initially load the graphic
