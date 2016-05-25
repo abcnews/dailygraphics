@@ -1,31 +1,30 @@
 // Global vars
 var pymChild = null;
 var isMobile = false;
-var numFormat = d3.format(",");
 
 /*
  * Initialize the graphic.
  */
-var onWindowLoaded = function() {
+var onWindowLoaded = function () {
     if (Modernizr.svg) {
         formatData();
 
         pymChild = new pym.Child({
-            renderCallback: render
+            renderCallback: render,
         });
     } else {
         pymChild = new pym.Child({});
     }
-}
+};
 
 /*
  * Format graphic data for processing by D3.
  */
-var formatData = function() {
-    DATA.forEach(function(d) {
-        d['amt'] = +d['amt'];
+var formatData = function () {
+    DATA.forEach(function (d) {
+        d.amt = +d.amt;
     });
-}
+};
 
 /*
  * Render the graphic(s). Called by pym with the container width.
@@ -38,25 +37,21 @@ var render = function (containerWidth) {
     renderPieChart({
         container: '#pie-chart',
         width: containerWidth,
-        data: DATA
     });
 
     // Update iframe
     if (pymChild) {
         pymChild.sendHeight();
     }
-}
+};
 
 /*
  * Render a pie chart.
  */
-var renderPieChart = function(config) {
+var renderPieChart = function (config) {
     /*
      * Setup
      */
-    var labelColumn = 'label';
-    var valueColumn = 'amt';
-
     var margins = {
         top: parseInt(LABELS.marginTop || 0, 10),
         right: parseInt(LABELS.marginRight || 15, 10),
@@ -65,7 +60,7 @@ var renderPieChart = function(config) {
     };
 
     // Clear existing graphic (for redraw)
-    var containerElement = d3.select(config['container']);
+    var containerElement = d3.select(config.container);
     containerElement.html('');
 
     /*
@@ -76,21 +71,25 @@ var renderPieChart = function(config) {
 
     // Calculate actual chart dimensions
     var innerWidth = chartWrapper.node().getBoundingClientRect().width;
-    var chartWidth = innerWidth - margins['left'] - margins['right'];
+    var chartWidth = innerWidth - margins.left - margins.right;
     var chartHeight = chartWidth;
 
     var chartElement = chartWrapper.append('svg')
-        .attr('width', chartWidth + margins['left'] + margins['right'])
-        .attr('height', chartHeight + margins['top'] + margins['bottom'])
+        .attr({
+            width: chartWidth + margins.left + margins.right,
+            height: chartHeight + margins.top + margins.bottom,
+        })
         .append('g')
-        .attr('transform', 'translate(' + margins['left'] + ',' + margins['top'] + ')');
+            .attr('transform', 'translate(' + margins.left + ',' + margins.top + ')');
 
     var overlay = chartElement.append('rect')
-        .attr('width', chartWidth)
-        .attr('height', chartHeight)
-        .attr('fill', 'transparent');
+        .attr({
+            width: chartWidth,
+            height: chartHeight,
+            fill: 'transparent',
+        });
 
-    var colorList = colorArray(LABELS, multiColors);
+    var colorList = colorArray(LABELS, MULTICOLORS);
     var colorScale = d3.scale.ordinal()
         .range(colorList);
 
@@ -101,28 +100,30 @@ var renderPieChart = function(config) {
 
     var pie = d3.layout.pie()
         .sort(null)
-        .value(function(d) { return d[valueColumn]; });
+        .value(function (d) { return d.amt; });
 
-    var g = chartElement.selectAll(".arc")
+    var g = chartElement.selectAll('.arc')
         .data(pie(DATA))
-        .enter().append("g")
-        .attr("class", "arc")
-        .attr("transform", "translate("+(chartWidth/2)+","+(chartHeight/2)+")");
+        .enter().append('g')
+        .attr('class', 'arc')
+        .attr('transform', 'translate(' + (chartWidth / 2) + ',' + (chartHeight / 2) + ')');
 
-    g.append("path")
-        .attr("d", arc)
-        .style("fill", function(d, i) { return colorScale(i); });
+    g.append('path')
+        .attr('d', arc)
+        .style('fill', function (d, i) { return colorScale(i); });
 
     if (LABELS.showLabels) {
-        g.append("text")
-            .attr("transform", function(d) { return "translate(" + arc.centroid(d) + ")"; })
-            .style("text-anchor", "middle")
-            .attr("fill", "white")
-            .text(function(d) {
-                return d.data[labelColumn];
+        g.append('text')
+            .attr('transform', function (d) {
+                return 'translate(' + arc.centroid(d) + ')';
+            })
+            .style('text-anchor', 'middle')
+            .attr('fill', 'white')
+            .text(function (d) {
+                return d.data.label;
             });
     }
-}
+};
 
 /*
  * Initially load the graphic
