@@ -5,10 +5,13 @@
     font-weight: bold;
     font-size: 12px;
 
-    path { display: none; }
+    path {
+        display: none;
+    }
 }
 
 .lines line {
+    stroke-linecap: round;
     stroke-width: 3px;
     stroke: #ddd;
     shape-rendering: auto;
@@ -20,12 +23,10 @@
     stroke-width: 1px;
 }
 
-.value text {
-    font-size: 11px;
-    fill: #666;
-}
-
-.label text {
-    font-size: 11px;
-    fill: #666;
+.value,
+.label {
+    text {
+        font-size: 11px;
+        fill: #666;
+    }
 }

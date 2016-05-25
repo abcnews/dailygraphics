@@ -66,8 +66,8 @@ var renderSlopegraph = function (config) {
         aspectWidth = 2;
         aspectHeight = 3;
     } else if (isMobile) {
-        aspectWidth = 2.5;
-        aspectHeight = 3;
+        aspectWidth = 5;
+        aspectHeight = 6;
     }
 
     var aspectRatio = aspectWidth / aspectHeight;
@@ -200,45 +200,6 @@ var renderSlopegraph = function (config) {
      */
 
     // svg.select('line.unaffiliated').moveToFront();
-
-    /*
-     * Render dots to chart.
-     */
-    chartElement.append('g')
-        .attr('class', 'dots start')
-        .selectAll('circle')
-        .data(DATA)
-        .enter()
-        .append('circle')
-            .attr('class', function (d) {
-                return classify(d.label);
-            })
-            .attr('cx', xScale(startLabel))
-            .attr('cy', function (d) {
-                return yScale(d.start);
-            })
-            .attr('r', dotRadius)
-            .style('fill', function (d, i) {
-                return colorScale(i);
-            });
-
-    chartElement.append('g')
-        .attr('class', 'dots end')
-        .selectAll('circle')
-        .data(DATA)
-        .enter()
-        .append('circle')
-            .attr('class', function (d) {
-                return classify(d.label);
-            })
-            .attr('cx', xScale(endLabel))
-            .attr('cy', function (d) {
-                return yScale(d.end);
-            })
-            .attr('r', dotRadius)
-            .style('fill', function (d, i) {
-                return colorScale(i);
-            });
 
     /*
      * Render values.
