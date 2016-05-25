@@ -13,19 +13,19 @@ var PTYCOLORS = {
 };
 
 var multiColors = [
-    '#1F79CD', '#FF7C0A', '#00B3A7', '#D662B1', '#71A12D', '#926CB5', '#F55446'
+    '#1F79CD', '#FF7C0A', '#00B3A7', '#D662B1', '#71A12D', '#926CB5', '#F55446',
 ];
 
 var monochromeColors = [
-    '#1B79CC', '#47A6FF', '#136C9C', '#8796A1', '#2B4E78', '#5686B0', '#5E6F7A'
+    '#1B79CC', '#47A6FF', '#136C9C', '#8796A1', '#2B4E78', '#5686B0', '#5E6F7A',
 ];
 
 var singleColors = [
-    '#478CCC'
+    '#478CCC',
 ];
 
 var highlightColors = [
-    '#CCCCCC'
+    '#CCCCCC',
 ];
 
 var highlightColor = '#478CCC';
@@ -37,7 +37,7 @@ var highlightColor = '#478CCC';
  * NOTE: This implementation must be consistent with the Python classify
  * function defined in base_filters.py.
  */
-var classify = function(str) {
+var classify = function (str) {
     return str.toLowerCase()
         .replace(/\s+/g, '-')           // Replace spaces with -
         .replace(/[^\w\-]+/g, '')       // Remove all non-word chars
@@ -49,34 +49,34 @@ var classify = function(str) {
 /*
  * Create a SVG tansform for a given translation.
  */
-var makeTranslate = function(x, y) {
+var makeTranslate = function (x, y) {
     var transform = d3.transform();
 
     transform.translate[0] = x;
     transform.translate[1] = y;
 
     return transform.toString();
-}
+};
 
 /*
  * Parse a url parameter by name.
  * via: http://stackoverflow.com/a/901144
  */
-var getParameterByName = function(name) {
-    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
-    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
-        results = regex.exec(location.search);
-    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
-}
+var getParameterByName = function (name) {
+    name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+    var regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+    var results = regex.exec(location.search);
+    return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+};
 
 /*
  * Convert a url to a location object.
  */
-var urlToLocation = function(url) {
+var urlToLocation = function (url) {
     var a = document.createElement('a');
     a.href = url;
     return a;
-}
+};
 
 /*
  * Returns array of colors to use in the chart.
@@ -84,18 +84,18 @@ var urlToLocation = function(url) {
 var colorArray = function (config, defaultColorArr) {
     var colorArr = defaultColorArr;
 
-    if (config.colors && (!config.theme || config.theme == "custom")) {
+    if (config.colors && (!config.theme || config.theme == 'custom')) {
         // use "color" content
         colorArr = config.colors.split(/\s*,\s*/);
     } else if (config.theme) {
         // use predefined color "theme"
-        if (config.theme == "monochrome") {
+        if (config.theme == 'monochrome') {
             colorArr = monochromeColors;
-        } else if (config.theme == "multicolor") {
+        } else if (config.theme == 'multicolor') {
             colorArr = multiColors;
-        } else if (config.theme == "single") {
+        } else if (config.theme == 'single') {
             colorArr = singleColors;
-        } else if (config.theme == "highlight" || config.theme == "highlighted") {
+        } else if (config.theme == 'highlight' || config.theme == 'highlighted') {
             colorArr = highlightColors;
         }
     }
@@ -116,18 +116,14 @@ var colorArray = function (config, defaultColorArr) {
  * number of decimals, commas as thousand seperators, and suffix / prefix.
  */
 var formattedNumber = function (num, prefix, suffix, maxDecimalPlaces) {
-    return (
-        (prefix || '') + // add any set prefix (e.g. $)
-        d3.format(",")( // d3 formatter that adds the comma
-            parseFloat( // convert back to float again (this drops any trailing zeros)
-                parseFloat(num) // convert to float (in case it is passed in as a string )
-                  .toFixed( // reduce decimal places
-                      parseInt(maxDecimalPlaces || 10, 10) // get number of decimal places to show
-                  )
-            )
-        ) +
-        (suffix || '') // add any set suffix (e.g. %)
-    );
+    num = parseFloat(num); // convert to float (in case it is passed in as a string )
+    maxDecimalPlaces = parseInt(maxDecimalPlaces || 10, 10); // get number of decimal places to show
+    var numString = num.toFixed(maxDecimalPlaces); // reduce decimal places
+    num = parseFloat(numString); // convert back to float again (this drops any trailing zeros)
+    numString = d3.format(',')(num); // d3 formatter that adds the commas
+    numString = (prefix || '') + numString; // add any set prefix (e.g. $)
+    numString = numString + (suffix || ''); // add any set suffix (e.g. %)
+    return numString;
 };
 
 /*
@@ -186,6 +182,7 @@ var getAccessibleColor = function (foreground, background) {
             // can't get any darker/brighter so return false
             return false;
         }
+
         foreground = adjustedForeground;
     }
 
