@@ -1,6 +1,6 @@
 // Global config
-var COLOR_BINS = [ -4, -2, 0, 2, 4, 6, 8, 10 ];
-var COLOR_RANGE = [COLORS['red5'], '#ccc', COLORS['blue5'], COLORS['blue4'], COLORS['blue3'], COLORS['blue2']];
+var COLOR_BINS = [-4, -2, 0, 2, 4, 6, 8, 10];
+var COLOR_RANGE = multiColors;
 
 // Global vars
 var pymChild = null;
@@ -10,22 +10,22 @@ var binnedData = [];
 /*
  * Initialize the graphic.
  */
-var onWindowLoaded = function() {
+var onWindowLoaded = function () {
     if (Modernizr.svg) {
         formatData();
 
         pymChild = new pym.Child({
-            renderCallback: render
+            renderCallback: render,
         });
     } else {
         pymChild = new pym.Child({});
     }
-}
+};
 
 /*
  * Format graphic data for processing by D3.
  */
-var formatData = function() {
+var formatData = function () {
     var numBins = COLOR_BINS.length - 1;
 
     // init the bins
@@ -34,10 +34,10 @@ var formatData = function() {
     }
 
     // put states in bins
-    _.each(DATA, function(d) {
-        if (d['amt'] != null) {
-            var amt = +d['amt'];
-            var state = d['usps'];
+    _.each(DATA, function (d) {
+        if (d.amt !== null) {
+            var amt = +d.amt;
+            var state = d.usps;
 
             for (var i = 0; i < numBins; i++) {
                 if (amt >= COLOR_BINS[i] && amt < COLOR_BINS[i + 1]) {
@@ -47,7 +47,7 @@ var formatData = function() {
             }
         }
     });
-}
+};
 
 /*
  * Render the graphic(s). Called by pym with the container width.
@@ -59,54 +59,41 @@ var render = function (containerWidth) {
     // Render the chart!
     renderBlockHistogram({
         container: '#block-histogram',
-        width: containerWidth,
-        data: binnedData,
-        bins: COLOR_BINS,
-        colors: COLOR_RANGE
     });
 
     // Update iframe
     if (pymChild) {
         pymChild.sendHeight();
     }
-}
+};
 
 /*
  * Render a bar chart.
  */
-var renderBlockHistogram = function(config) {
+var renderBlockHistogram = function (config) {
     /*
      * Setup
      */
-    var labelColumn = 'usps';
-    var valueColumn = 'amt';
+    var blockHeight = isMobile ? 18 : 30;
 
-    var blockHeight = 30;
-    if (isMobile) {
-        blockHeight = 18;
-    }
     var blockGap = 1;
 
     var margins = {
         top: 20,
         right: 12,
         bottom: 20,
-        left: 10
+        left: 10,
     };
 
     var ticksY = 4;
 
     // Determine largest bin
-    var largestBin = _.max(binnedData, function(bin) {
+    var largestBin = _.max(binnedData, function (bin) {
         return bin.length;
     }).length;
 
-    // Calculate actual chart dimensions
-    var chartWidth = config['width'] - margins['left'] - margins['right'];
-    var chartHeight = ((blockHeight + blockGap) * largestBin);
-
     // Clear existing graphic (for redraw)
-    var containerElement = d3.select(config['container']);
+    var containerElement = d3.select(config.container);
     containerElement.html('');
 
     /*
@@ -115,26 +102,33 @@ var renderBlockHistogram = function(config) {
     var chartWrapper = containerElement.append('div')
         .attr('class', 'graphic-wrapper');
 
+    // Calculate actual chart dimensions
+    var innerWidth = chartWrapper.node().getBoundingClientRect().width;
+    var chartWidth = innerWidth - margins.left - margins.right;
+    var chartHeight = (blockHeight + blockGap) * largestBin;
+
     var chartElement = chartWrapper.append('svg')
-        .attr('width', chartWidth + margins['left'] + margins['right'])
-        .attr('height', chartHeight + margins['top'] + margins['bottom'])
+        .attr({
+            width: chartWidth + margins.left + margins.right,
+            height: chartHeight + margins.top + margins.bottom,
+        })
         .append('g')
-        .attr('transform', makeTranslate(margins['left'], margins['top']));
+            .attr('transform', makeTranslate(margins.left, margins.top));
 
     /*
      * Create D3 scale objects.
      */
     var xScale = d3.scale.ordinal()
-        .domain(config['bins'].slice(0, -1))
-        .rangeRoundBands([0, chartWidth], .1);
+        .domain(COLOR_BINS.slice(0, -1))
+        .rangeRoundBands([0, chartWidth], 0.1);
 
     var yScale = d3.scale.linear()
-        .domain([ 0, largestBin ])
-        .rangeRound([ chartHeight, 0 ]);
+        .domain([0, largestBin])
+        .rangeRound([chartHeight, 0]);
 
     var colorScale = d3.scale.ordinal()
-        .domain(config['bins'])
-        .range(config['colors']);
+        .domain(COLOR_BINS)
+        .range(COLOR_RANGE);
 
     /*
      * Create D3 axes.
@@ -143,7 +137,7 @@ var renderBlockHistogram = function(config) {
         .scale(xScale)
         .orient('bottom')
         .outerTickSize(0)
-        .tickFormat(function(d) {
+        .tickFormat(function (d) {
             if (d > 0) {
                 return '+' + d + '%';
             } else {
@@ -167,7 +161,7 @@ var renderBlockHistogram = function(config) {
     /*
      * Render grid to chart.
      */
-    var yAxisGrid = function() {
+    var yAxisGrid = function () {
         return yAxis;
     };
 
@@ -182,42 +176,42 @@ var renderBlockHistogram = function(config) {
      * Shift tick marks
      */
     chartElement.selectAll('.x.axis .tick')
-        .attr('transform', function() {
+        .attr('transform', function () {
             var el = d3.select(this);
             var transform = d3.transform(el.attr('transform'));
 
-            transform.translate[0] = transform.translate[0] - (xScale.rangeBand() / 2) - ((xScale.rangeBand() * .1) / 2);
+            transform.translate[0] = transform.translate[0] - (xScale.rangeBand() / 2) - ((xScale.rangeBand() * 0.1) / 2);
             transform.translate[1] = 3;
 
             return transform.toString();
-        })
+        });
 
     var lastTick = chartElement.select('.x.axis')
         .append('g')
         .attr('class', 'tick')
-        .attr('transform', function() {
+        .attr('transform', function () {
             var transform = d3.transform();
             var lastBin = xScale.domain()[xScale.domain().length - 1];
 
-            transform.translate[0] = xScale(lastBin) + xScale.rangeBand() + ((xScale.rangeBand() * .1) / 2);
+            transform.translate[0] = xScale(lastBin) + xScale.rangeBand() + ((xScale.rangeBand() * 0.1) / 2);
             transform.translate[1] = 3;
 
             return transform.toString();
-        })
+        });
 
     lastTick.append('line')
         .attr('x1', 0)
         .attr('x2', 0)
         .attr('y1', 0)
-        .attr('y2', 6)
+        .attr('y2', 6);
 
     lastTick.append('text')
         .attr('text-anchor', 'middle')
         .attr('x', 0)
         .attr('y', 9)
         .attr('dy', '0.71em')
-        .text(function() {
-            var t = config['bins'][config['bins'].length - 1];
+        .text(function () {
+            var t = COLOR_BINS[COLOR_BINS.length - 1];
             if (t > 0) {
                 return '+' + t + '%';
             } else {
@@ -225,35 +219,36 @@ var renderBlockHistogram = function(config) {
             }
         });
 
-
     /*
      * Render bins to chart.
      */
     var bins = chartElement.selectAll('.bin')
-        .data(config['data'])
+        .data(binnedData)
         .enter().append('g')
-            .attr('class', function(d,i) {
+            .attr('class', function (d, i) {
                 return 'bin bin-' + i;
             })
-            .attr('transform', function(d, i) {
+            .attr('transform', function (d, i) {
                 return makeTranslate(xScale(COLOR_BINS[i]), 0);
+            })
+            .attr('fill', function (d, i) {
+                return colorScale(i);
             });
 
     bins.selectAll('rect')
-        .data(function(d) {
+        .data(function (d) {
             return d3.entries(d);
         })
         .enter().append('rect')
             .attr('width', xScale.rangeBand())
             .attr('x', 0)
-            .attr('y', function(d,i) {
+            .attr('y', function (d, i) {
                 return chartHeight - ((blockHeight + blockGap) * (i + 1));
             })
             .attr('height', blockHeight)
-            .attr('class', function(d) {
-                return classify(d['value']);
+            .attr('class', function (d) {
+                return classify(d.value);
             });
-
 
     /*
      * Render bin values.
@@ -261,17 +256,17 @@ var renderBlockHistogram = function(config) {
     bins.append('g')
         .attr('class', 'value')
         .selectAll('text')
-            .data(function(d) {
+            .data(function (d) {
                 return d3.entries(d);
             })
         .enter().append('text')
             .attr('x', (xScale.rangeBand() / 2))
-            .attr('y', function(d,i) {
+            .attr('y', function (d, i) {
                 return chartHeight - ((blockHeight + blockGap) * (i + 1));
             })
             .attr('dy', (blockHeight / 2) + 4)
-            .text(function(d) {
-                return d['value'];
+            .text(function (d) {
+                return d.value;
             });
 
     /*
@@ -298,11 +293,11 @@ var renderBlockHistogram = function(config) {
 
     annotations.append('line')
         .attr('class', 'axis-0')
-        .attr('x1', xScale(0) - ((xScale.rangeBand() * .1) / 2))
-        .attr('y1', -margins['top'])
-        .attr('x2', xScale(0) - ((xScale.rangeBand() * .1) / 2))
+        .attr('x1', xScale(0) - ((xScale.rangeBand() * 0.1) / 2))
+        .attr('y1', -margins.top)
+        .attr('x2', xScale(0) - ((xScale.rangeBand() * 0.1) / 2))
         .attr('y2', chartHeight);
-}
+};
 
 /*
  * Initially load the graphic
