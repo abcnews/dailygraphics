@@ -259,27 +259,27 @@ var renderGroupedBarChart = function (config) {
      */
     chartWrapper.append('ul')
         .attr('class', 'labels')
-        .attr('style', formatStyle({
+        .style({
             width: labelWidth + 'px',
             top: margins.top + 'px',
             left: 0,
-        }))
+        })
         .selectAll('li')
         .data(labelData)
         .enter()
         .append('li')
-            .attr('style', function(d,i) {
-                var index = Math.floor(i / numGroupBars);
-                var top = (groupHeight + groupGap) * index;
-                top += (i % numGroupBars) * (barHeight + barGap);
-                top += 20;
+            .style({
+                width: (labelWidth - 10) + 'px',
+                height: barHeight + 'px',
+                left: 0,
+                top: function (d, i) {
+                    var index = Math.floor(i / numGroupBars);
+                    var top = (groupHeight + groupGap) * index;
+                    top += (i % numGroupBars) * (barHeight + barGap);
+                    top += 20;
 
-                return formatStyle({
-                    width: (labelWidth - 10) + 'px',
-                    height: barHeight + 'px',
-                    left: 0,
-                    top: top + 'px'
-                });
+                    return top + 'px';
+                },
             })
             .attr('class', function(d,i) {
                 return classify(d);//.key);

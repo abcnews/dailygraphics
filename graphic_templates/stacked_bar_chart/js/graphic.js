@@ -292,22 +292,22 @@ var renderStackedBarChart = function(config) {
      */
     chartWrapper.append('ul')
         .attr('class', 'labels')
-        .attr('style', formatStyle({
-            'width': labelWidth + 'px',
-            'top': margins['top'] + 'px',
-            'left': '0'
-        }))
+        .style({
+            width: labelWidth + 'px',
+            top: margins.top + 'px',
+            left: 0,
+        })
         .selectAll('li')
         .data(config['data'])
         .enter()
         .append('li')
-            .attr('style', function(d, i) {
-                return formatStyle({
-                    'width': labelWidth + 'px',
-                    'height': barHeight + 'px',
-                    'left': '0px',
-                    'top': (i * (barHeight + barGap)) + 'px;'
-                });
+            .style({
+                width: labelWidth + 'px',
+                height: barHeight + 'px',
+                left: 0,
+                top: function (d, i) {
+                    return (i * (barHeight + barGap)) + 'px';
+                },
             })
             .attr('class', function(d) {
                 return classify(d[labelColumn]);

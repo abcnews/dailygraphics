@@ -52,20 +52,7 @@ var classify = function(str) {
         .replace(/\-\-+/g, '-')         // Replace multiple - with single -
         .replace(/^-+/, '')             // Trim - from start of text
         .replace(/-+$/, '');            // Trim - from end of text
-}
-
-/*
- * Convert key/value pairs to a style string.
- */
-var formatStyle = function(props) {
-    var s = '';
-
-    for (var key in props) {
-        s += key + ': ' + props[key].toString() + '; ';
-    }
-
-    return s;
-}
+};
 
 /*
  * Create a SVG tansform for a given translation.
