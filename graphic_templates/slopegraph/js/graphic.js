@@ -9,27 +9,27 @@ var isSidebar = false;
 /*
  * Initialize graphic
  */
-var onWindowLoaded = function() {
+var onWindowLoaded = function () {
     if (Modernizr.svg) {
         formatData();
 
         pymChild = new pym.Child({
-            renderCallback: render
+            renderCallback: render,
         });
     } else {
         pymChild = new pym.Child({});
     }
-}
+};
 
 /*
  * Format graphic data for processing by D3.
  */
-var formatData = function() {
-    DATA.forEach(function(d) {
-        d['start'] = +d['start'];
-        d['end'] = +d['end'];
+var formatData = function () {
+    DATA.forEach(function (d) {
+        d.start = +d.start;
+        d.end = +d.end;
     });
-}
+};
 
 /*
  * Render the graphic(s). Called by pym with the container width.
@@ -42,35 +42,35 @@ var render = function (containerWidth) {
     // Render the chart!
     renderSlopegraph({
         container: '#slopegraph',
-        width: containerWidth,
-        data: DATA,
-        metadata: LABELS
     });
 
     // Update iframe
     if (pymChild) {
         pymChild.sendHeight();
     }
-}
+};
 
 /*
  * Render a line chart.
  */
-var renderSlopegraph = function(config) {
+var renderSlopegraph = function (config) {
     /*
      * Setup
      */
-    var labelColumn = 'label';
-    var startColumn = 'start';
-    var endColumn = 'end';
-
-    var startLabel = config['metadata']['start_label'];
-    var endLabel = config['metadata']['end_label'];
-
-    console.log(config);
+    var startLabel = LABELS.start_label;
+    var endLabel = LABELS.end_label;
 
     var aspectWidth = 5;
     var aspectHeight = 3;
+    if (isSidebar) {
+        aspectWidth = 2;
+        aspectHeight = 3;
+    } else if (isMobile) {
+        aspectWidth = 2.5;
+        aspectHeight = 3;
+    }
+
+    var aspectRatio = aspectWidth / aspectHeight;
 
     var margins = {
         top: parseInt(LABELS.marginTop || 20, 10),
@@ -79,27 +79,21 @@ var renderSlopegraph = function(config) {
         left: parseInt(LABELS.marginLeft || 40, 10),
     };
 
+    if (isSidebar) {
+        margins.left = 30;
+        margins.right = 105;
+    } else if (isMobile) {
+        margins.right = 145;
+    }
+
     var ticksX = 2;
     var ticksY = 10;
     var roundTicksFactor = 4;
     var dotRadius = 3;
-    var labelGap = 42;
-
-    // Mobile
-    if (isSidebar) {
-        aspectWidth = 2;
-        aspectHeight = 3;
-        margins['left'] = 30;
-        margins['right'] = 105;
-        labelGap = 32;
-    } else if (isMobile) {
-        aspectWidth = 2.5
-        aspectHeight = 3;
-        margins['right'] = 145;
-    }
+    var labelGap = isSidebar ? 32 : 42;
 
     // Clear existing graphic (for redraw)
-    var containerElement = d3.select(config['container']);
+    var containerElement = d3.select(config.container);
     containerElement.html('');
 
     /*
@@ -110,26 +104,25 @@ var renderSlopegraph = function(config) {
 
     // Calculate actual chart dimensions
     var innerWidth = chartWrapper.node().getBoundingClientRect().width;
-    var chartWidth = innerWidth - margins['left'] - margins['right'];
-    var chartHeight = Math.ceil((config['width'] * aspectHeight) / aspectWidth) - margins['top'] - margins['bottom'];
+    var chartWidth = innerWidth - margins.left - margins.right;
+    var chartHeight = Math.ceil(innerWidth / aspectRatio) - margins.top - margins.bottom;
 
     /*
      * Create D3 scale objects.
      */
     var xScale = d3.scale.ordinal()
         .domain([startLabel, endLabel])
-        .range([0, chartWidth])
-
-    console.log(startLabel, endLabel)
+        .range([0, chartWidth]);
 
     var yScale = d3.scale.linear()
         .domain([
-            d3.min(config['data'], function(d) {
-                return Math.floor(d[startColumn] / roundTicksFactor) * roundTicksFactor;
+            d3.min(DATA, function (d) {
+                return Math.floor(d.start / roundTicksFactor) * roundTicksFactor;
             }),
-            d3.max(config['data'], function(d) {
-                return Math.ceil(d[endColumn] / roundTicksFactor) * roundTicksFactor;
-            })
+
+            d3.max(DATA, function (d) {
+                return Math.ceil(d.end / roundTicksFactor) * roundTicksFactor;
+            }),
         ])
         .range([chartHeight, 0]);
 
@@ -145,7 +138,7 @@ var renderSlopegraph = function(config) {
         .scale(xScale)
         .orient('top')
         .ticks(ticksX)
-        .tickFormat(function(d) {
+        .tickFormat(function (d) {
             return d;
         });
 
@@ -153,22 +146,24 @@ var renderSlopegraph = function(config) {
         .scale(xScale)
         .orient('bottom')
         .ticks(ticksX)
-        .tickFormat(function(d) {
+        .tickFormat(function (d) {
             return d;
         });
 
     var chartElement = chartWrapper.append('svg')
-        .attr('width', chartWidth + margins['left'] + margins['right'])
-        .attr('height', chartHeight + margins['top'] + margins['bottom'])
+        .attr({
+            width: chartWidth + margins.left + margins.right,
+            height: chartHeight + margins.top + margins.bottom,
+        })
         .append('g')
-        .attr('transform', 'translate(' + margins['left'] + ',' + margins['top'] + ')');
+            .attr('transform', 'translate(' + margins.left + ',' + margins.top + ')');
 
     /*
      * Render axes to chart.
      */
-     chartElement.append('g')
-         .attr('class', 'x axis')
-         .call(xAxisTop);
+    chartElement.append('g')
+        .attr('class', 'x axis')
+        .call(xAxisTop);
 
     chartElement.append('g')
         .attr('class', 'x axis')
@@ -181,30 +176,30 @@ var renderSlopegraph = function(config) {
     chartElement.append('g')
         .attr('class', 'lines')
         .selectAll('line')
-        .data(config['data'])
+        .data(DATA)
         .enter()
         .append('line')
-            .attr('class', function(d, i) {
-                return 'line ' + classify(d[labelColumn]);
+            .attr('class', function (d, i) {
+                return 'line ' + classify(d.label);
             })
             .attr('x1', xScale(startLabel))
-            .attr('y1', function(d) {
-                return yScale(d[startColumn]);
+            .attr('y1', function (d) {
+                return yScale(d.start);
             })
             .attr('x2', xScale(endLabel))
-            .attr('y2', function(d) {
-                return yScale(d[endColumn]);
+            .attr('y2', function (d) {
+                return yScale(d.end);
             })
-            .style('stroke', function(d, i) {
-                return colorScale(i)
+            .style('stroke', function (d, i) {
+                return colorScale(i);
             });
 
     /*
      * Uncomment if needed:
      * Move a particular line to the front of the stack
      */
-    // svg.select('line.unaffiliated').moveToFront();
 
+    // svg.select('line.unaffiliated').moveToFront();
 
     /*
      * Render dots to chart.
@@ -212,37 +207,37 @@ var renderSlopegraph = function(config) {
     chartElement.append('g')
         .attr('class', 'dots start')
         .selectAll('circle')
-        .data(config['data'])
+        .data(DATA)
         .enter()
         .append('circle')
-            .attr('cx', xScale(startLabel))
-            .attr('cy', function(d) {
-                return yScale(d[startColumn]);
+            .attr('class', function (d) {
+                return classify(d.label);
             })
-            .attr('class', function(d) {
-                return classify(d[labelColumn]);
+            .attr('cx', xScale(startLabel))
+            .attr('cy', function (d) {
+                return yScale(d.start);
             })
             .attr('r', dotRadius)
-            .style('fill', function(d, i) {
-                return colorScale(i)
+            .style('fill', function (d, i) {
+                return colorScale(i);
             });
 
     chartElement.append('g')
         .attr('class', 'dots end')
         .selectAll('circle')
-        .data(config['data'])
+        .data(DATA)
         .enter()
         .append('circle')
-            .attr('cx', xScale(endLabel))
-            .attr('cy', function(d) {
-                return yScale(d[endColumn]);
+            .attr('class', function (d) {
+                return classify(d.label);
             })
-            .attr('class', function(d) {
-                return classify(d[labelColumn]);
+            .attr('cx', xScale(endLabel))
+            .attr('cy', function (d) {
+                return yScale(d.end);
             })
             .attr('r', dotRadius)
-            .style('fill', function(d, i) {
-                return colorScale(i)
+            .style('fill', function (d, i) {
+                return colorScale(i);
             });
 
     /*
@@ -251,49 +246,49 @@ var renderSlopegraph = function(config) {
     chartElement.append('g')
         .attr('class', 'value start')
         .selectAll('text')
-        .data(config['data'])
+        .data(DATA)
         .enter()
         .append('text')
+            .attr('class', function (d) {
+                return classify(d.label);
+            })
             .attr('x', xScale(startLabel))
-            .attr('y', function(d) {
-                return yScale(d[startColumn]);
+            .attr('y', function (d) {
+                return yScale(d.start);
             })
             .attr('text-anchor', 'end')
             .attr('dx', -6)
             .attr('dy', 3)
-            .attr('class', function(d) {
-                return classify(d[labelColumn]);
-            })
-            .text(function(d) {
+            .text(function (d) {
                 if (isSidebar) {
-                    return d[endColumn].toFixed(0) + '%';
+                    return d.end.toFixed(0) + '%';
                 }
 
-                return d[startColumn] + '%';
+                return d.start + '%';
             });
 
     chartElement.append('g')
         .attr('class', 'value end')
         .selectAll('text')
-        .data(config['data'])
+        .data(DATA)
         .enter()
         .append('text')
+            .attr('class', function (d) {
+                return classify(d.label);
+            })
             .attr('x', xScale(endLabel))
-            .attr('y', function(d) {
-                return yScale(d[endColumn]);
+            .attr('y', function (d) {
+                return yScale(d.end);
             })
             .attr('text-anchor', 'begin')
             .attr('dx', 6)
             .attr('dy', 3)
-            .attr('class', function(d) {
-                return classify(d[labelColumn]);
-            })
-            .text(function(d) {
+            .text(function (d) {
                 if (isSidebar) {
-                    return d[endColumn].toFixed(0) + '%';
+                    return d.end.toFixed(0) + '%';
                 }
 
-                return d[endColumn] + '%';
+                return d.end + '%';
             });
 
     /*
@@ -302,35 +297,35 @@ var renderSlopegraph = function(config) {
     chartElement.append('g')
         .attr('class', 'label')
         .selectAll('text')
-        .data(config['data'])
+        .data(DATA)
         .enter()
         .append('text')
+            .attr('class', function (d, i) {
+                return classify(d.label);
+            })
             .attr('x', xScale(endLabel))
-            .attr('y', function(d) {
-                return yScale(d[endColumn]);
+            .attr('y', function (d) {
+                return yScale(d.end);
             })
             .attr('text-anchor', 'begin')
-            .attr('dx', function(d) {
+            .attr('dx', function (d) {
                 return labelGap;
             })
-            .attr('dy', function(d) {
+            .attr('dy', function (d) {
                 return 3;
             })
-            .attr('class', function(d, i) {
-                return classify(d[labelColumn]);
+            .text(function (d) {
+                return d.label;
             })
-            .text(function(d) {
-                return d[labelColumn];
-            })
-            .call(wrapText, (margins['right'] - labelGap), 16);
-}
+            .call(wrapText, (margins.right - labelGap), 16);
+};
 
 /*
  * Wrap a block of text to a given width
  * via http://bl.ocks.org/mbostock/7555321
  */
-var wrapText = function(texts, width, lineHeight) {
-    texts.each(function() {
+var wrapText = function (texts, width, lineHeight) {
+    texts.each(function () {
         var text = d3.select(this);
         var words = text.text().split(/\s+/).reverse();
 
@@ -346,10 +341,12 @@ var wrapText = function(texts, width, lineHeight) {
 
         var tspan = text.text(null)
             .append('tspan')
-            .attr('x', x)
-            .attr('y', y)
-            .attr('dx', dx + 'px')
-            .attr('dy', dy + 'px');
+            .attr({
+                x: x,
+                y: y,
+                dx: dx + 'px',
+                dy: dy + 'px',
+            });
 
         while (word = words.pop()) {
             line.push(word);
@@ -363,22 +360,24 @@ var wrapText = function(texts, width, lineHeight) {
                 lineNumber += 1;
 
                 tspan = text.append('tspan')
-                    .attr('x', x)
-                    .attr('y', y)
-                    .attr('dx', dx + 'px')
-                    .attr('dy', lineNumber * lineHeight)
-                    .attr('text-anchor', 'begin')
+                    .attr({
+                        x: x,
+                        y: y,
+                        dx: dx + 'px',
+                        dy: lineNumber * lineHeight,
+                        'text-anchor': 'begin',
+                    })
                     .text(word);
             }
         }
     });
-}
+};
 
 /*
  * Select an element and move it to the front of the stack
  */
-d3.selection.prototype.moveToFront = function() {
-    return this.each(function(){
+d3.selection.prototype.moveToFront = function () {
+    return this.each(function () {
         this.parentNode.appendChild(this);
     });
 };
