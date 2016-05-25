@@ -5,27 +5,27 @@ var isMobile = false;
 /*
  * Initialize the graphic.
  */
-var onWindowLoaded = function() {
+var onWindowLoaded = function () {
     if (Modernizr.svg) {
         formatData();
 
         pymChild = new pym.Child({
-            renderCallback: render
+            renderCallback: render,
         });
     } else {
         pymChild = new pym.Child({});
     }
-}
+};
 
 /*
  * Format graphic data for processing by D3.
  */
-var formatData = function() {
-    DATA.forEach(function(d) {
+var formatData = function () {
+    DATA.forEach(function (d) {
         var y0 = 0;
 
-        d['values'] = [];
-        d['total'] = 0;
+        d.values = [];
+        d.total = 0;
 
         for (var key in d) {
             if (key == 'label' || key == 'values' || key == 'total') {
@@ -35,19 +35,19 @@ var formatData = function() {
             d[key] = +d[key];
 
             var y1 = y0 + d[key];
-            d['total'] += d[key];
+            d.total += d[key];
 
-            d['values'].push({
-                'name': key,
-                'y0': y0,
-                'y1': y1,
-                'val': d[key]
-            })
+            d.values.push({
+                name: key,
+                y0: y0,
+                y1: y1,
+                val: d[key],
+            });
 
             y0 = y1;
         }
     });
-}
+};
 
 /*
  * Render the graphic(s). Called by pym with the container width.
@@ -59,34 +59,32 @@ var render = function (containerWidth) {
     // Render the chart!
     renderStackedColumnChart({
         container: '#stacked-column-chart',
-        width: containerWidth,
-        data: DATA
     });
 
     // Update iframe
     if (pymChild) {
         pymChild.sendHeight();
     }
-}
+};
 
 /*
  * Render a stacked column chart.
  */
-var renderStackedColumnChart = function(config) {
+var renderStackedColumnChart = function (config) {
     /*
      * Setup
      */
-    var labelColumn = 'label';
-
     var aspectWidth = 16;
     var aspectHeight = 9;
+    var aspectRatio = aspectWidth / aspectHeight;
+
     var valueGap = 6;
 
     var margins = {
         top: 5,
         right: 5,
         bottom: 20,
-        left: 30
+        left: 30,
     };
 
     var ticksY = 5;
@@ -97,23 +95,38 @@ var renderStackedColumnChart = function(config) {
         aspectHeight = 3;
     }
 
-    // Calculate actual chart dimensions
-    var chartWidth = config['width'] - margins['left'] - margins['right'];
-    var chartHeight = Math.ceil((config['width'] * aspectHeight) / aspectWidth) - margins['top'] - margins['bottom'];
-
     // Clear existing graphic (for redraw)
-    var containerElement = d3.select(config['container']);
+    var containerElement = d3.select(config.container);
     containerElement.html('');
+
+    /*
+     * Create the root SVG element.
+     */
+    var chartWrapper = containerElement.append('div')
+        .attr('class', 'graphic-wrapper');
+
+    // Calculate actual chart dimensions
+    var innerWidth = chartWrapper.node().getBoundingClientRect().width;
+    var chartWidth = innerWidth - margins.left - margins.right;
+    var chartHeight = Math.ceil(innerWidth / aspectRatio) - margins.top - margins.bottom;
+
+    var chartElement = chartWrapper.append('svg')
+        .attr({
+            width: chartWidth + margins.left + margins.right,
+            height: chartHeight + margins.top + margins.bottom,
+        })
+        .append('g')
+            .attr('transform', makeTranslate(margins.left, margins.top));
 
     /*
      * Create D3 scale objects.
      */
     var xScale = d3.scale.ordinal()
-        .domain(_.pluck(config['data'], labelColumn))
-        .rangeRoundBands([0, chartWidth], .1)
+        .domain(_.pluck(DATA, 'label'))
+        .rangeRoundBands([0, chartWidth], 0.1);
 
-    var min = d3.min(config['data'], function(d) {
-        return Math.floor(d['total'] / roundTicksFactor) * roundTicksFactor;
+    var min = d3.min(DATA, function (d) {
+        return Math.floor(d.total / roundTicksFactor) * roundTicksFactor;
     });
 
     if (min > 0) {
@@ -123,51 +136,39 @@ var renderStackedColumnChart = function(config) {
     var yScale = d3.scale.linear()
         .domain([
             min,
-            d3.max(config['data'], function(d) {
-                return Math.ceil(d['total'] / roundTicksFactor) * roundTicksFactor;
-            })
+            d3.max(DATA, function (d) {
+                return Math.ceil(d.total / roundTicksFactor) * roundTicksFactor;
+            }),
         ])
         .rangeRound([chartHeight, 0]);
 
     var colorScale = d3.scale.ordinal()
-        .domain(d3.keys(config['data'][0]).filter(function(d) {
-            return d != labelColumn && d != 'values' && d != 'total';
+        .domain(d3.keys(DATA[0]).filter(function (d) {
+            return d != 'label' && d != 'values' && d != 'total';
         }))
-        .range([ COLORS['teal2'], COLORS['teal5'] ]);
+        .range([COLORS.teal2, COLORS.teal5]);
 
     /*
      * Render the legend.
      */
     var legend = containerElement.append('ul')
-		.attr('class', 'key')
-		.selectAll('g')
-			.data(colorScale.domain())
-		.enter().append('li')
-			.attr('class', function(d, i) {
-				return 'key-item key-' + i + ' ' + classify(d);
-			});
+        .attr('class', 'key')
+        .selectAll('g')
+            .data(colorScale.domain())
+        .enter().append('li')
+            .attr('class', function (d, i) {
+                return 'key-item key-' + i + ' ' + classify(d);
+            });
 
     legend.append('b')
-        .style('background-color', function(d) {
+        .style('background-color', function (d) {
             return colorScale(d);
         });
 
     legend.append('label')
-        .text(function(d) {
+        .text(function (d) {
             return d;
         });
-
-    /*
-     * Create the root SVG element.
-     */
-    var chartWrapper = containerElement.append('div')
-        .attr('class', 'graphic-wrapper');
-
-    var chartElement = chartWrapper.append('svg')
-        .attr('width', chartWidth + margins['left'] + margins['right'])
-        .attr('height', chartHeight + margins['top'] + margins['bottom'])
-        .append('g')
-            .attr('transform', makeTranslate(margins['left'], margins['top']));
 
     /*
      * Create D3 axes.
@@ -175,7 +176,7 @@ var renderStackedColumnChart = function(config) {
     var xAxis = d3.svg.axis()
         .scale(xScale)
         .orient('bottom')
-        .tickFormat(function(d) {
+        .tickFormat(function (d) {
             return d;
         });
 
@@ -183,7 +184,7 @@ var renderStackedColumnChart = function(config) {
         .scale(yScale)
         .orient('left')
         .ticks(ticksY)
-        .tickFormat(function(d) {
+        .tickFormat(function (d) {
             return d;
         });
 
@@ -202,7 +203,7 @@ var renderStackedColumnChart = function(config) {
     /*
      * Render grid to chart.
      */
-    var yAxisGrid = function() {
+    var yAxisGrid = function () {
         return yAxis;
     };
 
@@ -217,67 +218,67 @@ var renderStackedColumnChart = function(config) {
      * Render bars to chart.
      */
     var bars = chartElement.selectAll('.bars')
-        .data(config['data'])
+        .data(DATA)
         .enter().append('g')
             .attr('class', 'bar')
-            .attr('transform', function(d) {
-                return makeTranslate(xScale(d[labelColumn]), 0);
+            .attr('transform', function (d) {
+                return makeTranslate(xScale(d.label), 0);
             });
 
     bars.selectAll('rect')
-        .data(function(d) {
-            return d['values'];
+        .data(function (d) {
+            return d.values;
         })
         .enter().append('rect')
-            .attr('y', function(d) {
-                if (d['y1'] < d['y0']) {
-                    return yScale(d['y0']);
+            .attr('y', function (d) {
+                if (d.y1 < d.y0) {
+                    return yScale(d.y0);
                 }
 
-                return yScale(d['y1']);
+                return yScale(d.y1);
             })
             .attr('width', xScale.rangeBand())
-            .attr('height', function(d) {
-                return Math.abs(yScale(d['y0']) - yScale(d['y1']));
+            .attr('height', function (d) {
+                return Math.abs(yScale(d.y0) - yScale(d.y1));
             })
-            .style('fill', function(d) {
-                return colorScale(d['name']);
+            .style('fill', function (d) {
+                return colorScale(d.name);
             })
-            .attr('class', function(d) {
-                return classify(d['name']);
+            .attr('class', function (d) {
+                return classify(d.name);
             });
 
     /*
      * Render values to chart.
      */
     bars.selectAll('text')
-        .data(function(d) {
-            return d['values'];
+        .data(function (d) {
+            return d.values;
         })
         .enter().append('text')
-            .text(function(d) {
-                return d['val'];
+            .text(function (d) {
+                return d.val;
             })
-            .attr('class', function(d) {
-                return classify(d['name']);
+            .attr('class', function (d) {
+                return classify(d.name);
             })
-            .attr('x', function(d) {
+            .attr('x', function (d) {
                 return xScale.rangeBand() / 2;
             })
-            .attr('y', function(d) {
+            .attr('y', function (d) {
                 var textHeight = d3.select(this).node().getBBox().height;
-                var barHeight = Math.abs(yScale(d['y0']) - yScale(d['y1']));
+                var barHeight = Math.abs(yScale(d.y0) - yScale(d.y1));
 
                 if (textHeight + valueGap * 2 > barHeight) {
                     d3.select(this).classed('hidden', true);
                 }
 
-                var barCenter = yScale(d['y1']) + ((yScale(d['y0']) - yScale(d['y1'])) / 2);
+                var barCenter = yScale(d.y1) + ((yScale(d.y0) - yScale(d.y1)) / 2);
 
                 return barCenter + textHeight / 2;
             })
             .attr('text-anchor', 'middle');
-}
+};
 
 /*
  * Initially load the graphic
