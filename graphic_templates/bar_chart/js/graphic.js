@@ -156,7 +156,7 @@ var renderBarChart = function (config) {
     );
     */
 
-    var colorList = colorArray(LABELS, singleColors);
+    var colorList = colorArray(LABELS, SINGLECOLORS);
     var colorScale = d3.scale.ordinal()
         .range(colorList);
 

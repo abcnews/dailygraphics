@@ -136,7 +136,7 @@ var renderStackedBarChart = function (config) {
         .domain([min, max])
         .rangeRound([0, chartWidth]);
 
-    var colorList = colorArray(LABELS, multiColors);
+    var colorList = colorArray(LABELS, MULTICOLORS);
     var colorScale = d3.scale.ordinal()
         .domain(d3.keys(DATA[0]).filter(function (d) {
             return d != 'label' && d != 'values';

@@ -12,19 +12,19 @@ var PTYCOLORS = {
     ptyoth: '#666666',
 };
 
-var multiColors = [
+var MULTICOLORS = [
     '#1F79CD', '#FF7C0A', '#00B3A7', '#D662B1', '#71A12D', '#926CB5', '#F55446',
 ];
 
-var monochromeColors = [
+var MONOCHROMECOLORS = [
     '#1B79CC', '#47A6FF', '#136C9C', '#8796A1', '#2B4E78', '#5686B0', '#5E6F7A',
 ];
 
-var singleColors = [
+var SINGLECOLORS = [
     '#478CCC',
 ];
 
-var highlightColors = [
+var HIGHLIGHTCOLORS = [
     '#CCCCCC',
 ];
 
@@ -90,13 +90,13 @@ var colorArray = function (config, defaultColorArr) {
     } else if (config.theme) {
         // use predefined color "theme"
         if (config.theme == 'monochrome') {
-            colorArr = monochromeColors;
+            colorArr = MONOCHROMECOLORS;
         } else if (config.theme == 'multicolor') {
-            colorArr = multiColors;
+            colorArr = MULTICOLORS;
         } else if (config.theme == 'single') {
-            colorArr = singleColors;
+            colorArr = SINGLECOLORS;
         } else if (config.theme == 'highlight' || config.theme == 'highlighted') {
-            colorArr = highlightColors;
+            colorArr = HIGHLIGHTCOLORS;
         }
     }
 

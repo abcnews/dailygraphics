@@ -172,7 +172,7 @@ var renderColumnChart = function (config) {
     //         .tickFormat('')
     //     );
 
-    var colorList = colorArray(LABELS, singleColors);
+    var colorList = colorArray(LABELS, SINGLECOLORS);
     var colorScale = d3.scale.ordinal()
         .range(colorList);
 

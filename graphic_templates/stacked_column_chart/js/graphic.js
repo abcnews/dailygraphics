@@ -145,7 +145,7 @@ var renderStackedColumnChart = function (config) {
         .domain(d3.keys(DATA[0]).filter(function (d) {
             return d != 'label' && d != 'values' && d != 'total';
         }))
-        .range(multiColors);
+        .range(MULTICOLORS);
 
     /*
      * Render the legend.

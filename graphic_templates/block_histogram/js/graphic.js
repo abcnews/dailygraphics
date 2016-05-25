@@ -1,6 +1,6 @@
 // Global config
 var COLOR_BINS = [-4, -2, 0, 2, 4, 6, 8, 10];
-var COLOR_RANGE = multiColors;
+var COLOR_RANGE = MULTICOLORS;
 
 // Global vars
 var pymChild = null;

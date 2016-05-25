@@ -246,7 +246,7 @@ var renderLineChart = function (config) {
         .domain([minY, maxY])
         .range([chartHeight, 0]);
 
-    var colorList = colorArray(LABELS, monochromeColors);
+    var colorList = colorArray(LABELS, MONOCHROMECOLORS);
     var colorScale = d3.scale.ordinal()
         .range(colorList);
 
@@ -430,7 +430,7 @@ var renderLineChart = function (config) {
             mouseout: function () {
                 var index = this.getAttribute('data-index');
                 chartElement.select('.visible-lines .line-' + index)
-                    .attr('stroke', highlightColors[0]);
+                    .attr('stroke', HIGHLIGHTCOLORS[0]);
                 chartElement.selectAll('.label-' + index + ' tspan')
                     .attr('fill', null);
             },

@@ -126,7 +126,7 @@ var renderSlopegraph = function (config) {
         .domain([min, max])
         .range([chartHeight, 0]);
 
-    var colorList = colorArray(LABELS, monochromeColors);
+    var colorList = colorArray(LABELS, MONOCHROMECOLORS);
     var colorScale = d3.scale.ordinal()
         .domain([0, colorList.length])
         .range(colorList);
