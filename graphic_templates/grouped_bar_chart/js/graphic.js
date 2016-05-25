@@ -20,9 +20,9 @@ var onWindowLoaded = function () {
 /*
  * Format graphic data for processing by D3.
  */
-var formatData = function() {
-    DATA.forEach(function(d) {
-        d.key = d['Group'];
+var formatData = function () {
+    DATA.forEach(function (d) {
+        d.key = d[0];
         d.values = [];
 
         _.each(d, function (v, k) {
@@ -37,7 +37,7 @@ var formatData = function() {
             delete d[k];
         });
 
-        delete d['Group'];
+        delete d[0];
     });
 };
 
@@ -67,9 +67,6 @@ var renderGroupedBarChart = function (config) {
     /*
      * Setup chart container.
      */
-    var labelColumn = 'label';
-    var valueColumn = 'amt';
-
     var numGroups = DATA.length;
     var numGroupBars = DATA[0].values.length;
 
@@ -91,7 +88,6 @@ var renderGroupedBarChart = function (config) {
     var ticksX = parseInt(LABELS.ticksX || 7, 10);
     var roundTicksFactor = parseInt(LABELS.roundTicksFactor || 5, 10);
 
-
     // Clear existing graphic (for redraw)
     var containerElement = d3.select(config.container);
     containerElement.html('');
@@ -102,7 +98,7 @@ var renderGroupedBarChart = function (config) {
     var chartWrapper = containerElement.append('div')
         .attr('class', 'graphic-wrapper');
 
-     // Calculate actual chart dimensions
+    // Calculate actual chart dimensions
     var innerWidth = chartWrapper.node().getBoundingClientRect().width;
     var chartWidth = innerWidth - margins.left - margins.right;
     var chartHeight = (groupHeight + groupGap) * numGroups - groupGap;
@@ -110,9 +106,9 @@ var renderGroupedBarChart = function (config) {
     /*
      * Create D3 scale objects.
      */
-    var min = d3.min(DATA, function(d) {
-        return d3.min(d.values, function(v) {
-            return Math.floor(v[valueColumn] / roundTicksFactor) * roundTicksFactor;
+    var min = d3.min(DATA, function (d) {
+        return d3.min(d.values, function (v) {
+            return Math.floor(v.amt / roundTicksFactor) * roundTicksFactor;
         });
     });
 
@@ -124,7 +120,7 @@ var renderGroupedBarChart = function (config) {
 
     var max = d3.max(DATA, function (d) {
         return d3.max(d.values, function (v) {
-            return Math.ceil(v[valueColumn] / roundTicksFactor) * roundTicksFactor;
+            return Math.ceil(v.amt / roundTicksFactor) * roundTicksFactor;
         });
     });
 
@@ -141,7 +137,7 @@ var renderGroupedBarChart = function (config) {
 
     var colorList = colorArray(LABELS, monochromeColors);
     var colorScale = d3.scale.ordinal()
-        .domain(_.pluck(DATA[0].values, labelColumn))
+        .domain(_.pluck(DATA[0].values, 'label'))
         .range(colorList);
 
     var accessibleColorList = [];
@@ -217,11 +213,11 @@ var renderGroupedBarChart = function (config) {
         .enter()
         .append('rect')
             .attr('x', function (d) {
-                if (d[valueColumn] >= 0) {
+                if (d.amt >= 0) {
                     return xScale(0);
                 }
 
-                return xScale(d[valueColumn]);
+                return xScale(d.amt);
             })
             .attr('y', function (d, i) {
                 if (i === 0) {
@@ -231,14 +227,14 @@ var renderGroupedBarChart = function (config) {
                 return (barHeight * i) + (barGap * i);
             })
             .attr('width', function (d) {
-                return Math.abs(xScale(0) - xScale(d[valueColumn]));
+                return Math.abs(xScale(0) - xScale(d.amt));
             })
             .attr('height', barHeight)
             .attr('fill', function (d) {
-                return colorScale(d[labelColumn]);
+                return colorScale(d.label);
             })
             .attr('class', function (d) {
-                return 'y-' + d[labelColumn];
+                return 'y-' + d.label;
             });
 
     barGroups.append('text')
@@ -281,11 +277,11 @@ var renderGroupedBarChart = function (config) {
                     return top + 'px';
                 },
             })
-            .attr('class', function(d,i) {
+            .attr('class', function (d, i) {
                 return classify(d);//.key);
             })
             .append('span')
-                .text(function(d) {
+                .text(function (d) {
                     return d;//.key
                 });
 
@@ -309,9 +305,10 @@ var renderGroupedBarChart = function (config) {
                 return;
             }
 
-            chartWrapper.selectAll('.bars:nth-child('+(index+1)+') rect:nth-child('+(barIndex+1)+')')
+            var hoveredBarGroup = chartWrapper.selectAll('.bars:nth-child(' + (index + 1) + ')');
+            hoveredBarGroup.selectAll('rect:nth-child(' + (barIndex + 1) + ')')
                 .attr('fill', highlightColor);
-            chartWrapper.selectAll('.bars:nth-child('+(index+1)+') .value text.out:nth-child('+(barIndex+1)+')')
+            hoveredBarGroup.selectAll('.value text.out:nth-child(' + (barIndex + 1) + ')')
                 .classed('over', true);
         });
     }
@@ -322,52 +319,61 @@ var renderGroupedBarChart = function (config) {
     barGroups.append('g')
         .attr('class', 'value')
         .selectAll('text')
-        .data(function(d) {
+        .data(function (d) {
             return d.values;
         })
         .enter()
         .append('text')
-            .text(function(d) {
-                return formattedNumber(d[valueColumn], LABELS.prefixX, LABELS.suffixX, LABELS.maxDecimalPlaces);
+            .text(function (d) {
+                return formattedNumber(
+                    d.amt,
+                    LABELS.prefixX,
+                    LABELS.suffixX,
+                    LABELS.maxDecimalPlaces
+                );
             })
-            .attr('x', function(d) {
-                return xScale(d[valueColumn]);
-            })
-            .attr('y', function(d, i) {
-                return (barHeight + barGap) * i;
-            })
-            .attr('dx', function(d) {
-                var xStart = xScale(d[valueColumn]);
-                var textWidth = this.getComputedTextLength();
+            .attr({
+                x: function (d) {
+                    return xScale(d.amt);
+                },
 
-                // Negative case
-                if (d[valueColumn] < 0) {
-                    var outsideOffset = -(valueGap + textWidth);
+                y: function (d, i) {
+                    return (barHeight + barGap) * i;
+                },
 
-                    if (xStart + outsideOffset < 0) {
-                        d3.select(this).classed('in', true);
-                        return valueGap;
+                dx: function (d) {
+                    var xStart = xScale(d.amt);
+                    var textWidth = this.getComputedTextLength();
+
+                    if (d.amt < 0) {
+                        // Negative case
+                        var outsideOffset = -(valueGap + textWidth);
+
+                        if (xStart + outsideOffset < 0) {
+                            d3.select(this).classed('in', true);
+                            return valueGap;
+                        } else {
+                            d3.select(this).classed('out', true);
+                            return outsideOffset;
+                        }
                     } else {
-                        d3.select(this).classed('out', true);
-                        return outsideOffset;
+                        // Positive case
+                        if (xStart + valueGap + textWidth > chartWidth) {
+                            d3.select(this).classed('in', true);
+                            return -(valueGap + textWidth);
+                        } else {
+                            d3.select(this).classed('out', true);
+                            return valueGap;
+                        }
                     }
-                // Positive case
-                } else {
-                    if (xStart + valueGap + textWidth > chartWidth) {
-                        d3.select(this).classed('in', true);
-                        return -(valueGap + textWidth);
-                    } else {
-                        d3.select(this).classed('out', true);
-                        return valueGap;
-                    }
-                }
-            })
-            .attr('dy', (barHeight / 2) + 4)
-            .attr('fill', function (d, i) {
-                return accessibleColorScale(i);
+                },
+
+                dy: (barHeight / 2) + 4,
+                fill: function (d, i) {
+                    return accessibleColorScale(i);
+                },
             });
 };
-
 
 /*
  * Initially load the graphic
