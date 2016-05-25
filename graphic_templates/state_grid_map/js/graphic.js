@@ -21,16 +21,9 @@ var onWindowLoaded = function() {
 /*
  * Render the graphic(s). Called by pym with the container width.
  */
-var render = function(containerWidth) {
-    if (!containerWidth) {
-        containerWidth = DEFAULT_WIDTH;
-    }
-
-    if (containerWidth <= MOBILE_THRESHOLD) {
-        isMobile = true;
-    } else {
-        isMobile = false;
-    }
+var render = function (containerWidth) {
+    containerWidth = containerWidth || DEFAULT_WIDTH;
+    isMobile = (containerWidth <= MOBILE_THRESHOLD);
 
     // Render the map!
     renderStateGridMap({
