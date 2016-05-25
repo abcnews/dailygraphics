@@ -36,7 +36,6 @@ var render = function (containerWidth) {
     // Render the chart!
     renderBarChart({
         container: '#bar-chart',
-        width: containerWidth,
     });
 
     // Update iframe
@@ -52,9 +51,6 @@ var renderBarChart = function (config) {
     /*
      * Setup
      */
-    var labelColumn = 'label';
-    var valueColumn = 'amt';
-
     var barHeight = parseInt(LABELS.barHeight || 30, 10);
     var barGap = parseInt(LABELS.barGap || 5, 10);
     var labelWidth = parseInt(LABELS.labelWidth || 85, 10);
@@ -105,7 +101,7 @@ var renderBarChart = function (config) {
      * Create D3 scale objects.
      */
     var min = d3.min(DATA, function (d) {
-        return Math.floor(d[valueColumn] / roundTicksFactor) * roundTicksFactor;
+        return Math.floor(d.amt / roundTicksFactor) * roundTicksFactor;
     });
 
     if ('minX' in LABELS && LABELS.minX !== '') {
@@ -115,7 +111,7 @@ var renderBarChart = function (config) {
     }
 
     var max = d3.max(DATA, function (d) {
-        return Math.ceil(d[valueColumn] / roundTicksFactor) * roundTicksFactor;
+        return Math.ceil(d.amt / roundTicksFactor) * roundTicksFactor;
     });
 
     if ('maxX' in LABELS && LABELS.maxX !== '') {
@@ -181,13 +177,16 @@ var renderBarChart = function (config) {
         .data(DATA)
         .enter()
         .append('rect')
+            .attr('class', function (d, i) {
+                return 'bar-' + i + ' ' + classify(d.label);
+            })
             .attr({
                 x: function (d) {
-                    if (d[valueColumn] >= 0) {
+                    if (d.amt >= 0) {
                         return xScale(0);
                     }
 
-                    return xScale(d[valueColumn]);
+                    return xScale(d.amt);
                 },
 
                 y: function (d, i) {
@@ -195,13 +194,10 @@ var renderBarChart = function (config) {
                 },
 
                 width: function (d) {
-                    return Math.abs(xScale(0) - xScale(d[valueColumn]));
+                    return Math.abs(xScale(0) - xScale(d.amt));
                 },
 
                 height: barHeight,
-                'class': function (d, i) {
-                    return 'bar-' + i + ' ' + classify(d[labelColumn]);
-                },
 
                 fill: function (d, i) {
                     return colorScale(i);
@@ -213,13 +209,12 @@ var renderBarChart = function (config) {
             var pos = d3.mouse(chartWrapper.node());
             var index = Math.floor(pos[1] / (barHeight + barGap)) + 1;
 
-            //chartWrapper.selectAll(".bars rect")
-            bars.attr('fill', function (d, i) {
-                return colorScale(i);
-            });
-
-            chartWrapper.selectAll('.bars rect:nth-child(' + index + ')')
-                .attr('fill', highlightColor);
+            bars
+                .attr('fill', function (d, i) {
+                    return colorScale(i);
+                })
+                .filter(':nth-child(' + index + ')')
+                    .attr('fill', highlightColor);
         });
     }
 
@@ -258,11 +253,11 @@ var renderBarChart = function (config) {
                 },
             })
             .attr('class', function (d) {
-                return classify(d[labelColumn]);
+                return classify(d.label);
             })
             .append('span')
                 .text(function (d) {
-                    return d[labelColumn];
+                    return d.label;
                 });
 
     /*
@@ -276,7 +271,7 @@ var renderBarChart = function (config) {
         .append('text')
             .text(function (d) {
                 return formattedNumber(
-                    d[valueColumn],
+                    d.amt,
                     LABELS.prefixX,
                     LABELS.suffixX,
                     LABELS.maxDecimalPlaces
@@ -284,7 +279,7 @@ var renderBarChart = function (config) {
             })
             .attr({
                 x: function (d) {
-                    return xScale(d[valueColumn]);
+                    return xScale(d.amt);
                 },
 
                 y: function (d, i) {
@@ -292,11 +287,11 @@ var renderBarChart = function (config) {
                 },
 
                 dx: function (d) {
-                    var xStart = xScale(d[valueColumn]);
+                    var xStart = xScale(d.amt);
                     var textWidth = this.getComputedTextLength();
 
                     // Negative case
-                    if (d[valueColumn] < 0) {
+                    if (d.amt < 0) {
                         var outsideOffset = -(valueGap + textWidth);
 
                         if (xStart + outsideOffset < 0) {
