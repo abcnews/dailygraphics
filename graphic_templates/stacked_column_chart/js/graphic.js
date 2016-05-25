@@ -133,13 +133,12 @@ var renderStackedColumnChart = function (config) {
         min = 0;
     }
 
+    var max = d3.max(DATA, function (d) {
+        return Math.ceil(d.total / roundTicksFactor) * roundTicksFactor;
+    });
+
     var yScale = d3.scale.linear()
-        .domain([
-            min,
-            d3.max(DATA, function (d) {
-                return Math.ceil(d.total / roundTicksFactor) * roundTicksFactor;
-            }),
-        ])
+        .domain([min, max])
         .rangeRound([chartHeight, 0]);
 
     var colorScale = d3.scale.ordinal()

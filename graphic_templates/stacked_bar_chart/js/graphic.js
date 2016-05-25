@@ -120,7 +120,6 @@ var renderStackedBarChart = function (config) {
      */
     var min = d3.min(DATA, function (d) {
         var lastValue = d.values[d.values.length - 1];
-
         return Math.floor(lastValue.x1 / roundTicksFactor) * roundTicksFactor;
     });
 
@@ -128,15 +127,13 @@ var renderStackedBarChart = function (config) {
         min = 0;
     }
 
-    var xScale = d3.scale.linear()
-        .domain([
-            min,
-            d3.max(DATA, function (d) {
-                var lastValue = d.values[d.values.length - 1];
+    var max = d3.max(DATA, function (d) {
+        var lastValue = d.values[d.values.length - 1];
+        return Math.ceil(lastValue.x1 / roundTicksFactor) * roundTicksFactor;
+    });
 
-                return Math.ceil(lastValue.x1 / roundTicksFactor) * roundTicksFactor;
-            }),
-        ])
+    var xScale = d3.scale.linear()
+        .domain([min, max])
         .rangeRound([0, chartWidth]);
 
     var colorList = colorArray(LABELS, multiColors);
