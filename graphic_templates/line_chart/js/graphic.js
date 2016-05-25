@@ -58,7 +58,6 @@ var render = function (containerWidth) {
     // Render the chart!
     renderLineChart({
         container: '#line-chart',
-        width: containerWidth,
     });
 
     // Update iframe
@@ -75,7 +74,6 @@ var renderLineChart = function (config) {
      * Setup
      */
     var dateColumn = 'date';
-    var valueColumn = 'amt';
 
     var strokeDashArrayAliases = {
         solid: '0',
@@ -93,6 +91,8 @@ var renderLineChart = function (config) {
             aspectHeight = parseInt(parts[1], 10);
         }
     }
+
+    var aspectRatio = aspectWidth / aspectHeight;
 
     var margins = {
         top: parseInt(LABELS.marginTop || 5, 10),
@@ -128,12 +128,12 @@ var renderLineChart = function (config) {
      * Create the root SVG element.
      */
     var chartWrapper = containerElement.append('div')
-        .attr('class', 'graphic-wrapper');
+        .classed('graphic-wrapper', true);
 
     // Calculate actual chart dimensions
     var innerWidth = chartWrapper.node().getBoundingClientRect().width;
     var chartWidth = innerWidth - margins.left - margins.right;
-    var chartHeight = Math.ceil((config.width * aspectHeight) / aspectWidth) - margins.top - margins.bottom;
+    var chartHeight = Math.ceil(innerWidth / aspectRatio) - margins.top - margins.bottom;
 
     var formattedData = {};
     var flatData = [];
@@ -175,7 +175,7 @@ var renderLineChart = function (config) {
     } else {
         minY = d3.min(d3.entries(formattedData), function (c) {
             return d3.min(c.value, function (v) {
-                var n = v[valueColumn];
+                var n = v.amt;
                 return Math.floor(n / roundTicksFactor) * roundTicksFactor;
             });
         });
@@ -187,7 +187,7 @@ var renderLineChart = function (config) {
     } else {
         maxY = d3.max(d3.entries(formattedData), function (c) {
             return d3.max(c.value, function (v) {
-                var n = v[valueColumn];
+                var n = v.amt;
                 return Math.ceil(n / roundTicksFactor) * roundTicksFactor;
             });
         });
@@ -204,12 +204,19 @@ var renderLineChart = function (config) {
         } else {
             xFormat = d3.time.format.multi([
                 ['.%L', function (d) { return d.getMilliseconds(); }],
+
                 [':%S', function (d) { return d.getSeconds(); }],
+
                 ['%-I:%M', function (d) { return d.getMinutes(); }],
+
                 ['%-I\n%p', function (d) { return d.getHours(); }],
+
                 ['%a\n%-d', function (d) { return d.getDay() && d.getDate() != 1; }],
+
                 ['%b\n%-d', function (d) { return d.getDate() != 1; }],
+
                 ['%B', function (d) { return d.getMonth(); }],
+
                 ['%Y', function () { return true; }],
             ]);
         }
@@ -230,7 +237,7 @@ var renderLineChart = function (config) {
                 return d.x;
             }));
 
-            // .range([0, chartWidth]);
+        // .range([0, chartWidth]);
 
         dateColumn = 'x';
     }
@@ -288,14 +295,29 @@ var renderLineChart = function (config) {
      * Render axes to chart.
      */
     chartElement.append('g')
-        .attr({
-            'class': 'x axis',
-            transform: makeTranslate(0, chartHeight),
-        })
-        .call(xAxis);
+        .classed('x axis', true)
+        .attr('transform', makeTranslate(0, chartHeight))
+        .call(xAxis)
+        .selectAll('g text')
+            .each(function () {
+                // Finds "\n" in text and splits it into tspans
+                var el = d3.select(this);
+                var words = el.text().replace('\\n', '\n').split('\n');
+                el.text('');
+
+                for (var i = 0; i < words.length; i++) {
+                    var tspan = el.append('tspan').text(words[i]);
+                    if (i > 0) {
+                        tspan.attr({
+                            x: 0,
+                            dy: '1em',
+                        });
+                    }
+                }
+            });
 
     chartElement.append('g')
-        .attr('class', 'y axis')
+        .classed('y axis', true)
         .call(yAxis);
 
     /*
@@ -310,10 +332,8 @@ var renderLineChart = function (config) {
     };
 
     chartElement.append('g')
-        .attr({
-            'class': 'x grid',
-            transform: makeTranslate(0, chartHeight),
-        })
+        .classed('x grid', true)
+        .attr('transform', makeTranslate(0, chartHeight))
         .call(
             xAxisGrid()
                 .tickSize(-chartHeight, 0, 0)
@@ -321,7 +341,7 @@ var renderLineChart = function (config) {
         );
 
     chartElement.append('g')
-        .attr('class', 'y grid')
+        .classed('y grid', true)
         .call(
             yAxisGrid()
                 .tickSize(-chartWidth, 0, 0)
@@ -337,25 +357,27 @@ var renderLineChart = function (config) {
             return xScale(d[dateColumn] || d.x);
         })
         .y(function (d) {
-            return yScale(d[valueColumn]);
+            return yScale(d.amt);
         });
 
     var highlighted = LABELS.highlighted ? LABELS.highlighted.split(/\s*,\s*/) : [];
     var lineStyleArr = LABELS.lineStyles ? LABELS.lineStyles.split(/\s*,\s*/) : [];
     var lines = chartElement.append('g')
-        .attr('class', 'lines visible-lines')
+        .classed('lines visible-lines', true)
         .selectAll('path')
         .data(d3.entries(formattedData))
         .enter()
         .append('path')
+            .attr('class', function (d, i) {
+                return 'line line-' + i + ' ' + classify(d.key);
+            })
             .attr({
-                'class': function (d, i) {
-                    return 'line line-' + i + ' ' + classify(d.key);
-                },
                 'stroke-linecap': 'round',
+
                 'stroke-dasharray': function (d, i) {
                     return strokeDashArrayAliases[lineStyleArr[i]];
                 },
+
                 stroke: function (d, i) {
                     if (highlighted.indexOf(d.key) !== -1) {
                         return highlightColor;
@@ -363,31 +385,36 @@ var renderLineChart = function (config) {
 
                     return colorScale(i);
                 },
+
                 d: function (d) {
                     return line(d.value);
                 },
+
             });
 
     if (LABELS.theme == 'highlight') {
         var shadowLines = chartElement.append('g')
-            .attr('class', 'lines shadow-lines')
+            .classed('lines shadow-lines', true)
             .selectAll('path')
             .data(d3.entries(formattedData))
             .enter()
             .append('path')
+                .attr('class', function (d, i) {
+                    return 'line line-' + i + ' ' + classify(d.key);
+                })
                 .attr({
-                    'class': function (d, i) {
-                        return 'line line-' + i + ' ' + classify(d.key);
-                    },
                     stroke: function (d) {
                         return 'transparent';
                     },
+
                     d: function (d) {
                         return line(d.value);
                     },
+
                     'data-index': function (d, i) {
                         return i;
                     },
+
                 })
                 .style('stroke-width', '20px');
 
@@ -478,11 +505,12 @@ var renderLineChart = function (config) {
         break;
     }
 
-    chartWrapper.append('div').attr('class', 'label-wrapper')
+    chartWrapper.append('div')
+        .classed('label-wrapper', true)
         .selectAll('div.label')
             .data(getGroupedData(lastObj, labelLines * 20))
         .enter().append('div')
-            .attr('class', 'label')
+            .classed('label', true)
             .html(function (d) {
                 var h = '';
                 for (var i = 0; i < d.length; ++i) {
@@ -509,6 +537,7 @@ var renderLineChart = function (config) {
                     if (LABELS.yLabel) {
                         yPosAvg += 20;
                     }
+
                     return Math.max(-10, (yPosAvg - (this.clientHeight / 2))) + 'px';
                 },
             });
@@ -516,20 +545,21 @@ var renderLineChart = function (config) {
     if (LABELS.xLabel) {
         chartElement.append('text')
             .text(LABELS.xLabel)
+            .classed('axis-label', true)
             .attr({
-                'class': 'axis-label',
-                y: chartHeight + margins.bottom - 5,
                 x: function () {
                     return (chartWidth - this.getComputedTextLength()) / 2;
                 },
+
+                y: chartHeight + margins.bottom - 5,
             });
     }
 
     if (LABELS.yLabel) {
         chartElement.append('text')
             .text(LABELS.yLabel)
+            .classed('axis-label', true)
             .attr({
-                'class': 'axis-label',
                 x: -20,
                 y: -15,
             });
@@ -540,9 +570,10 @@ var renderLineChart = function (config) {
             .selectAll('circle')
             .data(flatData)
             .enter().append('circle')
+            .classed('point', true)
             .attr({
-                'class': 'point',
                 r: 1.5,
+
                 cx: function (d) {
                     return xScale(d.x);
                 },
@@ -558,11 +589,13 @@ var renderLineChart = function (config) {
                 stroke: function (d, i) {
                     return colorScale(d.i);
                 },
+
             });
     }
 
     if (LABELS.tooltip !== 'off') {
-        var tooltipWrapper = chartWrapper.append('div').attr('class', 'tooltip-wrapper');
+        var tooltipWrapper = chartWrapper.append('div')
+            .classed('tooltip-wrapper', true);
 
         chartElement.on({
             mousemove: function (e) {
@@ -605,68 +638,50 @@ var renderLineChart = function (config) {
                     delete obj.x;
                 }
 
-                var s = tooltipWrapper
-                    .selectAll('div.tooltip')
+                var tooltip = tooltipWrapper.selectAll('div.tooltip')
                     .data(getGroupedData(obj));
 
-                s.enter().append('div').attr('class', 'tooltip');
-                s.exit().remove();
+                tooltip.enter().append('div').classed('tooltip', true);
+                tooltip.exit().remove();
 
-                s.html(function (d) {
-                        var h = '';
-                        for (var i = 0; i < d.length; ++i) {
-                            var thisData = d[i];
-                            h += '<div style="color: ' + thisData.accessibleColor + '">' +
-                                thisData.label.replace('\\n', ' ') +
-                                ' <strong>' +
-                                formattedNumber(thisData.value, LABELS.prefixY, LABELS.suffixY, LABELS.maxDecimalPlaces) +
-                                '</strong>' +
-                                '</div>';
-                        }
+                tooltip.html(function (d) {
+                    var h = '';
+                    for (var i = 0; i < d.length; ++i) {
+                        var thisData = d[i];
+                        h += '<div style="color: ' + thisData.accessibleColor + '">' +
+                            thisData.label.replace('\\n', ' ') +
+                            ' <strong>' +
+                            formattedNumber(thisData.value, LABELS.prefixY, LABELS.suffixY, LABELS.maxDecimalPlaces) +
+                            '</strong>' +
+                            '</div>';
+                    }
 
-                        return h;
-                    })
-                    .style({
-                        left: function (d) {
-                            var offset = this.clientWidth / 2;
-                            return (xScale(xVal) - offset + margins.left) + 'px';
-                        },
+                    return h;
+                })
+                .style({
+                    left: function (d) {
+                        var offset = this.clientWidth / 2;
+                        return (xScale(xVal) - offset + margins.left) + 'px';
+                    },
 
-                        top: function (d) {
-                            var yPosAvg = _.reduce(d, function (memo, num) {
-                                return memo + num.yPos;
-                            }, 0) / d.length;
-                            return (yPosAvg - (this.clientHeight / 2)) + 'px';
-                        },
-                    });
+                    top: function (d) {
+                        var yPosAvg = _.reduce(d, function (memo, num) {
+                            return memo + num.yPos;
+                        }, 0) / d.length;
+                        return (yPosAvg - (this.clientHeight / 2)) + 'px';
+                    },
+                });
 
             },
 
             mouseout: function (e) {
                 tooltipWrapper.selectAll('div.tooltip').remove();
             },
+
         });
 
     }
 
-    // Finds "\n" in text and splits it into tspans
-    var insertLinebreaks = function () {
-        var el = d3.select(this);
-        var words = el.text().replace('\\n', '\n').split('\n');
-        el.text('');
-
-        for (var i = 0; i < words.length; i++) {
-            var tspan = el.append('tspan').text(words[i]);
-            if (i > 0) {
-                tspan.attr({
-                    x: 0,
-                    dy: '1em',
-                });
-            }
-        }
-    };
-
-    chartWrapper.selectAll('g.x.axis g text').each(insertLinebreaks);
 };
 
 /*
