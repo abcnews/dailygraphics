@@ -7,87 +7,99 @@ table {
     width: 100%;
     font-size: 12px;
     color: #666;
+
+    .amt {
+        text-align: right;
+    }
+
 }
-table th,
-table td {
+
+th,
+td {
     padding: 10px;
     text-align: left;
 }
-table th {
+
+th {
     border-bottom: 2px solid #eee;
     vertical-align: bottom;
-    font-weight: normal;
     text-transform: uppercase;
     padding-top: 0;
     line-height: 1.2;
-    letter-spacing: 0.05em;
     -webkit-font-smoothing: antialiased;
 }
-table td {
+
+td {
     border-bottom: 1px solid #eee;
     vertical-align: top;
 }
 
-table th.amt,
-table td.amt {
-    text-align: right;
-}
-
-table tr.shadedrow {
-    background-color: #f1f1f1;
-    color: #333;
-    font-weight: bold;
-}
 
 /* responsive table */
 @media screen and (max-width: 500px) {
+
     table,
     tbody {
         display: block;
         width: 100%;
     }
-    thead { display: none; }
-    table tr,
-    table th,
-    table td,
-    table td.amt {
-        display: block;
-        padding: 0;
-        text-align: left;
-        white-space: normal;
-    }
-    table td,
-    table td.amt {
-        border: none;
-        margin-bottom: 6px;
-    }
-    table td:empty { display: none; }
 
-    table tr {
-        border-bottom: 1px solid #eee;
-        padding: 10px;
-    }
-    table tr:first-child { border-top: 1px solid #eee; }
-
-    table th[data-title]:before,
-    table td[data-title]:before {
-        content: attr(data-title) ":\00A0";
-        display: inline-block;
-        width: 75%;
-        min-width: 220px;
-        width: 220px;
-    }
-
-    table tr td:first-child {
-        font-size: 14px;
-        margin-bottom: 6px;
-        color: #333;
-        font-weight: 500;
-        letter-spacing: 0.02em;
-        text-transform: uppercase;
-    }
-    table tr td:first-child:before {
-        content: '';
+    thead {
         display: none;
     }
+
+    table {
+        .amt {
+            text-align: left;
+        }
+    }
+
+    tr,
+    th,
+    td {
+        display: block;
+        padding: 0;
+        white-space: normal;
+    }
+
+    td {
+        border: none;
+        margin-bottom: 6px;
+        font-weight: bold;
+        &:empty {
+            display: none;
+        }
+    }
+
+    tr {
+        border-bottom: 1px solid #eee;
+        padding: 10px;
+        &:first-child {
+            border-top: 1px solid #eee;
+        }
+        td:first-child {
+            font-size: 14px;
+            margin-bottom: 6px;
+            color: #333;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+            text-transform: uppercase;
+            &:before {
+                content: '';
+                display: none;
+            }
+        }
+    }
+
+    th,
+    td {
+        &[data-title]:before {
+            content: attr(data-title) ":\00A0";
+            display: inline-block;
+            width: 66%;
+            min-width: 200px;
+            font-weight: normal;
+        }
+    }
+
 }
