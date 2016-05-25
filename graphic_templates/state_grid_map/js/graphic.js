@@ -8,15 +8,15 @@ var isMobile = false;
 /*
  * Initialize the graphic.
  */
-var onWindowLoaded = function() {
+var onWindowLoaded = function () {
     if (Modernizr.svg) {
         pymChild = new pym.Child({
-            renderCallback: render
+            renderCallback: render,
         });
     } else {
         pymChild = new pym.Child({});
     }
-}
+};
 
 /*
  * Render the graphic(s). Called by pym with the container width.
@@ -28,23 +28,20 @@ var render = function (containerWidth) {
     // Render the map!
     renderStateGridMap({
         container: '#state-grid-map',
-        width: containerWidth,
-        data: MAP_DATA
     });
 
     // Update iframe
     if (pymChild) {
         pymChild.sendHeight();
     }
-}
-
+};
 
 /*
  * Render a state grid map.
  */
-var renderStateGridMap = function(config) {
+var renderStateGridMap = function (config) {
     // Clear existing graphic (for redraw)
-    var containerElement = d3.select(config['container']);
+    var containerElement = d3.select(config.container);
     containerElement.html('');
 
     // Copy map template
@@ -54,9 +51,9 @@ var renderStateGridMap = function(config) {
     // Extract categories from data
     var categories = [];
 
-    _.each(config['data'], function(state) {
-        if (state['category'] != null) {
-            categories.push(state['category']);
+    _.each(MAP_DATA, function (state) {
+        if (state.category !== null) {
+            categories.push(state.category);
         }
     });
 
@@ -70,9 +67,9 @@ var renderStateGridMap = function(config) {
     // Create legend
     var legendElement = containerElement.select('.key');
 
-    _.each(colorScale.domain(), function(key, i) {
+    _.each(colorScale.domain(), function (key, i) {
         var keyItem = legendElement.append('li')
-            .classed('key-item', true)
+            .classed('key-item', true);
 
         keyItem.append('b')
             .style('background', colorScale(key));
@@ -85,49 +82,49 @@ var renderStateGridMap = function(config) {
     var chartElement = containerElement.select('svg');
 
     // Set state colors
-    _.each(config['data'], function(state) {
-        if (state['category'] !== null) {
-            var stateClass = 'state-' + classify(state['state_name']);
+    _.each(MAP_DATA, function (state) {
+        if (state.category !== null) {
+            var stateClass = 'state-' + classify(state.state_name);
 
             chartElement.select('.' + stateClass)
                 .attr('class', stateClass + ' state-active')
-                .attr('fill', colorScale(state['category']));
+                .attr('fill', colorScale(state.category));
         }
     });
 
     // Draw state labels
     chartElement.append('g')
         .selectAll('text')
-            .data(config['data'])
+            .data(MAP_DATA)
         .enter().append('text')
             .attr('text-anchor', 'middle')
-            .text(function(d) {
-                var state = _.findWhere(STATES, { 'name': d['state_name'] });
+            .text(function (d) {
+                var state = _.findWhere(STATES, { name: d.state_name });
 
-                return isMobile ? state['usps'] : state['ap'];
+                return isMobile ? state.usps : state.ap;
             })
-            .attr('class', function(d) {
-                return d['category'] !== null ? 'label label-active' : 'label';
+            .attr('class', function (d) {
+                return d.category !== null ? 'label label-active' : 'label';
             })
-            .attr('x', function(d) {
-                var className = '.state-' + classify(d['state_name']);
+            .attr('x', function (d) {
+                var className = '.state-' + classify(d.state_name);
                 var tileBox = chartElement.select(className)[0][0].getBBox();
 
-                return tileBox['x'] + tileBox['width'] * 0.52;
+                return tileBox.x + tileBox.width * 0.52;
             })
-            .attr('y', function(d) {
-                var className = '.state-' + classify(d['state_name']);
+            .attr('y', function (d) {
+                var className = '.state-' + classify(d.state_name);
                 var tileBox = chartElement.select(className)[0][0].getBBox();
                 var textBox = d3.select(this)[0][0].getBBox();
-                var textOffset = textBox['height'] / 2;
+                var textOffset = textBox.height / 2;
 
                 if (isMobile) {
                     textOffset -= 1;
                 }
 
-                return (tileBox['y'] + tileBox['height'] * 0.5) + textOffset;
+                return (tileBox.y + tileBox.height * 0.5) + textOffset;
             });
-}
+};
 
 /*
  * Initially load the graphic
