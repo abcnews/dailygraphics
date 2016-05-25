@@ -5,28 +5,28 @@ var isMobile = false;
 /*
  * Initialize the graphic.
  */
-var onWindowLoaded = function() {
+var onWindowLoaded = function () {
     if (Modernizr.svg) {
         formatData();
 
         pymChild = new pym.Child({
-            renderCallback: render
+            renderCallback: render,
         });
     } else {
         pymChild = new pym.Child({});
     }
-}
+};
 
 /*
  * Format graphic data for processing by D3.
  */
-var formatData = function() {
-    DATA.forEach(function(d) {
-        d['amt'] = +d['amt'];
-        d['min'] = +d['min'];
-        d['max'] = +d['max'];
+var formatData = function () {
+    DATA.forEach(function (d) {
+        d.amt = +d.amt;
+        d.min = +d.min;
+        d.max = +d.max;
     });
-}
+};
 
 /*
  * Render the graphic(s). Called by pym with the container width.
@@ -38,28 +38,21 @@ var render = function (containerWidth) {
     // Render the chart!
     renderDotChart({
         container: '#dot-chart',
-        width: containerWidth,
-        data: DATA
     });
 
     // Update iframe
     if (pymChild) {
         pymChild.sendHeight();
     }
-}
+};
 
 /*
  * Render a bar chart.
  */
-var renderDotChart = function(config) {
+var renderDotChart = function (config) {
     /*
      * Setup
      */
-    var labelColumn = 'label';
-    var valueColumn = 'amt';
-    var minColumn = 'min';
-    var maxColumn = 'max';
-
     var barHeight = 20;
     var barGap = 5;
     var labelWidth = 60;
@@ -71,7 +64,7 @@ var renderDotChart = function(config) {
         top: 0,
         right: 20,
         bottom: 20,
-        left: (labelWidth + labelMargin)
+        left: (labelWidth + labelMargin),
     };
 
     var ticksX = 4;
@@ -79,15 +72,11 @@ var renderDotChart = function(config) {
 
     if (isMobile) {
         ticksX = 6;
-        margins['right'] = 30;
+        margins.right = 30;
     }
 
-    // Calculate actual chart dimensions
-    var chartWidth = config['width'] - margins['left'] - margins['right'];
-    var chartHeight = ((barHeight + barGap) * config['data'].length);
-
     // Clear existing graphic (for redraw)
-    var containerElement = d3.select(config['container']);
+    var containerElement = d3.select(config.container);
     containerElement.html('');
 
     /*
@@ -96,19 +85,28 @@ var renderDotChart = function(config) {
     var chartWrapper = containerElement.append('div')
         .attr('class', 'graphic-wrapper');
 
+    // Calculate actual chart dimensions
+    var innerWidth = chartWrapper.node().getBoundingClientRect().width;
+    var chartWidth = innerWidth - margins.left - margins.right;
+    var chartHeight = ((barHeight + barGap) * DATA.length);
+
     var chartElement = chartWrapper.append('svg')
-        .attr('width', chartWidth + margins['left'] + margins['right'])
-        .attr('height', chartHeight + margins['top'] + margins['bottom'])
+        .attr({
+            width: chartWidth + margins.left + margins.right,
+            height: chartHeight + margins.top + margins.bottom,
+        })
         .append('g')
-        .attr('transform', 'translate(' + margins['left'] + ',' + margins['top'] + ')');
+            .attr('transform', 'translate(' + margins.left + ',' + margins.top + ')');
+
+    var max = d3.max(DATA, function (d) {
+        return Math.ceil(d.max / roundTicksFactor) * roundTicksFactor;
+    });
 
     /*
      * Create D3 scale objects.
      */
     var xScale = d3.scale.linear()
-        .domain([0, d3.max(config['data'], function(d) {
-            return Math.ceil(d[maxColumn] / roundTicksFactor) * roundTicksFactor;
-        })])
+        .domain([0, max])
         .range([0, chartWidth]);
 
     /*
@@ -118,7 +116,7 @@ var renderDotChart = function(config) {
         .scale(xScale)
         .orient('bottom')
         .ticks(ticksX)
-        .tickFormat(function(d) {
+        .tickFormat(function (d) {
             return d + '%';
         });
 
@@ -133,7 +131,7 @@ var renderDotChart = function(config) {
     /*
      * Render grid to chart.
      */
-    var xAxisGrid = function() {
+    var xAxisGrid = function () {
         return xAxis;
     };
 
@@ -151,20 +149,25 @@ var renderDotChart = function(config) {
     chartElement.append('g')
         .attr('class', 'bars')
         .selectAll('line')
-        .data(config['data'])
+        .data(DATA)
         .enter()
         .append('line')
-            .attr('x1', function(d, i) {
-                return xScale(d[minColumn]);
-            })
-            .attr('x2', function(d, i) {
-                return xScale(d[maxColumn]);
-            })
-            .attr('y1', function(d, i) {
-                return i * (barHeight + barGap) + (barHeight / 2);
-            })
-            .attr('y2', function(d, i) {
-                return i * (barHeight + barGap) + (barHeight / 2);
+            .attr({
+                x1: function (d, i) {
+                    return xScale(d.min);
+                },
+
+                x2: function (d, i) {
+                    return xScale(d.max);
+                },
+
+                y1: function (d, i) {
+                    return i * (barHeight + barGap) + (barHeight / 2);
+                },
+
+                y2: function (d, i) {
+                    return i * (barHeight + barGap) + (barHeight / 2);
+                },
             });
 
     /*
@@ -173,15 +176,15 @@ var renderDotChart = function(config) {
     chartElement.append('g')
         .attr('class', 'dots')
         .selectAll('circle')
-        .data(config['data'])
+        .data(DATA)
         .enter().append('circle')
-            .attr('cx', function(d, i) {
-                return xScale(d[valueColumn]);
+            .attr('cx', function (d, i) {
+                return xScale(d.amt);
             })
-            .attr('cy', function(d, i) {
+            .attr('cy', function (d, i) {
                 return i * (barHeight + barGap) + (barHeight / 2);
             })
-            .attr('r', dotRadius)
+            .attr('r', dotRadius);
 
     /*
      * Render bar labels.
@@ -195,7 +198,7 @@ var renderDotChart = function(config) {
             left: 0,
         })
         .selectAll('li')
-        .data(config['data'])
+        .data(DATA)
         .enter()
         .append('li')
             .style({
@@ -206,34 +209,34 @@ var renderDotChart = function(config) {
                     return (i * (barHeight + barGap)) + 'px';
                 },
             })
-            .attr('class', function(d) {
-                return classify(d[labelColumn]);
+            .attr('class', function (d) {
+                return classify(d.label);
             })
             .append('span')
-                .text(function(d) {
-                    return d[labelColumn];
+                .text(function (d) {
+                    return d.label;
                 });
 
     /*
      * Render bar values.
      */
-    _.each(['shadow', 'value'], function(cls) {
+    _.each(['shadow', 'value'], function (cls) {
         chartElement.append('g')
             .attr('class', cls)
             .selectAll('text')
-            .data(config['data'])
+            .data(DATA)
             .enter().append('text')
-                .attr('x', function(d, i) {
-                    return xScale(d[maxColumn]) + 6;
+                .attr('x', function (d, i) {
+                    return xScale(d.max) + 6;
                 })
-                .attr('y', function(d,i) {
+                .attr('y', function (d, i) {
                     return i * (barHeight + barGap) + (barHeight / 2) + 3;
                 })
-                .text(function(d) {
-                    return d[valueColumn].toFixed(1) + '%';
+                .text(function (d) {
+                    return d.amt.toFixed(1) + '%';
                 });
     });
-}
+};
 
 /*
  * Initially load the graphic
