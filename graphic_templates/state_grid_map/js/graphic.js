@@ -65,7 +65,7 @@ var renderStateGridMap = function(config) {
     // Define color scale
     var colorScale = d3.scale.ordinal()
         .domain(categories)
-        .range([ COLORS['red3'], COLORS['yellow3'], COLORS['blue3'], COLORS['orange3'], COLORS['teal3'] ]);
+        .range(multiColors);
 
     // Create legend
     var legendElement = containerElement.select('.key');
