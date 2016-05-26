@@ -81,7 +81,6 @@ var renderSlopegraph = function () {
     var ticksX = parseInt(LABELS.ticksX || 2, 10);
     var ticksY = parseInt(LABELS.ticksY || 10, 10);
     var roundTicksFactor = parseInt(LABELS.roundTicksFactor || 4, 10);
-    var dotRadius = parseInt(LABELS.dotRadius || 3, 10);
     var labelGap = isSidebar ? 32 : 42;
 
     // Clear existing graphic (for redraw)
