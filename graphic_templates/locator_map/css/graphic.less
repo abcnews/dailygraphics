@@ -40,23 +40,26 @@ path.landmass {
     }
 }
 
-.city-labels text {
-    fill: #787878;
-    font-size: 65%;
-    text-anchor: start;
-    -webkit-font-smoothing: antialiased;
+.city-labels {
+    text {
+        fill: #787878;
+        font-size: 65%;
+        text-anchor: start;
+        -webkit-font-smoothing: antialiased;
 
-    &.admin-0-capital {
-        fill: #555;
-        font-weight: bold;
+        &.admin-0-capital {
+            fill: #555;
+            font-weight: bold;
+        }
     }
-}
 
-.city-labels.shadow text {
-    fill: #fff;
-    stroke: #fff;
-    stroke-width: 2px;
-    opacity: .7;
+    &.shadow text {
+        fill: #fff;
+        stroke: #fff;
+        stroke-width: 2px;
+        opacity: .7;
+    }
+
 }
 
 .country-labels text {

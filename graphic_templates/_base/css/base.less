@@ -2,17 +2,19 @@
  * Colors
  */
 
-@hover      : #478CCC;
+@hover: #478CCC;
+@link-default: #4774CC;
+@link-visited: #310099;
 
 /*
  * Fonts
  */
 @font-face {
-	font-family: "ProximaNova";
-	src: url('http://www.abc.net.au/res/sites/news/fonts/proximanova/proximanova_regular_macroman/Proxima_Nova_Reg-webfont.eot');
-	src: url('http://www.abc.net.au/res/sites/news/fonts/proximanova/proximanova_regular_macroman/Proxima_Nova_Reg-webfont.eot?#iefix') format('embedded-opentype'),url('http://www.abc.net.au/res/sites/news/fonts/proximanova/proximanova_regular_macroman/Proxima_Nova_Reg-webfont.woff') format('woff');
-	font-weight: normal;
-	font-style: normal
+    font-family: "ProximaNova";
+    src: url('http://www.abc.net.au/res/sites/news/fonts/proximanova/proximanova_regular_macroman/Proxima_Nova_Reg-webfont.eot');
+    src: url('http://www.abc.net.au/res/sites/news/fonts/proximanova/proximanova_regular_macroman/Proxima_Nova_Reg-webfont.eot?#iefix') format('embedded-opentype'),url('http://www.abc.net.au/res/sites/news/fonts/proximanova/proximanova_regular_macroman/Proxima_Nova_Reg-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal
 }
 
 /*
@@ -27,6 +29,21 @@ body {
     padding: 0 0 3px 0;
     font: 14px/1.4 Arial, Helvetica, sans-serif;
     color: #555;
+}
+
+a {
+    &:link {
+        color: @link-default;
+        text-decoration: none;
+    }
+    &:visited {
+        color: @link-visited;
+        text-decoration: none;
+    }
+    &:hover,
+    &:focus{
+        text-decoration: underline;
+    }
 }
 
 h1 {
@@ -67,21 +84,6 @@ p {
     }
 }
 
-
-a {
-    &:link {
-        color: #4774CC;
-        text-decoration: none;
-    }
-    &:visited {
-        color: #310099;
-        text-decoration: none;
-    }
-    &:hover,
-    &:focus{
-        text-decoration: underline;
-    }
-}
 
 /*
  * Standard graphic styles
@@ -178,6 +180,10 @@ rect {
 
 }
 
+
+/*
+ * Card wrapper container styles
+ */
 .card {
     margin: 3px;
     background: #fff;
@@ -193,7 +199,7 @@ rect {
         line-height: 1;
     }
 
-    div.inner {
+    .inner {
         padding: 15px;
     }
 
@@ -206,7 +212,7 @@ rect {
             padding: 5px 10px;
         }
 
-        div.inner {
+        .inner {
             padding: 10px;
         }
 
