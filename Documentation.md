@@ -7,8 +7,17 @@
   * [Line Chart](#line-chart)
   * [Bar Chart](#bar-chart)
   * [Grouped Bar Chart](#grouped-bar-chart)
+  * [Stacked Bar Chart](#stacked-bar-chart)
   * [Column Chart](#column-chart)
+  * [Stacked Column Chart](#stacked-column-chart)
+  * [Slopegraph](#slopegraph)
+  * [Dot Chart](#dot-chart)
   * [Pie Chart](#pie-chart)
+  * [Responsive HTML Table](#responsive-html-table)
+  * Block Histogram (TODO)
+  * USA State Grid Map (TODO)
+  * Locator Map (TODO)
+  * Graphic (TODO)
 * [Common issues](#common-issues)
 * [Development](#development)
 
@@ -275,6 +284,10 @@ Grouped Bar Charts have all the same options as [Bar Charts](#bar-chart) with on
 
 Vertical spacing between each bar group.
 
+### Stacked Bar Chart
+
+TODO
+
 ### Column Chart
 
 #### valueGap
@@ -283,15 +296,31 @@ Vertical spacing between each bar group.
 #### roundTicksFactor
 > Default: `50`
 
+### Stacked Column Chart
+
+TODO
+
 ### Slopegraph
+
+TODO
 
 #### start_label
 
 #### end_label
 
+### Dot Chart
+
+TODO
+
 ### Pie Chart
 
+TODO
+
 #### showLabels
+
+### Responsive HTML Table
+
+TODO
 
 ## Common issues
 
