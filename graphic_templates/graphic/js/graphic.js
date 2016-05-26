@@ -44,10 +44,10 @@ var renderGraphic = function (config) {
     var aspectRatio = aspectWidth / aspectHeight;
 
     var margins = {
-        top: 0,
-        right: 15,
-        bottom: 20,
-        left: 15,
+        top: parseInt(LABELS.marginTop || 0, 10),
+        right: parseInt(LABELS.marginRight || 15, 10),
+        bottom: parseInt(LABELS.marginBottom || 20, 10),
+        left: parseInt(LABELS.marginLeft || 15, 10),
     };
 
     // Calculate actual chart dimensions

@@ -79,10 +79,10 @@ var renderStackedBarChart = function (config) {
     var valueGap = 6;
 
     var margins = {
-        top: 0,
-        right: 20,
-        bottom: 20,
-        left: (labelWidth + labelMargin),
+        top: parseInt(LABELS.marginTop || 0, 10),
+        right: parseInt(LABELS.marginRight || 20, 10),
+        bottom: parseInt(LABELS.marginBottom || 20, 10),
+        left: parseInt(LABELS.marginLeft || (labelWidth + labelMargin), 10),
     };
 
     var ticksX = 4;

@@ -79,10 +79,10 @@ var renderBlockHistogram = function (config) {
     var blockGap = 1;
 
     var margins = {
-        top: 20,
-        right: 12,
-        bottom: 20,
-        left: 10,
+        top: parseInt(LABELS.marginTop || 20, 10),
+        right: parseInt(LABELS.marginRight || 12, 10),
+        bottom: parseInt(LABELS.marginBottom || 20, 10),
+        left: parseInt(LABELS.marginLeft || 10, 10),
     };
 
     var ticksY = 4;

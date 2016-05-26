@@ -81,10 +81,10 @@ var renderStackedColumnChart = function (config) {
     var valueGap = 6;
 
     var margins = {
-        top: 5,
-        right: 5,
-        bottom: 20,
-        left: 30,
+        top: parseInt(LABELS.marginTop || 5, 10),
+        right: parseInt(LABELS.marginRight || 5, 10),
+        bottom: parseInt(LABELS.marginBottom || 20, 10),
+        left: parseInt(LABELS.marginLeft || 30, 10),
     };
 
     var ticksY = 5;
