@@ -21,12 +21,13 @@ var onWindowLoaded = function () {
  * Format graphic data for processing by D3.
  */
 var formatData = function () {
+    var groupColumn = 'Group';
     DATA.forEach(function (d) {
-        d.key = d[0];
+        d.key = d[groupColumn];
         d.values = [];
 
         _.each(d, function (v, k) {
-            if (_.contains(['Group', 'key', 'values'], k)) {
+            if (_.contains([groupColumn, 'key', 'values'], k)) {
                 return;
             }
 
@@ -37,7 +38,7 @@ var formatData = function () {
             delete d[k];
         });
 
-        delete d[0];
+        delete d[groupColumn];
     });
 };
 
