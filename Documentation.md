@@ -14,7 +14,7 @@
   * [Dot Chart](#dot-chart)
   * [Pie Chart](#pie-chart)
   * [Responsive HTML Table](#responsive-html-table)
-  * Block Histogram (TODO)
+  * [Block Histogram](#block-histogram)
   * USA State Grid Map (TODO)
   * Locator Map (TODO)
   * Graphic (TODO)
@@ -288,6 +288,14 @@ Vertical spacing between each bar group.
 
 TODO
 
+* barHeight
+* barGap
+* labelWidth
+* labelMargin
+* valueGap
+* ticksX / mobileTicksX
+* roundTicksFactor
+
 ### Column Chart
 
 #### valueGap
@@ -296,13 +304,25 @@ TODO
 #### roundTicksFactor
 > Default: `50`
 
+#### ticksY
+
 ### Stacked Column Chart
 
 TODO
 
+* valueGap
+* ticksY
+* roundTicksFactor
+
 ### Slopegraph
 
 TODO
+
+* ticksX
+* ticksY
+* roundTicksFactor
+* dotRadius
+
 
 #### start_label
 
@@ -311,6 +331,15 @@ TODO
 ### Dot Chart
 
 TODO
+
+* barHeight
+* barGap
+* labelWidth
+* labelMargin
+* valueMinWidth
+* dotRadius
+* ticksX / mobileTicksX
+* roundTicksFactor
 
 ### Pie Chart
 
@@ -321,6 +350,13 @@ TODO
 ### Responsive HTML Table
 
 TODO
+
+### Block Histogram
+
+TODO
+
+* blockGap
+* ticksY
 
 ## Common issues
 

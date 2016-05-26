@@ -73,8 +73,7 @@ var renderStackedColumnChart = function () {
      * Setup
      */
     var aspectRatio = getAspectRatio(LABELS.ratio);
-
-    var valueGap = 6;
+    var valueGap = parseInt(LABELS.valueGap || 6, 10);
 
     var margins = {
         top: parseInt(LABELS.marginTop || 5, 10),
@@ -83,8 +82,8 @@ var renderStackedColumnChart = function () {
         left: parseInt(LABELS.marginLeft || 30, 10),
     };
 
-    var ticksY = 5;
-    var roundTicksFactor = 50;
+    var ticksY = parseInt(LABELS.ticksY || 5, 10);
+    var roundTicksFactor = parseInt(LABELS.roundTicksFactor || 50, 10);
 
     // Clear existing graphic (for redraw)
     var containerElement = d3.select('#stacked-column-chart');

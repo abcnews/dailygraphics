@@ -70,11 +70,11 @@ var renderStackedBarChart = function () {
     /*
      * Setup
      */
-    var barHeight = 30;
-    var barGap = 5;
-    var labelWidth = 60;
-    var labelMargin = 6;
-    var valueGap = 6;
+    var barHeight = parseInt(LABELS.barHeight || 30, 10);
+    var barGap = parseInt(LABELS.barGap || 5, 10);
+    var labelWidth = parseInt(LABELS.labelWidth || 60, 10);
+    var labelMargin = parseInt(LABELS.labelMargin || 6, 10);
+    var valueGap = parseInt(LABELS.valueGap || 6, 10);
 
     var margins = {
         top: parseInt(LABELS.marginTop || 0, 10),
@@ -83,11 +83,10 @@ var renderStackedBarChart = function () {
         left: parseInt(LABELS.marginLeft || (labelWidth + labelMargin), 10),
     };
 
-    var ticksX = 4;
-    var roundTicksFactor = 100;
-
+    var roundTicksFactor = parseInt(LABELS.roundTicksFactor || 100, 10);
+    var ticksX = parseInt(LABELS.ticksX || 4, 10);
     if (isMobile) {
-        ticksX = 2;
+        ticksX = parseInt(LABELS.mobileTicksX || 2, 10);
     }
 
     // Clear existing graphic (for redraw)

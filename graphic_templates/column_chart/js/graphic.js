@@ -60,7 +60,7 @@ var renderColumnChart = function () {
         left: parseInt(LABELS.marginLeft || 0, 10),
     };
 
-    var ticksY = 4;
+    var ticksY = parseInt(LABELS.ticksY || 4, 10);
     var roundTicksFactor = parseInt(LABELS.roundTicksFactor || 50, 10);
 
     // Clear existing graphic (for redraw)

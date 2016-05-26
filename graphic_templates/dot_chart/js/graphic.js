@@ -51,12 +51,13 @@ var renderDotChart = function () {
     /*
      * Setup
      */
-    var barHeight = 20;
-    var barGap = 5;
-    var labelWidth = 60;
-    var labelMargin = 10;
-    var valueMinWidth = 30;
-    var dotRadius = 5;
+
+    var barHeight = parseInt(LABELS.barHeight || 20, 10);
+    var barGap = parseInt(LABELS.barGap || 5, 10);
+    var labelWidth = parseInt(LABELS.labelWidth || 60, 10);
+    var labelMargin = parseInt(LABELS.labelMargin || 10, 10);
+    var valueMinWidth = parseInt(LABELS.valueMinWidth || 30, 10);
+    var dotRadius = parseInt(LABELS.dotRadius || 5, 10);
 
     var margins = {
         top: parseInt(LABELS.marginTop || 0, 10),
@@ -64,13 +65,14 @@ var renderDotChart = function () {
         bottom: parseInt(LABELS.marginBottom || 20, 10),
         left: parseInt(LABELS.marginLeft || (labelWidth + labelMargin), 10),
     };
-
-    var ticksX = 4;
-    var roundTicksFactor = 5;
-
     if (isMobile) {
-        ticksX = 6;
         margins.right = 30;
+    }
+
+    var roundTicksFactor = parseInt(LABELS.roundTicksFactor || 5, 10);
+    var ticksX = parseInt(LABELS.ticksX || 4, 10);
+    if (isMobile) {
+        ticksX = parseInt(LABELS.mobileTicksX || 6, 10);
     }
 
     // Clear existing graphic (for redraw)

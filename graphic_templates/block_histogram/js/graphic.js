@@ -74,7 +74,7 @@ var renderBlockHistogram = function () {
      */
     var blockHeight = isMobile ? 18 : 30;
 
-    var blockGap = 1;
+    var blockGap = parseInt(LABELS.blockGap || 1, 10);
 
     var margins = {
         top: parseInt(LABELS.marginTop || 20, 10),
@@ -83,7 +83,7 @@ var renderBlockHistogram = function () {
         left: parseInt(LABELS.marginLeft || 10, 10),
     };
 
-    var ticksY = 4;
+    var ticksY = parseInt(LABELS.ticksY || 4, 10);
 
     // Determine largest bin
     var largestBin = _.max(binnedData, function (bin) {
