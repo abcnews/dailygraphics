@@ -34,10 +34,7 @@ var render = function (containerWidth) {
     isMobile = (containerWidth <= MOBILE_THRESHOLD);
 
     // Render the chart!
-    renderPieChart({
-        container: '#pie-chart',
-        width: containerWidth,
-    });
+    renderPieChart();
 
     // Update iframe
     if (pymChild) {
@@ -48,7 +45,7 @@ var render = function (containerWidth) {
 /*
  * Render a pie chart.
  */
-var renderPieChart = function (config) {
+var renderPieChart = function () {
     /*
      * Setup
      */
@@ -60,7 +57,7 @@ var renderPieChart = function (config) {
     };
 
     // Clear existing graphic (for redraw)
-    var containerElement = d3.select(config.container);
+    var containerElement = d3.select('#pie-chart');
     containerElement.html('');
 
     /*

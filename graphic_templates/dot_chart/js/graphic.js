@@ -36,9 +36,7 @@ var render = function (containerWidth) {
     isMobile = (containerWidth <= MOBILE_THRESHOLD);
 
     // Render the chart!
-    renderDotChart({
-        container: '#dot-chart',
-    });
+    renderDotChart();
 
     // Update iframe
     if (pymChild) {
@@ -49,7 +47,7 @@ var render = function (containerWidth) {
 /*
  * Render a bar chart.
  */
-var renderDotChart = function (config) {
+var renderDotChart = function () {
     /*
      * Setup
      */
@@ -76,7 +74,7 @@ var renderDotChart = function (config) {
     }
 
     // Clear existing graphic (for redraw)
-    var containerElement = d3.select(config.container);
+    var containerElement = d3.select('#dot-chart');
     containerElement.html('');
 
     /*

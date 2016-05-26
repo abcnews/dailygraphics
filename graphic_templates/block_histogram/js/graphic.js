@@ -57,9 +57,7 @@ var render = function (containerWidth) {
     isMobile = (containerWidth <= MOBILE_THRESHOLD);
 
     // Render the chart!
-    renderBlockHistogram({
-        container: '#block-histogram',
-    });
+    renderBlockHistogram();
 
     // Update iframe
     if (pymChild) {
@@ -70,7 +68,7 @@ var render = function (containerWidth) {
 /*
  * Render a bar chart.
  */
-var renderBlockHistogram = function (config) {
+var renderBlockHistogram = function () {
     /*
      * Setup
      */
@@ -93,7 +91,7 @@ var renderBlockHistogram = function (config) {
     }).length;
 
     // Clear existing graphic (for redraw)
-    var containerElement = d3.select(config.container);
+    var containerElement = d3.select('#block-histogram');
     containerElement.html('');
 
     /*

@@ -26,9 +26,7 @@ var render = function (containerWidth) {
     isMobile = (containerWidth <= MOBILE_THRESHOLD);
 
     // Render the map!
-    renderStateGridMap({
-        container: '#state-grid-map',
-    });
+    renderStateGridMap();
 
     // Update iframe
     if (pymChild) {
@@ -39,9 +37,9 @@ var render = function (containerWidth) {
 /*
  * Render a state grid map.
  */
-var renderStateGridMap = function (config) {
+var renderStateGridMap = function () {
     // Clear existing graphic (for redraw)
-    var containerElement = d3.select(config.container);
+    var containerElement = d3.select('#state-grid-map');
     containerElement.html('');
 
     // Copy map template

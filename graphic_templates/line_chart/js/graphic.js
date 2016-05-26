@@ -56,9 +56,7 @@ var render = function (containerWidth) {
     isMobile = (containerWidth <= MOBILE_THRESHOLD);
 
     // Render the chart!
-    renderLineChart({
-        container: '#line-chart',
-    });
+    renderLineChart();
 
     // Update iframe
     if (pymChild) {
@@ -69,7 +67,7 @@ var render = function (containerWidth) {
 /*
  * Render a line chart.
  */
-var renderLineChart = function (config) {
+var renderLineChart = function () {
     /*
      * Setup
      */
@@ -121,7 +119,7 @@ var renderLineChart = function (config) {
     }
 
     // Clear existing graphic (for redraw)
-    var containerElement = d3.select(config.container);
+    var containerElement = d3.select('#line-chart');
     containerElement.html('');
 
     /*

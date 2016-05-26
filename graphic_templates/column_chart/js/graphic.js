@@ -34,9 +34,7 @@ var render = function (containerWidth) {
     isMobile = (containerWidth <= MOBILE_THRESHOLD);
 
     // Render the chart!
-    renderColumnChart({
-        container: '#column-chart',
-    });
+    renderColumnChart();
 
     // Update iframe
     if (pymChild) {
@@ -47,7 +45,7 @@ var render = function (containerWidth) {
 /*
  * Render a column chart.
  */
-var renderColumnChart = function (config) {
+var renderColumnChart = function () {
     /*
      * Setup chart container.
      */
@@ -67,7 +65,7 @@ var renderColumnChart = function (config) {
     var roundTicksFactor = parseInt(LABELS.roundTicksFactor || 50, 10);
 
     // Clear existing graphic (for redraw)
-    var containerElement = d3.select(config.container);
+    var containerElement = d3.select('#column-chart');
     containerElement.html('');
 
     /*

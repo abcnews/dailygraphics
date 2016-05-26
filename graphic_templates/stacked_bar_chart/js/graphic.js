@@ -55,9 +55,7 @@ var render = function (containerWidth) {
     isMobile = (containerWidth <= MOBILE_THRESHOLD);
 
     // Render the chart!
-    renderStackedBarChart({
-        container: '#stacked-bar-chart',
-    });
+    renderStackedBarChart();
 
     // Update iframe
     if (pymChild) {
@@ -68,7 +66,7 @@ var render = function (containerWidth) {
 /*
  * Render a stacked bar chart.
  */
-var renderStackedBarChart = function (config) {
+var renderStackedBarChart = function () {
     /*
      * Setup
      */
@@ -93,7 +91,7 @@ var renderStackedBarChart = function (config) {
     }
 
     // Clear existing graphic (for redraw)
-    var containerElement = d3.select(config.container);
+    var containerElement = d3.select('#stacked-bar-chart');
     containerElement.html('');
 
     /*

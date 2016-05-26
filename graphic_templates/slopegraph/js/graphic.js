@@ -40,9 +40,7 @@ var render = function (containerWidth) {
     isSidebar = (containerWidth <= SIDEBAR_THRESHOLD);
 
     // Render the chart!
-    renderSlopegraph({
-        container: '#slopegraph',
-    });
+    renderSlopegraph();
 
     // Update iframe
     if (pymChild) {
@@ -53,7 +51,7 @@ var render = function (containerWidth) {
 /*
  * Render a line chart.
  */
-var renderSlopegraph = function (config) {
+var renderSlopegraph = function () {
     /*
      * Setup
      */
@@ -93,7 +91,7 @@ var renderSlopegraph = function (config) {
     var labelGap = isSidebar ? 32 : 42;
 
     // Clear existing graphic (for redraw)
-    var containerElement = d3.select(config.container);
+    var containerElement = d3.select('#slopegraph');
     containerElement.html('');
 
     /*

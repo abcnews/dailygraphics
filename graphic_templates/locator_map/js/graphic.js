@@ -59,7 +59,6 @@ var render = function (containerWidth) {
 
     // Render the chart!
     renderLocatorMap({
-        container: '#locator-map',
         primaryCountry: 'Nepal',
     });
 
@@ -87,7 +86,7 @@ var renderLocatorMap = function (config) {
     var chartElement = null;
 
     // Clear existing graphic (for redraw)
-    var containerElement = d3.select(config.container);
+    var containerElement = d3.select('#locator-map');
     containerElement.html('');
 
     /*

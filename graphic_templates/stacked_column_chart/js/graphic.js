@@ -57,9 +57,7 @@ var render = function (containerWidth) {
     isMobile = (containerWidth <= MOBILE_THRESHOLD);
 
     // Render the chart!
-    renderStackedColumnChart({
-        container: '#stacked-column-chart',
-    });
+    renderStackedColumnChart();
 
     // Update iframe
     if (pymChild) {
@@ -70,7 +68,7 @@ var render = function (containerWidth) {
 /*
  * Render a stacked column chart.
  */
-var renderStackedColumnChart = function (config) {
+var renderStackedColumnChart = function () {
     /*
      * Setup
      */
@@ -96,7 +94,7 @@ var renderStackedColumnChart = function (config) {
     }
 
     // Clear existing graphic (for redraw)
-    var containerElement = d3.select(config.container);
+    var containerElement = d3.select('#stacked-column-chart');
     containerElement.html('');
 
     /*

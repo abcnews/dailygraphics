@@ -24,9 +24,7 @@ var render = function (containerWidth) {
 
     // Render the chart!
     // renderGraphic({
-    //     container: '#graphic',
     //     width: containerWidth,
-    //     data: []
     // });
 
     // Update iframe
@@ -55,7 +53,7 @@ var renderGraphic = function (config) {
     var chartHeight = Math.ceil(config.width / aspectRatio) - margins.top - margins.bottom;
 
     // Clear existing graphic (for redraw)
-    var containerElement = d3.select(config.container);
+    var containerElement = d3.select('#graphic');
     containerElement.html('');
 
     // Create container

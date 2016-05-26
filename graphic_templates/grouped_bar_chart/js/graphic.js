@@ -50,10 +50,7 @@ var render = function (containerWidth) {
     isMobile = (containerWidth <= MOBILE_THRESHOLD);
 
     // Render the chart!
-    renderGroupedBarChart({
-        container: '#grouped-bar-chart',
-        width: containerWidth,
-    });
+    renderGroupedBarChart();
 
     // Update iframe
     if (pymChild) {
@@ -64,7 +61,7 @@ var render = function (containerWidth) {
 /*
  * Render a bar chart.
  */
-var renderGroupedBarChart = function (config) {
+var renderGroupedBarChart = function () {
     /*
      * Setup chart container.
      */
@@ -90,7 +87,7 @@ var renderGroupedBarChart = function (config) {
     var roundTicksFactor = parseInt(LABELS.roundTicksFactor || 5, 10);
 
     // Clear existing graphic (for redraw)
-    var containerElement = d3.select(config.container);
+    var containerElement = d3.select('#grouped-bar-chart');
     containerElement.html('');
 
     /*
