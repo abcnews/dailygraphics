@@ -37,9 +37,7 @@ var render = function (containerWidth) {
  * Render a graphic.
  */
 var renderGraphic = function (config) {
-    var aspectWidth = 4;
-    var aspectHeight = 3;
-    var aspectRatio = aspectWidth / aspectHeight;
+    var aspectRatio = getAspectRatio(LABELS.ratio);
 
     var margins = {
         top: parseInt(LABELS.marginTop || 0, 10),

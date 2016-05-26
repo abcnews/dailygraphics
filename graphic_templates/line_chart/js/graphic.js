@@ -80,17 +80,7 @@ var renderLineChart = function () {
         dashed2: '7, 5',
     };
 
-    var aspectWidth = isMobile ? 4 : 16;
-    var aspectHeight = isMobile ? 3 : 9;
-    if ('ratio' in LABELS) {
-        var parts = LABELS.ratio.split('x');
-        if (parts[0] && parts[1]) {
-            aspectWidth = parseInt(parts[0], 10);
-            aspectHeight = parseInt(parts[1], 10);
-        }
-    }
-
-    var aspectRatio = aspectWidth / aspectHeight;
+    var aspectRatio = getAspectRatio(LABELS.ratio);
 
     var margins = {
         top: parseInt(LABELS.marginTop || 5, 10),

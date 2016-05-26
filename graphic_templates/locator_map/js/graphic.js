@@ -72,9 +72,7 @@ var renderLocatorMap = function (config) {
     /*
      * Setup
      */
-    var aspectWidth = 2;
-    var aspectHeight = 1.2;
-    var aspectRatio = aspectWidth / aspectHeight;
+    var aspectRatio = getAspectRatio(LABELS.ratio, 2 / 1.2);
 
     var bbox = geoData.bbox;
     var defaultScale = 3000;

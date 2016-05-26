@@ -58,17 +58,11 @@ var renderSlopegraph = function () {
     var startLabel = LABELS.start_label;
     var endLabel = LABELS.end_label;
 
-    var aspectWidth = 5;
-    var aspectHeight = 3;
-    if (isSidebar) {
-        aspectWidth = 2;
-        aspectHeight = 3;
-    } else if (isMobile) {
-        aspectWidth = 5;
-        aspectHeight = 6;
-    }
-
-    var aspectRatio = aspectWidth / aspectHeight;
+    var aspectRatio = getAspectRatio(LABELS.ratio, {
+        base: 5 / 3,
+        mobile: 5 / 6,
+        sidebar: 2 / 3,
+    });
 
     var margins = {
         top: parseInt(LABELS.marginTop || 20, 10),

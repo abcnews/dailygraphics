@@ -49,9 +49,8 @@ var renderColumnChart = function () {
     /*
      * Setup chart container.
      */
-    var aspectWidth = isMobile ? 4 : 16;
-    var aspectHeight = isMobile ? 3 : 9;
-    var aspectRatio = aspectWidth / aspectHeight;
+    var aspectRatio = getAspectRatio(LABELS.ratio);
+
     var valueGap = parseInt(LABELS.valueGap || 6, 10);
 
     var margins = {

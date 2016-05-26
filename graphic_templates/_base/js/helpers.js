@@ -127,6 +127,45 @@ var formattedNumber = function (num, prefix, suffix, maxDecimalPlaces) {
 };
 
 /*
+ * Determine the aspect ratio from a string with some fallbacks
+ * If fallback is a number it will use that for all breakpoints
+ * Otherwise fallback can be an object containing "base", "mobile", and
+ * "sidebar" properties
+ */
+var getAspectRatio = function (ratioStr, fallback) {
+    if (ratioStr) {
+        var ratioArr = /^(\d+)x(\d+)$/.exec(ratioStr);
+        if (ratioArr) {
+            return ratioArr[1] / ratioArr[2];
+        }
+    }
+
+    if (typeof fallback === 'number') {
+        return fallback;
+    }
+
+    var key = 'base';
+    if (typeof isSidebar !== 'undefined' && isSidebar) {
+        key = 'sidebar';
+    } else if (typeof isMobile !== 'undefined' && isMobile) {
+        key = 'mobile';
+    }
+
+    var defaultFallbacks = {
+        base: 16 / 9,
+        mobile: 4 / 3,
+        sidebar: 4 / 3,
+    };
+
+    if (fallback) {
+        return fallback[key] || defaultFallbacks[key];
+    }
+
+    return defaultFallbacks[key];
+
+};
+
+/*
  * Takes a foreground color and optional background color and returns a
  * foreground color that is WCAG AA accessible. It tests the contrast and
  * darkens / brightens the foreground color until it is compliant.
