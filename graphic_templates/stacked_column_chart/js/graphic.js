@@ -115,20 +115,20 @@ var renderStackedColumnChart = function () {
         .domain(_.pluck(DATA, 'label'))
         .rangeRoundBands([0, chartWidth], 0.1);
 
-    var min = d3.min(DATA, function (d) {
+    var minY = d3.min(DATA, function (d) {
         return Math.floor(d.total / roundTicksFactor) * roundTicksFactor;
     });
 
-    if (min > 0) {
-        min = 0;
+    if (minY > 0) {
+        minY = 0;
     }
 
-    var max = d3.max(DATA, function (d) {
+    var maxY = d3.max(DATA, function (d) {
         return Math.ceil(d.total / roundTicksFactor) * roundTicksFactor;
     });
 
     var yScale = d3.scale.linear()
-        .domain([min, max])
+        .domain([minY, maxY])
         .rangeRound([chartHeight, 0]);
 
     var colorScale = d3.scale.ordinal()

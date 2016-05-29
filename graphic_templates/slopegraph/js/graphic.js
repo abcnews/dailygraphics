@@ -105,16 +105,16 @@ var renderSlopegraph = function () {
         .domain([startLabel, endLabel])
         .range([0, chartWidth]);
 
-    var min = d3.min(DATA, function (d) {
+    var minY = d3.min(DATA, function (d) {
         return Math.floor(d.start / roundTicksFactor) * roundTicksFactor;
     });
 
-    var max = d3.max(DATA, function (d) {
+    var maxY = d3.max(DATA, function (d) {
         return Math.ceil(d.end / roundTicksFactor) * roundTicksFactor;
     });
 
     var yScale = d3.scale.linear()
-        .domain([min, max])
+        .domain([minY, maxY])
         .range([chartHeight, 0]);
 
     var colorList = colorArray(LABELS, MONOCHROMECOLORS);

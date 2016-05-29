@@ -102,20 +102,20 @@ var renderColumnChart = function () {
             return d.label;
         }));
 
-    var min = d3.min(DATA, function (d) {
+    var minY = d3.min(DATA, function (d) {
         return Math.floor(d.amt / roundTicksFactor) * roundTicksFactor;
     });
 
-    if (min > 0) {
-        min = 0;
+    if (minY > 0) {
+        minY = 0;
     }
 
-    var max = d3.max(DATA, function (d) {
+    var maxY = d3.max(DATA, function (d) {
         return d.amt;
     });
 
     var yScale = d3.scale.linear()
-        .domain([min, max])
+        .domain([minY, maxY])
         .range([chartHeight, 0]);
 
     /*

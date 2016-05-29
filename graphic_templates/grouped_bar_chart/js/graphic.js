@@ -104,30 +104,34 @@ var renderGroupedBarChart = function () {
     /*
      * Create D3 scale objects.
      */
-    var min = d3.min(DATA, function (d) {
-        return d3.min(d.values, function (v) {
-            return Math.floor(v.amt / roundTicksFactor) * roundTicksFactor;
+    var minX;
+    if (LABELS.minX) {
+        minX = parseFloat(LABELS.minX, 10);
+    } else {
+        minX = d3.min(DATA, function (d) {
+            return d3.min(d.values, function (v) {
+                return Math.floor(v.amt / roundTicksFactor) * roundTicksFactor;
+            });
         });
-    });
 
-    if ('minX' in LABELS && LABELS.minX !== '') {
-        min = parseFloat(LABELS.minX, 10);
-    } else if (min > 0) {
-        min = 0;
+        if (minX > 0) {
+            minX = 0;
+        }
     }
 
-    var max = d3.max(DATA, function (d) {
-        return d3.max(d.values, function (v) {
-            return Math.ceil(v.amt / roundTicksFactor) * roundTicksFactor;
+    var maxX;
+    if (LABELS.maxX) {
+        maxX = parseFloat(LABELS.maxX, 10);
+    } else {
+        maxX = d3.max(DATA, function (d) {
+            return d3.max(d.values, function (v) {
+                return Math.ceil(v.amt / roundTicksFactor) * roundTicksFactor;
+            });
         });
-    });
-
-    if ('maxX' in LABELS && LABELS.maxX !== '') {
-        max = parseFloat(LABELS.maxX, 10);
     }
 
     var xScale = d3.scale.linear()
-        .domain([min, max])
+        .domain([minX, maxX])
         .range([0, chartWidth]);
 
     var yScale = d3.scale.linear()
