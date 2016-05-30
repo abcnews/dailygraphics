@@ -106,7 +106,7 @@ var renderBarChart = function () {
             return Math.floor(d.amt / roundTicksFactor) * roundTicksFactor;
         });
 
-        if (min > 0) {
+        if (minX > 0) {
             minX = 0;
         }
     }
