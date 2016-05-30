@@ -70,7 +70,7 @@ var renderSlopegraph = function () {
     }
 
     var roundTicksFactor = parseInt(LABELS.roundTicksFactor || 4, 10);
-    var labelGap = isSidebar ? 32 : 42;
+    var labelGap = parseInt(LABELS.labelGap || 45, 10);
     var valueGap = parseInt(LABELS.valueGap || 6, 10);
 
     // Clear existing graphic (for redraw)
@@ -253,12 +253,8 @@ var renderSlopegraph = function () {
                 return yScale(d.end);
             })
             .attr('text-anchor', 'begin')
-            .attr('dx', function (d) {
-                return labelGap;
-            })
-            .attr('dy', function (d) {
-                return 3;
-            })
+            .attr('dx', labelGap)
+            .attr('dy', 3)
             .style('fill', function (d, i) {
                 return accessibleColorScale(i);
             })
