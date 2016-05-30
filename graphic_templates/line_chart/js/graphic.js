@@ -97,15 +97,17 @@ var renderLineChart = function () {
         margins.top += 20;
     }
 
-    var ticksX = parseInt(LABELS.ticksX || 10, 10);
-    var ticksY = parseInt(LABELS.ticksY || 10, 10);
+    if (isMobile) {
+        margins.right = margins.right * 0.9;
+    }
+
     var roundTicksFactor = parseInt(LABELS.roundTicksFactor || 5, 10);
 
-    // Mobile
+    var ticksX = parseInt(LABELS.ticksX || 10, 10);
+    var ticksY = parseInt(LABELS.ticksY || 10, 10);
     if (isMobile) {
         ticksX = parseInt(LABELS.mobileTicksX || 5, 10);
         ticksY = parseInt(LABELS.mobileTicksY || 5, 10);
-        margins.right = margins.right * 0.9;
     }
 
     // Clear existing graphic (for redraw)
