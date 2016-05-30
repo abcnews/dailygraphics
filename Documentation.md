@@ -332,8 +332,6 @@ Stacked Column Charts have all the same options as [Column Charts](#column-chart
 
 TODO
 
-#### roundTicksFactor
-
 #### ratio
 > Default: `4x3` on mobile, `16x9` otherwise
 

@@ -69,7 +69,6 @@ var renderSlopegraph = function () {
         margins.right = 145;
     }
 
-    var roundTicksFactor = parseInt(LABELS.roundTicksFactor || 4, 10);
     var labelGap = parseInt(LABELS.labelGap || 45, 10);
     var valueGap = parseInt(LABELS.valueGap || 6, 10);
 
@@ -96,11 +95,11 @@ var renderSlopegraph = function () {
         .range([0, chartWidth]);
 
     var minY = d3.min(DATA, function (d) {
-        return Math.floor(d.start / roundTicksFactor) * roundTicksFactor;
+        return Math.min(d.start, d.end);
     });
 
     var maxY = d3.max(DATA, function (d) {
-        return Math.ceil(d.end / roundTicksFactor) * roundTicksFactor;
+        return Math.max(d.start, d.end);
     });
 
     var yScale = d3.scale.linear()
@@ -262,6 +261,9 @@ var renderSlopegraph = function () {
                 return d.label;
             })
             .call(wrapText, (margins.right - labelGap), 16);
+
+    chartElement.selectAll('.value, .label, .lines')
+        .attr('transform', 'translate(0,15)');
 
 };
 
