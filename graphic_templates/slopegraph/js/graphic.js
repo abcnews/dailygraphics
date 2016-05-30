@@ -122,6 +122,15 @@ var renderSlopegraph = function () {
         .domain([0, colorList.length])
         .range(colorList);
 
+    var accessibleColorList = [];
+    for (var j = 0; j < colorList.length; j++) {
+        accessibleColorList[j] = getAccessibleColor(colorList[j]);
+    }
+
+    var accessibleColorScale = d3.scale.ordinal()
+        .domain([0, accessibleColorList.length])
+        .range(accessibleColorList);
+
     /*
      * Create D3 axes.
      */
@@ -199,6 +208,9 @@ var renderSlopegraph = function () {
             .attr('text-anchor', 'end')
             .attr('dx', -6)
             .attr('dy', 3)
+            .style('fill', function (d, i) {
+                return accessibleColorScale(i);
+            })
             .text(function (d) {
                 if (isSidebar) {
                     return d.end.toFixed(0) + '%';
@@ -223,6 +235,9 @@ var renderSlopegraph = function () {
             .attr('text-anchor', 'begin')
             .attr('dx', 6)
             .attr('dy', 3)
+            .style('fill', function (d, i) {
+                return accessibleColorScale(i);
+            })
             .text(function (d) {
                 if (isSidebar) {
                     return d.end.toFixed(0) + '%';
@@ -254,10 +269,14 @@ var renderSlopegraph = function () {
             .attr('dy', function (d) {
                 return 3;
             })
+            .style('fill', function (d, i) {
+                return accessibleColorScale(i);
+            })
             .text(function (d) {
                 return d.label;
             })
             .call(wrapText, (margins.right - labelGap), 16);
+
 };
 
 /*
