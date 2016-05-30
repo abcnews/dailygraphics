@@ -125,17 +125,9 @@ var renderSlopegraph = function () {
     /*
      * Create D3 axes.
      */
-    var xAxisTop = d3.svg.axis()
-        .scale(xScale)
-        .orient('top')
-        .ticks(ticksX)
-        .tickFormat(function (d) {
-            return d;
-        });
-
     var xAxis = d3.svg.axis()
         .scale(xScale)
-        .orient('bottom')
+        .orient('top')
         .ticks(ticksX)
         .tickFormat(function (d) {
             return d;
@@ -154,11 +146,6 @@ var renderSlopegraph = function () {
      */
     chartElement.append('g')
         .attr('class', 'x axis')
-        .call(xAxisTop);
-
-    chartElement.append('g')
-        .attr('class', 'x axis')
-        .attr('transform', makeTranslate(0, chartHeight))
         .call(xAxis);
 
     /*
