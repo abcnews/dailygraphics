@@ -71,6 +71,7 @@ var renderSlopegraph = function () {
 
     var roundTicksFactor = parseInt(LABELS.roundTicksFactor || 4, 10);
     var labelGap = isSidebar ? 32 : 42;
+    var valueGap = parseInt(LABELS.valueGap || 6, 10);
 
     // Clear existing graphic (for redraw)
     var containerElement = d3.select('#slopegraph');
@@ -193,7 +194,7 @@ var renderSlopegraph = function () {
                 return yScale(d.start);
             })
             .attr('text-anchor', 'end')
-            .attr('dx', -6)
+            .attr('dx', -valueGap)
             .attr('dy', 3)
             .style('fill', function (d, i) {
                 return accessibleColorScale(i);
@@ -221,7 +222,7 @@ var renderSlopegraph = function () {
                 return yScale(d.end);
             })
             .attr('text-anchor', 'begin')
-            .attr('dx', 6)
+            .attr('dx', valueGap)
             .attr('dy', 3)
             .style('fill', function (d, i) {
                 return accessibleColorScale(i);

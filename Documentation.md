@@ -343,6 +343,8 @@ Specify a custom aspect ratio. The graphic is responsive and resizable and will 
 
 #### end_label
 
+#### valueGap
+
 
 
 ### Dot Chart
