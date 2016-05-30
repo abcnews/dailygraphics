@@ -1,10 +1,6 @@
-// Global config
-var SIDEBAR_THRESHOLD = 280;
-
 // Global vars
 var pymChild = null;
 var isMobile = false;
-var isSidebar = false;
 
 /*
  * Initialize graphic
@@ -37,7 +33,6 @@ var formatData = function () {
 var render = function (containerWidth) {
     containerWidth = containerWidth || DEFAULT_WIDTH;
     isMobile = (containerWidth <= MOBILE_THRESHOLD);
-    isSidebar = (containerWidth <= SIDEBAR_THRESHOLD);
 
     // Render the chart!
     renderSlopegraph();
@@ -61,7 +56,6 @@ var renderSlopegraph = function () {
     var aspectRatio = getAspectRatio(LABELS.ratio, {
         base: 5 / 3,
         mobile: 5 / 6,
-        sidebar: 2 / 3,
     });
 
     var margins = {
@@ -71,10 +65,7 @@ var renderSlopegraph = function () {
         left: parseInt(LABELS.marginLeft || 40, 10),
     };
 
-    if (isSidebar) {
-        margins.left = 30;
-        margins.right = 105;
-    } else if (isMobile) {
+    if (isMobile) {
         margins.right = 145;
     }
 
@@ -212,10 +203,6 @@ var renderSlopegraph = function () {
                 return accessibleColorScale(i);
             })
             .text(function (d) {
-                if (isSidebar) {
-                    return d.end.toFixed(0) + '%';
-                }
-
                 return d.start + '%';
             });
 
@@ -239,10 +226,6 @@ var renderSlopegraph = function () {
                 return accessibleColorScale(i);
             })
             .text(function (d) {
-                if (isSidebar) {
-                    return d.end.toFixed(0) + '%';
-                }
-
                 return d.end + '%';
             });
 

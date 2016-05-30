@@ -129,8 +129,7 @@ var formattedNumber = function (num, prefix, suffix, maxDecimalPlaces) {
 /*
  * Determine the aspect ratio from a string with some fallbacks
  * If fallback is a number it will use that for all breakpoints
- * Otherwise fallback can be an object containing "base", "mobile", and
- * "sidebar" properties
+ * Otherwise fallback can be an object containing "base" and "mobile" properties
  */
 var getAspectRatio = function (ratioStr, fallback) {
     if (ratioStr) {
@@ -145,16 +144,13 @@ var getAspectRatio = function (ratioStr, fallback) {
     }
 
     var key = 'base';
-    if (typeof isSidebar !== 'undefined' && isSidebar) {
-        key = 'sidebar';
-    } else if (typeof isMobile !== 'undefined' && isMobile) {
+    if (typeof isMobile !== 'undefined' && isMobile) {
         key = 'mobile';
     }
 
     var defaultFallbacks = {
         base: 16 / 9,
         mobile: 4 / 3,
-        sidebar: 4 / 3,
     };
 
     if (fallback) {
