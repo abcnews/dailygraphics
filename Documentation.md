@@ -15,13 +15,15 @@
   * [Pie Chart](#pie-chart)
   * [Responsive HTML Table](#responsive-html-table)
   * [Block Histogram](#block-histogram)
-  * USA State Grid Map (TODO)
-  * Locator Map (TODO)
-  * Graphic (TODO)
+  * [USA State Grid Map](#usa-state-grid-map) (TODO)
+  * [Locator Map](#locator-map) (TODO)
+  * [Graphic](#graphic)
 * [Common issues](#common-issues)
 * [Development](#development)
 
 ## Chart configuration options
+
+
 
 ### Common
 
@@ -50,6 +52,11 @@ Small text that appears below the graph prefixed with "Source: ".
 
 Small text that appears below the graph prefixed with "Credit: ".
 
+#### card
+> Default: `on`
+
+By default the chart will be displayed in the ABC card container. Set to `off` to remove the card styling.
+
 #### theme
 > single, monochrome, multicolor, highlight.
 
@@ -76,11 +83,6 @@ Comma separated list of colors for each data set. These can be defined in a few 
 
 These different value types can be combined. e.g. `red, #abcdef, ptynat, #333`
 
-#### card
-> Default: `on`
-
-By default the chart will be displayed in the ABC card container. Set to `off` to remove the card styling.
-
 #### marginTop
 > Default: `5`
 
@@ -99,6 +101,8 @@ Spacing at the top of the graphic in pixels.
 > Default: 10
 
 Maximum number of decimal places to show on the formatted data labels. Any trailing zeros will be omitted.
+
+
 
 ### Line Chart
 
@@ -218,6 +222,7 @@ Set to `off` to hide the data point dots.
 Set to `off` to hide the tooltips.
 
 
+
 ### Bar Chart
 
 #### valueGap
@@ -275,6 +280,8 @@ A string to put in front of the ticks in the X axis. e.g. `$`.
 
 A string to put at the end of the ticks in the X axis. e.g. `%`.
 
+
+
 ### Grouped Bar Chart
 
 Grouped Bar Charts have all the same options as [Bar Charts](#bar-chart) with one extra:
@@ -284,17 +291,13 @@ Grouped Bar Charts have all the same options as [Bar Charts](#bar-chart) with on
 
 Vertical spacing between each bar group.
 
+
+
 ### Stacked Bar Chart
 
-TODO
+Stacked Bar Charts have all the same options as [Bar Charts](#bar-chart).
 
-* barHeight
-* barGap
-* labelWidth
-* labelMargin
-* valueGap
-* ticksX / mobileTicksX
-* roundTicksFactor
+
 
 ### Column Chart
 
@@ -306,57 +309,129 @@ TODO
 
 #### ticksY
 
+#### mobileTicksY
+
+#### ratio
+> Default: `4x3` on mobile, `16x9` otherwise
+
+Specify a custom aspect ratio. The graphic is responsive and resizable and will retain this ratio.
+
+#### prefixY
+
+#### suffixY
+
+
+
 ### Stacked Column Chart
 
-TODO
+Stacked Column Charts have all the same options as [Column Charts](#column-chart).
 
-* valueGap
-* ticksY
-* roundTicksFactor
+
 
 ### Slopegraph
 
 TODO
 
-* ticksX
-* ticksY
-* roundTicksFactor
-* dotRadius
+#### ticksX
 
+#### ticksY
+
+#### roundTicksFactor
+
+#### dotRadius
+
+#### ratio
+> Default: `4x3` on mobile, `16x9` otherwise
+
+Specify a custom aspect ratio. The graphic is responsive and resizable and will retain this ratio.
 
 #### start_label
 
 #### end_label
 
+
+
 ### Dot Chart
 
 TODO
 
-* barHeight
-* barGap
-* labelWidth
-* labelMargin
-* valueMinWidth
-* dotRadius
-* ticksX / mobileTicksX
-* roundTicksFactor
+#### barHeight
+
+#### barGap
+
+#### labelWidth
+
+#### labelMargin
+
+#### valueMinWidth
+
+#### dotRadius
+
+#### ticksX
+
+#### mobileTicksX
+
+#### roundTicksFactor
+
+
 
 ### Pie Chart
+
+NOT READY FOR USE IN PRODUCTION
 
 TODO
 
 #### showLabels
 
+
+
 ### Responsive HTML Table
 
-TODO
+No further config options.
+
+
 
 ### Block Histogram
 
+NOT READY FOR USE IN PRODUCTION
+
 TODO
 
-* blockGap
-* ticksY
+#### blockGap
+
+#### ticksY
+
+
+
+### USA State Grid Map
+
+NOT READY FOR USE IN PRODUCTION
+
+No further config options.
+
+
+
+### Locator Map
+
+NOT READY FOR USE IN PRODUCTION
+
+#### ratio
+> Default: `4x3` on mobile, `16x9` otherwise
+
+Specify a custom aspect ratio. The graphic is responsive and resizable and will retain this ratio.
+
+
+
+### Graphic
+
+NOT READY FOR USE IN PRODUCTION
+
+#### ratio
+> Default: `4x3` on mobile, `16x9` otherwise
+
+Specify a custom aspect ratio. The graphic is responsive and resizable and will retain this ratio.
+
+
 
 ## Common issues
 
