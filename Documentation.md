@@ -345,6 +345,12 @@ Specify a custom aspect ratio. The graphic is responsive and resizable and will 
 
 #### valueGap
 
+#### prefixY
+
+#### suffixY
+
+#### maxDecimalPlaces
+
 
 
 ### Dot Chart
