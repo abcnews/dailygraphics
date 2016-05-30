@@ -199,7 +199,12 @@ var renderSlopegraph = function () {
                 return accessibleColorScale(i);
             })
             .text(function (d) {
-                return d.start + '%';
+                return formattedNumber(
+                    d.start,
+                    LABELS.prefixY,
+                    LABELS.suffixY,
+                    LABELS.maxDecimalPlaces
+                );
             });
 
     chartElement.append('g')
@@ -222,7 +227,12 @@ var renderSlopegraph = function () {
                 return accessibleColorScale(i);
             })
             .text(function (d) {
-                return d.end + '%';
+                return formattedNumber(
+                    d.end,
+                    LABELS.prefixY,
+                    LABELS.suffixY,
+                    LABELS.maxDecimalPlaces
+                );
             });
 
     /*
