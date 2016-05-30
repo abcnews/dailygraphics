@@ -61,7 +61,7 @@ var renderGraphic = function (config) {
             height: chartHeight + margins.top + margins.bottom,
         })
         .append('g')
-            .attr('transform', 'translate(' + margins.left + ',' + margins.top + ')');
+            .attr('transform', makeTranslate(margins.left, margins.top));
 
     // Draw here!
 };

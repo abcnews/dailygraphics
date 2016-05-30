@@ -96,7 +96,7 @@ var renderDotChart = function () {
             height: chartHeight + margins.top + margins.bottom,
         })
         .append('g')
-            .attr('transform', 'translate(' + margins.left + ',' + margins.top + ')');
+            .attr('transform', makeTranslate(margins.left, margins.top));
 
     var max = d3.max(DATA, function (d) {
         return Math.ceil(d.max / roundTicksFactor) * roundTicksFactor;

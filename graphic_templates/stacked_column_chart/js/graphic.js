@@ -77,13 +77,10 @@ var renderStackedColumnChart = function () {
 
     var margins = {
         top: parseInt(LABELS.marginTop || 5, 10),
-        right: parseInt(LABELS.marginRight || 5, 10),
-        bottom: parseInt(LABELS.marginBottom || 20, 10),
-        left: parseInt(LABELS.marginLeft || 30, 10),
+        right: parseInt(LABELS.marginRight || 0, 10),
+        bottom: parseInt(LABELS.marginBottom || 30, 10),
+        left: parseInt(LABELS.marginLeft || 0, 10),
     };
-
-    var ticksY = parseInt(LABELS.ticksY || 5, 10);
-    var roundTicksFactor = parseInt(LABELS.roundTicksFactor || 50, 10);
 
     // Clear existing graphic (for redraw)
     var containerElement = d3.select('#stacked-column-chart');
@@ -116,7 +113,7 @@ var renderStackedColumnChart = function () {
         .rangeRoundBands([0, chartWidth], 0.1);
 
     var minY = d3.min(DATA, function (d) {
-        return Math.floor(d.total / roundTicksFactor) * roundTicksFactor;
+        return d.total;
     });
 
     if (minY > 0) {
@@ -124,7 +121,7 @@ var renderStackedColumnChart = function () {
     }
 
     var maxY = d3.max(DATA, function (d) {
-        return Math.ceil(d.total / roundTicksFactor) * roundTicksFactor;
+        return d.total;
     });
 
     var yScale = d3.scale.linear()
@@ -133,7 +130,7 @@ var renderStackedColumnChart = function () {
 
     var colorScale = d3.scale.ordinal()
         .domain(d3.keys(DATA[0]).filter(function (d) {
-            return d != 'label' && d != 'values' && d != 'total';
+            return d != 'label' && d != 'values' && d != 'total'; // ??
         }))
         .range(MULTICOLORS);
 
@@ -157,6 +154,9 @@ var renderStackedColumnChart = function () {
     legend.append('label')
         .text(function (d) {
             return d;
+        })
+        .style('color', function (d) {
+            return colorScale(d);
         });
 
     /*
@@ -165,17 +165,8 @@ var renderStackedColumnChart = function () {
     var xAxis = d3.svg.axis()
         .scale(xScale)
         .orient('bottom')
-        .tickFormat(function (d) {
-            return d;
-        });
-
-    var yAxis = d3.svg.axis()
-        .scale(yScale)
-        .orient('left')
-        .ticks(ticksY)
-        .tickFormat(function (d) {
-            return d;
-        });
+        .tickSize(0)
+        .tickPadding(10);
 
     /*
      * Render axes to chart.
@@ -183,25 +174,8 @@ var renderStackedColumnChart = function () {
     chartElement.append('g')
         .attr('class', 'x axis')
         .attr('transform', makeTranslate(0, chartHeight))
-        .call(xAxis);
-
-    chartElement.append('g')
-        .attr('class', 'y axis')
-        .call(yAxis);
-
-    /*
-     * Render grid to chart.
-     */
-    var yAxisGrid = function () {
-        return yAxis;
-    };
-
-    chartElement.append('g')
-        .attr('class', 'y grid')
-        .call(yAxisGrid()
-            .tickSize(-chartWidth, 0)
-            .tickFormat('')
-        );
+        .call(xAxis)
+        .select('path').remove();
 
     /*
      * Render bars to chart.

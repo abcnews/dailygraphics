@@ -77,7 +77,7 @@ var renderPieChart = function () {
             height: chartHeight + margins.top + margins.bottom,
         })
         .append('g')
-            .attr('transform', 'translate(' + margins.left + ',' + margins.top + ')');
+            .attr('transform', makeTranslate(margins.left, margins.top));
 
     var overlay = chartElement.append('rect')
         .attr({
