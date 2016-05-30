@@ -54,8 +54,8 @@ var renderSlopegraph = function () {
     var endLabel = LABELS.end_label;
 
     var aspectRatio = getAspectRatio(LABELS.ratio, {
-        base: 5 / 3,
-        mobile: 5 / 6,
+        base: 3 / 2,
+        mobile: 2 / 3,
     });
 
     var margins = {
