@@ -129,6 +129,7 @@ var renderSlopegraph = function () {
         .scale(xScale)
         .orient('top')
         .ticks(ticksX)
+        .innerTickSize(0)
         .tickFormat(function (d) {
             return d;
         });
