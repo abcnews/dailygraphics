@@ -118,7 +118,8 @@ var renderDotChart = function () {
         .ticks(ticksX)
         .tickFormat(function (d) {
             return d + '%';
-        });
+        })
+        .outerTickSize(0);
 
     /*
      * Render axes to chart.
