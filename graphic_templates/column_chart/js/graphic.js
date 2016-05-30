@@ -60,7 +60,6 @@ var renderColumnChart = function () {
         left: parseInt(LABELS.marginLeft || 0, 10),
     };
 
-    var ticksY = parseInt(LABELS.ticksY || 4, 10);
     var roundTicksFactor = parseInt(LABELS.roundTicksFactor || 50, 10);
 
     // Clear existing graphic (for redraw)
@@ -128,20 +127,6 @@ var renderColumnChart = function () {
         .tickSize(0)
         .tickPadding(5);
 
-    // .tickFormat(function(d, i) {
-    //     return d;
-    // });
-
-    /*
-    var yAxis = d3.svg.axis()
-        .scale(yScale)
-        .orient('left')
-        .ticks(ticksY)
-        .tickFormat(function(d) {
-            return formattedNumber(d);
-        });
-    */
-
     /*
      * Render axes to chart.
      */
@@ -151,23 +136,12 @@ var renderColumnChart = function () {
         .call(xAxis)
         .select('path').remove();
 
-    // chartElement.append('g')
-    //     .attr('class', 'y axis')
-    //     .call(yAxis)
-
     /*
      * Render grid to chart.
      */
     var yAxisGrid = function () {
         return yAxis;
     };
-
-    // chartElement.append('g')
-    //     .attr('class', 'y grid')
-    //     .call(yAxisGrid()
-    //         .tickSize(-chartWidth, 0)
-    //         .tickFormat('')
-    //     );
 
     var colorList = colorArray(LABELS, SINGLECOLORS);
     var colorScale = d3.scale.ordinal()
