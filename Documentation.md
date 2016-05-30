@@ -334,8 +334,6 @@ TODO
 
 #### roundTicksFactor
 
-#### dotRadius
-
 #### ratio
 > Default: `4x3` on mobile, `16x9` otherwise
 
