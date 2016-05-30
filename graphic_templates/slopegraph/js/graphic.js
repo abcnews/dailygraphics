@@ -69,7 +69,6 @@ var renderSlopegraph = function () {
         margins.right = 145;
     }
 
-    var ticksY = parseInt(LABELS.ticksY || 10, 10);
     var roundTicksFactor = parseInt(LABELS.roundTicksFactor || 4, 10);
     var labelGap = isSidebar ? 32 : 42;
 
