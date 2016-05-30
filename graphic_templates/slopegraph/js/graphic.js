@@ -110,7 +110,6 @@ var renderSlopegraph = function () {
 
     var colorList = colorArray(LABELS, MONOCHROMECOLORS);
     var colorScale = d3.scale.ordinal()
-        .domain([0, colorList.length])
         .range(colorList);
 
     var accessibleColorList = [];
@@ -119,7 +118,6 @@ var renderSlopegraph = function () {
     }
 
     var accessibleColorScale = d3.scale.ordinal()
-        .domain([0, accessibleColorList.length])
         .range(accessibleColorList);
 
     /*
