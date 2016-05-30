@@ -447,33 +447,40 @@ If your data is displaying but not being plotted in the correct coordinates it i
 
 For local development it is easier to create debug graphics so they don't require you to setup OAuth to use Google Spreadsheets. The path of the graphics is specified in `app_config.py`. By default it is located in the directory above the dailygraphics repo in a folder called `graphics`.
 
-### Creating a debug graphic
+### Initial setup
 
-Change directory to the dailygraphics repo before running `fab` commands.
+Before running `fab` commands you need to change directory to the dailygraphics repo and run:
 
 ~~~
-fab add_line_chart:graphname,debug=1
+source "/usr/local/bin/virtualenvwrapper.sh"
+workon dailygraphics
+~~~
+
+### Creating a debug graphic
+
+~~~
+fab add_line_chart:GRAPHIC-NAME,debug=1
 ~~~
 
 (Alternately you can FTP down an existing graphic from NewsDev3: `/var/www/html/tools/chart-builder/graphics/` )
 
 ### (Re)Building a debug graphic
 
-This rebuilds the local copy with any graphic template changes and content changes to the xlsx file in the graphic folder.
+This rebuilds the local copy with any graphic template changes and content changes to the .xlsx file in the graphic folder.
 
 ~~~
-fab debug_deploy:graphname,template=line_chart
+fab debug_deploy:GRAPHIC-NAME,template=line_chart
 ~~~
 
 ### Viewing a debug graphic
 
-Navigate to the graphic folder and run a HTTP server:
+Navigate to the generated graphic folder and run a HTTP server:
 
 ~~~
 python -m SimpleHTTPServer 8000
 ~~~
 
-Then visit http://localhost:8000/build
+Then visit http://localhost:8000/build or http://localhost.abc.net.au:8000/build (for web fonts to work)
 
 ### Modifying the data
 
