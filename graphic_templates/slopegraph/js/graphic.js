@@ -143,7 +143,22 @@ var renderSlopegraph = function () {
      */
     chartElement.append('g')
         .attr('class', 'x axis')
-        .call(xAxis);
+        .call(xAxis)
+        .selectAll('text')
+            .style('text-anchor', function (d, i) {
+                if (i) {
+                    return 'start';
+                }
+
+                return 'end';
+            })
+            .attr('dx', function (d, i) {
+                if (i) {
+                    return valueGap;
+                }
+
+                return -valueGap;
+            });
 
     /*
      * Render lines to chart.
