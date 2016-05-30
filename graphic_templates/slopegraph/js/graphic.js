@@ -69,7 +69,6 @@ var renderSlopegraph = function () {
         margins.right = 145;
     }
 
-    var ticksX = parseInt(LABELS.ticksX || 2, 10);
     var ticksY = parseInt(LABELS.ticksY || 10, 10);
     var roundTicksFactor = parseInt(LABELS.roundTicksFactor || 4, 10);
     var labelGap = isSidebar ? 32 : 42;
@@ -126,7 +125,7 @@ var renderSlopegraph = function () {
     var xAxis = d3.svg.axis()
         .scale(xScale)
         .orient('top')
-        .ticks(ticksX)
+        .ticks(2)
         .innerTickSize(0)
         .tickFormat(function (d) {
             return d;

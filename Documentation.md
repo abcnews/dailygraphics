@@ -332,8 +332,6 @@ Stacked Column Charts have all the same options as [Column Charts](#column-chart
 
 TODO
 
-#### ticksX
-
 #### ticksY
 
 #### roundTicksFactor
