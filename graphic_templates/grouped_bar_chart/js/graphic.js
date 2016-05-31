@@ -134,12 +134,15 @@ var renderGroupedBarChart = function () {
     var yScale = d3.scale.linear()
         .range([chartHeight, 0]);
 
+    var colorScaleDomain = _.pluck(DATA[0].values, 'label');
+
     var colorList = colorArray(LABELS, MONOCHROMECOLORS);
     var colorScale = d3.scale.ordinal()
-        .domain(_.pluck(DATA[0].values, 'label'))
+        .domain(colorScaleDomain)
         .range(colorList);
 
     var accessibleColorScale = d3.scale.ordinal()
+        .domain(colorScaleDomain)
         .range(_.map(colorList, function (color) {
             return getAccessibleColor(color);
         }));
