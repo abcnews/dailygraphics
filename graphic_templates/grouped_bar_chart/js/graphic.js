@@ -131,9 +131,6 @@ var renderGroupedBarChart = function () {
         .domain([minX, maxX])
         .range([0, chartWidth]);
 
-    var yScale = d3.scale.linear()
-        .range([chartHeight, 0]);
-
     var colorScaleDomain = _.pluck(DATA[0].values, 'label');
 
     var colorList = colorArray(LABELS, MONOCHROMECOLORS);
