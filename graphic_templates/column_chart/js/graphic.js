@@ -197,11 +197,10 @@ var renderColumnChart = function () {
                 .filter(':nth-child(' + index + ')')
                     .attr('fill', highlightColor);
 
-            chartWrapper.selectAll('.value text.over')
-                .classed('over', false);
-
-            chartWrapper.selectAll('.value text.out:nth-child(' + index + ')')
-                .classed('over', true);
+            chartWrapper.selectAll('.value text')
+                .classed('over', false)
+                .filter(':nth-child(' + index + ')')
+                    .classed('over', true);
 
         });
     }
