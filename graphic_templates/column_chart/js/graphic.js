@@ -256,7 +256,6 @@ var renderColumnChart = function () {
                     }
                 },
 
-                'text-anchor': 'middle',
             });
 };
 
