@@ -228,13 +228,12 @@ var renderLocatorMap = function (config) {
         .enter().append('path')
             .attr('d', path)
             .attr('class', function (d) {
-                var c = 'place';
-
-                c += ' ' + classify(d.properties.city);
-                c += ' ' + classify(d.properties.featurecla);
-                c += ' scalerank-' + d.properties.scalerank;
-
-                return c;
+                return [
+                    'place',
+                    classify(d.properties.city),
+                    classify(d.properties.featurecla),
+                    'scalerank-' + d.properties.scalerank,
+                ].join(' ');
             });
 
     /*
