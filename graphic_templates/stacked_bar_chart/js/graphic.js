@@ -273,24 +273,24 @@ var renderStackedBarChart = function () {
             left: 0,
         })
         .selectAll('li')
-        .data(DATA)
-        .enter()
-        .append('li')
-            .style({
-                width: labelWidth + 'px',
-                height: barHeight + 'px',
-                left: 0,
-                top: function (d, i) {
-                    return (i * (barHeight + barGap)) + 'px';
-                },
-            })
-            .attr('class', function (d) {
-                return classify(d.label);
-            })
-            .append('span')
-                .text(function (d) {
-                    return d.label;
-                });
+            .data(DATA)
+            .enter()
+                .append('li')
+                    .style({
+                        width: labelWidth + 'px',
+                        height: barHeight + 'px',
+                        left: 0,
+                        top: function (d, i) {
+                            return (i * (barHeight + barGap)) + 'px';
+                        },
+                    })
+                    .attr('class', function (d) {
+                        return classify(d.label);
+                    })
+                    .append('span')
+                        .text(function (d) {
+                            return d.label;
+                        });
 };
 
 /*
