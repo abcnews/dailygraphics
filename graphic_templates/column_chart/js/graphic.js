@@ -67,7 +67,7 @@ var renderColumnChart = function () {
      * Create the root SVG element.
      */
     var chartWrapper = containerElement.append('div')
-        .classed('graphic-wrapper', true);
+        .attr('class', 'graphic-wrapper');
 
     // Calculate actual chart dimensions
     var innerWidth = chartWrapper.node().getBoundingClientRect().width;
@@ -93,10 +93,8 @@ var renderColumnChart = function () {
      * Create D3 scale objects.
      */
     var xScale = d3.scale.ordinal()
-        .rangeRoundBands([0, chartWidth], 0.1)
-        .domain(DATA.map(function (d) {
-            return d.label;
-        }));
+        .domain(_.pluck(DATA, 'label'))
+        .rangeRoundBands([0, chartWidth], 0.1);
 
     var minY = d3.min(DATA, function (d) {
         return d.amt;
@@ -112,7 +110,7 @@ var renderColumnChart = function () {
 
     var yScale = d3.scale.linear()
         .domain([minY, maxY])
-        .range([chartHeight, 0]);
+        .rangeRound([chartHeight, 0]);
 
     /*
      * Create D3 axes.
@@ -120,9 +118,8 @@ var renderColumnChart = function () {
     var xAxis = d3.svg.axis()
         .scale(xScale)
         .orient('bottom')
-        .ticks(0)
         .tickSize(0)
-        .tickPadding(5);
+        .tickPadding(10);
 
     /*
      * Render axes to chart.
@@ -152,7 +149,7 @@ var renderColumnChart = function () {
         .enter()
         .append('rect')
             .attr('class', function (d) {
-                return 'bar bar-' + d.label;
+                return 'bar bar-' + classify(d.label);
             })
             .attr({
                 x: function (d) {

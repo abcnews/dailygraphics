@@ -1,11 +1,18 @@
 @import "base";
 @import "key";
 
-.bar text {
-    fill: #fff;
-    font-size: 12px;
+.bar {
+    rect {
+        stroke: #fff;
+    }
 
-    &.hidden {
-        display: none;
+    text {
+        text-anchor: middle;
+        fill: #fff;
+        font-size: 12px;
+
+        &.hidden {
+            display: none;
+        }
     }
 }

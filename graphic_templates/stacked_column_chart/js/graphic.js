@@ -70,7 +70,7 @@ var render = function (containerWidth) {
  */
 var renderStackedColumnChart = function () {
     /*
-     * Setup
+     * Setup chart container.
      */
     var aspectRatio = getAspectRatio(LABELS.ratio);
     var valueGap = parseInt(LABELS.valueGap || 6, 10);
@@ -128,38 +128,6 @@ var renderStackedColumnChart = function () {
         .domain([minY, maxY])
         .rangeRound([chartHeight, 0]);
 
-    var colorList = colorArray(LABELS, MONOCHROMECOLORS);
-    var colorScale = d3.scale.ordinal()
-        .domain(d3.keys(DATA[0]).filter(function (d) {
-            return d != 'label' && d != 'values' && d != 'total'; // ??
-        }))
-        .range(colorList);
-
-    /*
-     * Render the legend.
-     */
-    var legend = containerElement.append('ul')
-        .attr('class', 'key')
-        .selectAll('g')
-            .data(colorScale.domain())
-        .enter().append('li')
-            .attr('class', function (d, i) {
-                return 'key-item key-' + i + ' ' + classify(d);
-            });
-
-    legend.append('b')
-        .style('background-color', function (d) {
-            return colorScale(d);
-        });
-
-    legend.append('label')
-        .text(function (d) {
-            return d;
-        })
-        .style('color', function (d) {
-            return colorScale(d);
-        });
-
     /*
      * Create D3 axes.
      */
@@ -178,12 +146,53 @@ var renderStackedColumnChart = function () {
         .call(xAxis)
         .select('path').remove();
 
+    var colorScaleDomain = d3.keys(DATA[0]).filter(function (d) {
+        return d != 'label' && d != 'values' && d != 'total'; // ??
+    });
+
+    var colorList = colorArray(LABELS, MONOCHROMECOLORS);
+    var colorScale = d3.scale.ordinal()
+        .domain(colorScaleDomain)
+        .range(colorList);
+
+    var accessibleColorScale = d3.scale.ordinal()
+        .domain(colorScaleDomain)
+        .range(_.map(colorList, function (color) {
+            return getAccessibleColor(color);
+        }));
+
+    /*
+     * Render the legend.
+     */
+    var legend = containerElement.append('ul')
+        .attr('class', 'key')
+        .selectAll('g')
+            .data(colorScaleDomain)
+        .enter().append('li')
+            .attr('class', function (d, i) {
+                return 'key-item key-' + i + ' ' + classify(d);
+            });
+
+    legend.append('b')
+        .style('background-color', function (d) {
+            return accessibleColorScale(d);
+        });
+
+    legend.append('label')
+        .text(function (d) {
+            return d;
+        })
+        .style('color', function (d) {
+            return accessibleColorScale(d);
+        });
+
     /*
      * Render bars to chart.
      */
     var bars = chartElement.selectAll('.bars')
         .data(DATA)
-        .enter().append('g')
+        .enter()
+        .append('g')
             .attr('class', 'bar')
             .attr('transform', function (d) {
                 return makeTranslate(xScale(d.label), 0);
@@ -193,23 +202,29 @@ var renderStackedColumnChart = function () {
         .data(function (d) {
             return d.values;
         })
-        .enter().append('rect')
-            .attr('y', function (d) {
-                if (d.y1 < d.y0) {
-                    return yScale(d.y0);
-                }
-
-                return yScale(d.y1);
-            })
-            .attr('width', xScale.rangeBand())
-            .attr('height', function (d) {
-                return Math.abs(yScale(d.y0) - yScale(d.y1));
-            })
-            .style('fill', function (d) {
-                return colorScale(d.name);
-            })
+        .enter()
+        .append('rect')
             .attr('class', function (d) {
                 return classify(d.name);
+            })
+            .attr({
+                y: function (d) {
+                    if (d.y1 < d.y0) {
+                        return yScale(d.y0);
+                    }
+
+                    return yScale(d.y1);
+                },
+
+                width: xScale.rangeBand(),
+
+                height: function (d) {
+                    return Math.abs(yScale(d.y0) - yScale(d.y1));
+                },
+
+                fill: function (d) {
+                    return accessibleColorScale(d.name);
+                },
             });
 
     /*
@@ -219,7 +234,8 @@ var renderStackedColumnChart = function () {
         .data(function (d) {
             return d.values;
         })
-        .enter().append('text')
+        .enter()
+        .append('text')
             .text(function (d) {
                 return formattedNumber(
                     d.val,
@@ -231,22 +247,24 @@ var renderStackedColumnChart = function () {
             .attr('class', function (d) {
                 return classify(d.name);
             })
-            .attr('x', function (d) {
-                return xScale.rangeBand() / 2;
-            })
-            .attr('y', function (d) {
-                var textHeight = d3.select(this).node().getBBox().height;
-                var barHeight = Math.abs(yScale(d.y0) - yScale(d.y1));
+            .attr({
+                x: function (d) {
+                    return xScale.rangeBand() / 2;
+                },
 
-                if (textHeight + valueGap * 2 > barHeight) {
-                    d3.select(this).classed('hidden', true);
-                }
+                y: function (d) {
+                    var thisElem = d3.select(this);
+                    var textHeight = thisElem.node().getBBox().height;
+                    var ys0 = yScale(d.y0);
+                    var ys1 = yScale(d.y1);
+                    var barHeight = Math.abs(ys0 - ys1);
+                    var barCenter = ys1 + ((ys0 - ys1) / 2);
+                    var isTextTooBig = textHeight + valueGap * 2 > barHeight;
+                    thisElem.classed('hidden', isTextTooBig);
+                    return barCenter + (textHeight / 2);
+                },
 
-                var barCenter = yScale(d.y1) + ((yScale(d.y0) - yScale(d.y1)) / 2);
-
-                return barCenter + textHeight / 2;
-            })
-            .attr('text-anchor', 'middle');
+            });
 };
 
 /*
