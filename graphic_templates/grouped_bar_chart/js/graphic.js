@@ -74,6 +74,7 @@ var renderGroupedBarChart = function () {
     var labelWidth = parseInt(LABELS.labelWidth || 85, 10);
     var labelMargin = parseInt(LABELS.labelMargin || 6, 10);
     var valueGap = parseInt(LABELS.valueGap || 6, 10);
+    var groupHeadingHeight = 20;
     var groupHeight = (barHeight + barGap) * numGroupBars - barGap;
 
     var margins = {
@@ -161,7 +162,7 @@ var renderGroupedBarChart = function () {
         .append('g')
             .attr('class', 'g bars')
             .attr('transform', function (d, i) {
-                return makeTranslate(0, (groupHeight + groupGap) * i + 20);
+                return makeTranslate(0, (groupHeight + groupGap) * i + groupHeadingHeight);
             });
 
     barGroups.selectAll('rect')
@@ -230,11 +231,11 @@ var renderGroupedBarChart = function () {
                 height: barHeight + 'px',
                 left: 0,
                 top: function (d, i) {
-                    var index = Math.floor(i / numGroupBars);
-                    var top = (groupHeight + groupGap) * index;
-                    top += (i % numGroupBars) * (barHeight + barGap);
-                    top += 20;
-
+                    var groupIndex = Math.floor(i / numGroupBars);
+                    var groupOffset = (groupHeight + groupGap) * groupIndex;
+                    var barIndex = i % numGroupBars;
+                    var barOffset = (barHeight + barGap) * barIndex;
+                    var top = groupOffset + groupHeadingHeight + barOffset;
                     return top + 'px';
                 },
             })
