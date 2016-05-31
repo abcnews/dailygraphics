@@ -218,7 +218,12 @@ var renderColumnChart = function () {
         .enter()
         .append('text')
             .text(function (d) {
-                return formattedNumber(d.amt);
+                return formattedNumber(
+                    d.amt,
+                    LABELS.prefixY,
+                    LABELS.suffixY,
+                    LABELS.maxDecimalPlaces
+                );
             })
             .attr({
                 x: function (d, i) {

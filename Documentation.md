@@ -316,6 +316,8 @@ Specify a custom aspect ratio. The graphic is responsive and resizable and will 
 
 #### suffixY
 
+#### maxDecimalPlaces
+
 
 
 ### Stacked Column Chart
