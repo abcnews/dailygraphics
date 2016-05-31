@@ -62,9 +62,6 @@ var renderBarChart = function () {
         left: parseInt(LABELS.marginLeft || (labelWidth + labelMargin), 10),
     };
 
-    var ticksX = parseInt(LABELS.ticksX || 4, 10);
-    var roundTicksFactor = parseInt(LABELS.roundTicksFactor || 5, 10);
-
     // Clear existing graphic (for redraw)
     var containerElement = d3.select('#bar-chart');
     containerElement.html('');
@@ -103,7 +100,7 @@ var renderBarChart = function () {
         minX = parseFloat(LABELS.minX, 10);
     } else {
         minX = d3.min(DATA, function (d) {
-            return Math.floor(d.amt / roundTicksFactor) * roundTicksFactor;
+            return d.amt;
         });
 
         if (minX > 0) {
@@ -116,7 +113,7 @@ var renderBarChart = function () {
         maxX = parseFloat(LABELS.maxX, 10);
     } else {
         maxX = d3.max(DATA, function (d) {
-            return Math.ceil(d.amt / roundTicksFactor) * roundTicksFactor;
+            return d.amt;
         });
     }
 

@@ -83,9 +83,6 @@ var renderGroupedBarChart = function () {
         left: parseInt(LABELS.marginLeft || (labelWidth + labelMargin), 10),
     };
 
-    var ticksX = parseInt(LABELS.ticksX || 7, 10);
-    var roundTicksFactor = parseInt(LABELS.roundTicksFactor || 5, 10);
-
     // Clear existing graphic (for redraw)
     var containerElement = d3.select('#grouped-bar-chart');
     containerElement.html('');
@@ -110,7 +107,7 @@ var renderGroupedBarChart = function () {
     } else {
         minX = d3.min(DATA, function (d) {
             return d3.min(d.values, function (v) {
-                return Math.floor(v.amt / roundTicksFactor) * roundTicksFactor;
+                return v.amt;
             });
         });
 
@@ -125,7 +122,7 @@ var renderGroupedBarChart = function () {
     } else {
         maxX = d3.max(DATA, function (d) {
             return d3.max(d.values, function (v) {
-                return Math.ceil(v.amt / roundTicksFactor) * roundTicksFactor;
+                return v.amt;
             });
         });
     }

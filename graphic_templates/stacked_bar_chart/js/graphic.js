@@ -83,12 +83,6 @@ var renderStackedBarChart = function () {
         left: parseInt(LABELS.marginLeft || (labelWidth + labelMargin), 10),
     };
 
-    var roundTicksFactor = parseInt(LABELS.roundTicksFactor || 100, 10);
-    var ticksX = parseInt(LABELS.ticksX || 4, 10);
-    if (isMobile) {
-        ticksX = parseInt(LABELS.mobileTicksX || 2, 10);
-    }
-
     // Clear existing graphic (for redraw)
     var containerElement = d3.select('#stacked-bar-chart');
     containerElement.html('');
@@ -121,7 +115,7 @@ var renderStackedBarChart = function () {
     } else {
         minX = d3.min(DATA, function (d) {
             var lastValue = d.values[d.values.length - 1];
-            return Math.floor(lastValue.x1 / roundTicksFactor) * roundTicksFactor;
+            return lastValue.x1;
         });
 
         if (minX > 0) {
@@ -135,7 +129,7 @@ var renderStackedBarChart = function () {
     } else {
         maxX = d3.max(DATA, function (d) {
             var lastValue = d.values[d.values.length - 1];
-            return Math.ceil(lastValue.x1 / roundTicksFactor) * roundTicksFactor;
+            return lastValue.x1;
         });
     }
 

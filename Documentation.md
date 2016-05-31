@@ -260,16 +260,6 @@ Minimum value on the X axis.
 
 Maximum value on the X axis.
 
-#### roundTicksFactor
-> Default: `5`
-
-Use this when relying on the default min or max value. When calculating the maxX value, it will round to the nearest factor or multiple of this number.
-
-#### ticksX
-> Default: `4`
-
-How many ticks on the X axis.
-
 #### prefixX
 > Default: empty string
 
