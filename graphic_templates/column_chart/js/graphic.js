@@ -60,8 +60,6 @@ var renderColumnChart = function () {
         left: parseInt(LABELS.marginLeft || 0, 10),
     };
 
-    var roundTicksFactor = parseInt(LABELS.roundTicksFactor || 50, 10);
-
     // Clear existing graphic (for redraw)
     var containerElement = d3.select('#column-chart');
     containerElement.html('');
@@ -102,7 +100,7 @@ var renderColumnChart = function () {
         }));
 
     var minY = d3.min(DATA, function (d) {
-        return Math.floor(d.amt / roundTicksFactor) * roundTicksFactor;
+        return d.amt;
     });
 
     if (minY > 0) {

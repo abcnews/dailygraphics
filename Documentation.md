@@ -304,9 +304,6 @@ Stacked Bar Charts have all the same options as [Bar Charts](#bar-chart).
 #### valueGap
 > Default: `6`
 
-#### roundTicksFactor
-> Default: `50`
-
 #### ratio
 > Default: `4x3` on mobile, `16x9` otherwise
 
