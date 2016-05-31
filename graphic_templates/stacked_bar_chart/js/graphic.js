@@ -193,17 +193,22 @@ var renderStackedBarChart = function () {
             return d.values;
         })
         .enter().append('rect')
-            .attr('x', function (d) {
-                if (d.x0 < d.x1) {
-                    return xScale(d.x0);
-                }
+            .attr({
+                x: function (d) {
+                    if (d.x0 < d.x1) {
+                        return xScale(d.x0);
+                    }
 
-                return xScale(d.x1);
+                    return xScale(d.x1);
+                },
+
+                width: function (d) {
+                    return Math.abs(xScale(d.x1) - xScale(d.x0)) - segmentGap;
+                },
+
+                height: barHeight,
+
             })
-            .attr('width', function (d) {
-                return Math.abs(xScale(d.x1) - xScale(d.x0)) - segmentGap;
-            })
-            .attr('height', barHeight)
             .style('fill', function (d) {
                 return accessibleColorScale(d.name);
             })
