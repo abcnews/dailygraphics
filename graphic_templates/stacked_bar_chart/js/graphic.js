@@ -72,6 +72,7 @@ var renderStackedBarChart = function () {
      */
     var barHeight = parseInt(LABELS.barHeight || 30, 10);
     var barGap = parseInt(LABELS.barGap || 5, 10);
+    var segmentGap = 1;
     var labelWidth = parseInt(LABELS.labelWidth || 60, 10);
     var labelMargin = parseInt(LABELS.labelMargin || 6, 10);
     var valueGap = parseInt(LABELS.valueGap || 6, 10);
@@ -200,7 +201,7 @@ var renderStackedBarChart = function () {
                 return xScale(d.x1);
             })
             .attr('width', function (d) {
-                return Math.abs(xScale(d.x1) - xScale(d.x0));
+                return Math.abs(xScale(d.x1) - xScale(d.x0)) - segmentGap;
             })
             .attr('height', barHeight)
             .style('fill', function (d) {
