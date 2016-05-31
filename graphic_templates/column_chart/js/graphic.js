@@ -133,13 +133,6 @@ var renderColumnChart = function () {
         .call(xAxis)
         .select('path').remove();
 
-    /*
-     * Render grid to chart.
-     */
-    var yAxisGrid = function () {
-        return yAxis;
-    };
-
     var colorList = colorArray(LABELS, SINGLECOLORS);
     var colorScale = d3.scale.ordinal()
         .range(colorList);
