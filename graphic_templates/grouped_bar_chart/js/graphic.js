@@ -170,26 +170,28 @@ var renderGroupedBarChart = function () {
         })
         .enter()
         .append('rect')
-            .attr('x', function (d) {
-                if (d.amt >= 0) {
-                    return xScale(0);
-                }
+            .attr({
+                x: function (d) {
+                    if (d.amt >= 0) {
+                        return xScale(0);
+                    }
 
-                return xScale(d.amt);
-            })
-            .attr('y', function (d, i) {
-                if (i === 0) {
-                    return 0;
-                }
+                    return xScale(d.amt);
+                },
 
-                return (barHeight * i) + (barGap * i);
-            })
-            .attr('width', function (d) {
-                return Math.abs(xScale(0) - xScale(d.amt));
-            })
-            .attr('height', barHeight)
-            .attr('fill', function (d) {
-                return colorScale(d.label);
+                y: function (d, i) {
+                    return (barHeight + barGap) * i;
+                },
+
+                width: function (d) {
+                    return Math.abs(xScale(0) - xScale(d.amt));
+                },
+
+                height: barHeight,
+
+                fill: function (d) {
+                    return colorScale(d.label);
+                },
             })
             .attr('class', function (d) {
                 return 'y-' + d.label;
