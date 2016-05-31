@@ -246,34 +246,6 @@ var renderGroupedBarChart = function () {
                     return d;//.key
                 });
 
-    if (LABELS.theme == 'highlight') {
-        chartWrapper.on('mousemove', function (e) {
-            var pos = d3.mouse(chartWrapper.node());
-            var gh = groupHeight + groupGap;
-            var index = Math.floor(pos[1] / gh);
-            var relativeY = pos[1] - index * gh;
-            var barIndex = Math.floor((relativeY - 20) / (barHeight + barGap));
-
-            chartWrapper.selectAll('.value text.over')
-                .classed('over', false);
-            chartWrapper.selectAll('.bars rect')
-                .attr('fill', function (d, i) {
-                    return colorScale(i);
-                });
-
-            if (relativeY <= 20) {
-                // in the group heading
-                return;
-            }
-
-            var hoveredBarGroup = chartWrapper.selectAll('.bars:nth-child(' + (index + 1) + ')');
-            hoveredBarGroup.selectAll('rect:nth-child(' + (barIndex + 1) + ')')
-                .attr('fill', highlightColor);
-            hoveredBarGroup.selectAll('.value text:nth-child(' + (barIndex + 1) + ')')
-                .classed('over', true);
-        });
-    }
-
     /*
      * Render bar values.
      */
@@ -315,6 +287,35 @@ var renderGroupedBarChart = function () {
                 },
 
             });
+
+    if (LABELS.theme == 'highlight') {
+        chartWrapper.on('mousemove', function (e) {
+            var pos = d3.mouse(chartWrapper.node());
+            var gh = groupHeight + groupGap;
+            var index = Math.floor(pos[1] / gh);
+            var relativeY = pos[1] - index * gh;
+            var barIndex = Math.floor((relativeY - groupHeadingHeight) / (barHeight + barGap));
+
+            chartWrapper.selectAll('.value text.over')
+                .classed('over', false);
+            chartWrapper.selectAll('.bars rect')
+                .attr('fill', function (d, i) {
+                    return colorScale(i);
+                });
+
+            if (relativeY <= groupHeadingHeight) {
+                // in the group heading
+                return;
+            }
+
+            var hoveredBarGroup = chartWrapper.selectAll('.bars:nth-child(' + (index + 1) + ')');
+            hoveredBarGroup.selectAll('rect:nth-child(' + (barIndex + 1) + ')')
+                .attr('fill', highlightColor);
+            hoveredBarGroup.selectAll('.value text:nth-child(' + (barIndex + 1) + ')')
+                .classed('over', true);
+        });
+    }
+
 };
 
 /*

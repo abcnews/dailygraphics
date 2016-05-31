@@ -166,20 +166,6 @@ var renderBarChart = function () {
                 },
             });
 
-    if (LABELS.theme == 'highlight') {
-        chartWrapper.on('mousemove', function (e) {
-            var pos = d3.mouse(chartWrapper.node());
-            var index = Math.floor(pos[1] / (barHeight + barGap)) + 1;
-
-            bars
-                .attr('fill', function (d, i) {
-                    return colorScale(i);
-                })
-                .filter(':nth-child(' + index + ')')
-                    .attr('fill', highlightColor);
-        });
-    }
-
     /*
      * Render bar labels.
      */
@@ -249,6 +235,21 @@ var renderBarChart = function () {
                 },
 
             });
+
+    if (LABELS.theme == 'highlight') {
+        chartWrapper.on('mousemove', function (e) {
+            var pos = d3.mouse(chartWrapper.node());
+            var index = Math.floor(pos[1] / (barHeight + barGap)) + 1;
+
+            bars
+                .attr('fill', function (d, i) {
+                    return colorScale(i);
+                })
+                .filter(':nth-child(' + index + ')')
+                    .attr('fill', highlightColor);
+        });
+    }
+
 };
 
 /*
