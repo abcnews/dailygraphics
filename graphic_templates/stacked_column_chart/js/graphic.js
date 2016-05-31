@@ -128,11 +128,12 @@ var renderStackedColumnChart = function () {
         .domain([minY, maxY])
         .rangeRound([chartHeight, 0]);
 
+    var colorList = colorArray(LABELS, MONOCHROMECOLORS);
     var colorScale = d3.scale.ordinal()
         .domain(d3.keys(DATA[0]).filter(function (d) {
             return d != 'label' && d != 'values' && d != 'total'; // ??
         }))
-        .range(MULTICOLORS);
+        .range(colorList);
 
     /*
      * Render the legend.
