@@ -110,13 +110,10 @@ var renderSlopegraph = function () {
     var colorScale = d3.scale.ordinal()
         .range(colorList);
 
-    var accessibleColorList = [];
-    for (var j = 0; j < colorList.length; j++) {
-        accessibleColorList[j] = getAccessibleColor(colorList[j]);
-    }
-
     var accessibleColorScale = d3.scale.ordinal()
-        .range(accessibleColorList);
+        .range(_.map(colorList, function (color) {
+            return getAccessibleColor(color);
+        }));
 
     /*
      * Create D3 axes.
