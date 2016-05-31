@@ -194,13 +194,15 @@ var renderGroupedBarChart = function () {
                 },
             })
             .attr('class', function (d) {
-                return 'y-' + d.label;
+                return 'y-' + classify(d.label);
             });
 
     barGroups.append('text')
             .attr('y', -barGap)
             .attr('class', 'group-label')
-            .text(function (d) { return d.key; });
+            .text(function (d) {
+                return d.key;
+            });
 
     var labelData = [];
     _.each(DATA, function (d) {
