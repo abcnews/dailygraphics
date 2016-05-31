@@ -3,8 +3,8 @@ var GEO_DATA_URL = 'data/geodata.json';
 
 var LABEL_DEFAULTS = {
     'text-anchor': 'start',
-    dx: '6',
-    dy: '4',
+    dx: 6,
+    dy: 4,
 };
 
 var CITY_LABEL_ADJUSTMENTS = {
