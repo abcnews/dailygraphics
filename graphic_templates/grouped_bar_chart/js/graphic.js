@@ -142,13 +142,10 @@ var renderGroupedBarChart = function () {
         .domain(_.pluck(DATA[0].values, 'label'))
         .range(colorList);
 
-    var accessibleColorList = [];
-    for (var j = 0; j < colorList.length; j++) {
-        accessibleColorList[j] = getAccessibleColor(colorList[j]);
-    }
-
     var accessibleColorScale = d3.scale.ordinal()
-        .range(accessibleColorList);
+        .range(_.map(colorList, function (color) {
+            return getAccessibleColor(color);
+        }));
 
     var chartElement = chartWrapper.append('svg')
         .attr({
