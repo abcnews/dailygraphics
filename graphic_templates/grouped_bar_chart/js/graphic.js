@@ -166,15 +166,6 @@ var renderGroupedBarChart = function () {
             return d.toFixed(0) + '%';
         });
 
-    /*
-     * Render axes to chart.
-     */
-    /*
-    // chartElement.append('g')
-    //     .attr('class', 'x axis')
-    //     .attr('transform', makeTranslate(0, chartHeight))
-    //     .call(xAxis);
-    */
 
     /*
      * Render grid to chart.
@@ -182,16 +173,6 @@ var renderGroupedBarChart = function () {
     var xAxisGrid = function () {
         return xAxis;
     };
-
-    /*
-    // chartElement.append('g')
-    //     .attr('class', 'x grid')
-    //     .attr('transform', makeTranslate(0, chartHeight))
-    //     .call(xAxisGrid()
-    //         .tickSize(-chartHeight, 0, 0)
-    //         .tickFormat('')
-    //     );
-    */
 
     /*
      * Render bars to chart.
