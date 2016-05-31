@@ -402,8 +402,7 @@ var renderLineChart = function () {
                         return i;
                     },
 
-                })
-                .style('stroke-width', '20px');
+                });
 
         shadowLines.on({
             mouseover: function () {
