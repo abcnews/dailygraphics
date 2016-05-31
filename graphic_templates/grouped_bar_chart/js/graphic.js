@@ -98,6 +98,14 @@ var renderGroupedBarChart = function () {
     var chartWidth = innerWidth - margins.left - margins.right;
     var chartHeight = (groupHeight + groupGap) * numGroups - groupGap;
 
+    var chartElement = chartWrapper.append('svg')
+        .attr({
+            width: chartWidth + margins.left + margins.right,
+            height: chartHeight + margins.top + margins.bottom,
+        })
+        .append('g')
+            .attr('transform', makeTranslate(margins.left, margins.top));
+
     /*
      * Create D3 scale objects.
      */
@@ -143,14 +151,6 @@ var renderGroupedBarChart = function () {
         .range(_.map(colorList, function (color) {
             return getAccessibleColor(color);
         }));
-
-    var chartElement = chartWrapper.append('svg')
-        .attr({
-            width: chartWidth + margins.left + margins.right,
-            height: chartHeight + margins.top + margins.bottom,
-        })
-        .append('g')
-            .attr('transform', makeTranslate(margins.left, margins.top));
 
     /*
      * Render bars to chart.
