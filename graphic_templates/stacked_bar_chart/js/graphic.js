@@ -213,9 +213,12 @@ var renderStackedBarChart = function () {
         })
         .enter().append('text')
             .text(function (d) {
-                if (d.val !== 0) {
-                    return d.val + '%';
-                }
+                return formattedNumber(
+                    d.val,
+                    LABELS.prefixX,
+                    LABELS.suffixX,
+                    LABELS.maxDecimalPlaces
+                );
             })
             .attr('class', function (d) {
                 return classify(d.name);
