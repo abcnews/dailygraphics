@@ -173,40 +173,6 @@ var renderStackedBarChart = function () {
         });
 
     /*
-     * Create D3 axes.
-     */
-    var xAxis = d3.svg.axis()
-        .scale(xScale)
-        .orient('bottom')
-        .ticks(ticksX)
-        .tickFormat(function (d) {
-            return d + '%';
-        });
-
-    /*
-     * Render axes to chart.
-     */
-    chartElement.append('g')
-        .attr('class', 'x axis')
-        .attr('transform', makeTranslate(0, chartHeight))
-        .call(xAxis);
-
-    /*
-     * Render grid to chart.
-     */
-    var xAxisGrid = function () {
-        return xAxis;
-    };
-
-    chartElement.append('g')
-        .attr('class', 'x grid')
-        .attr('transform', makeTranslate(0, chartHeight))
-        .call(xAxisGrid()
-            .tickSize(-chartHeight, 0, 0)
-            .tickFormat('')
-        );
-
-    /*
      * Render bars to chart.
      */
     var group = chartElement.selectAll('.group')
@@ -280,17 +246,6 @@ var renderStackedBarChart = function () {
             })
             .attr('dy', (barHeight / 2) + 4);
 
-    /*
-     * Render 0-line.
-     */
-    chartElement.append('line')
-        .attr('class', 'zero-line')
-        .attr({
-            x1: xScale(0),
-            x2: xScale(0),
-            y1: 0,
-            y2: chartHeight,
-        });
 
     /*
      * Render bar labels.

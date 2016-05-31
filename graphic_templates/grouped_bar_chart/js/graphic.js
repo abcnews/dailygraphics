@@ -156,25 +156,6 @@ var renderGroupedBarChart = function () {
             .attr('transform', makeTranslate(margins.left, margins.top));
 
     /*
-     * Create D3 axes.
-     */
-    var xAxis = d3.svg.axis()
-        .scale(xScale)
-        .orient('bottom')
-        .ticks(ticksX)
-        .tickFormat(function (d) {
-            return d.toFixed(0) + '%';
-        });
-
-
-    /*
-     * Render grid to chart.
-     */
-    var xAxisGrid = function () {
-        return xAxis;
-    };
-
-    /*
      * Render bars to chart.
      */
     var barGroups = chartElement.selectAll('.bars')

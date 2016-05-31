@@ -124,15 +124,6 @@ var renderBarChart = function () {
         .domain([minX, maxX])
         .range([0, chartWidth]);
 
-    /*
-     * Create D3 axes.
-     */
-    var xAxis = d3.svg.axis()
-        .scale(xScale)
-        .orient('bottom')
-        .ticks(ticksX);
-
-
     var colorList = colorArray(LABELS, SINGLECOLORS);
     var colorScale = d3.scale.ordinal()
         .range(colorList);
