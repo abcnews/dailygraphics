@@ -220,26 +220,30 @@ var renderStackedBarChart = function () {
             .attr('class', function (d) {
                 return classify(d.name);
             })
-            .attr('x', function (d) {
-                return xScale(d.x1);
-            })
-            .attr('dx', function (d) {
-                var textWidth = this.getComputedTextLength();
-                var barWidth = Math.abs(xScale(d.x1) - xScale(d.x0));
+            .attr({
+                x: function (d) {
+                    return xScale(d.x1);
+                },
 
-                // Hide labels that don't fit
-                if (textWidth + valueGap * 2 > barWidth) {
-                    d3.select(this).classed('hidden', true);
-                }
+                dx: function (d) {
+                    var textWidth = this.getComputedTextLength();
+                    var barWidth = Math.abs(xScale(d.x1) - xScale(d.x0));
 
-                if (d.x1 < 0) {
-                    return valueGap;
-                }
+                    // Hide labels that don't fit
+                    if (textWidth + valueGap * 2 > barWidth) {
+                        d3.select(this).classed('hidden', true);
+                    }
 
-                return -(valueGap + textWidth);
-            })
-            .attr('dy', (barHeight / 2) + 4);
+                    if (d.x1 < 0) {
+                        return valueGap;
+                    }
 
+                    return -(valueGap + textWidth);
+                },
+
+                dy: (barHeight / 2),
+
+            });
 
     /*
      * Render bar labels.
