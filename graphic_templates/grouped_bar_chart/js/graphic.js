@@ -227,7 +227,7 @@ var renderGroupedBarChart = function () {
         .enter()
         .append('li')
             .style({
-                width: (labelWidth - 10) + 'px',
+                width: labelWidth + 'px',
                 height: barHeight + 'px',
                 left: 0,
                 top: function (d, i) {
