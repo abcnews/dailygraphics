@@ -173,11 +173,7 @@ var renderColumnChart = function () {
                 width: xScale.rangeBand(),
 
                 height: function (d) {
-                    if (d.amt < 0) {
-                        return yScale(d.amt) - yScale(0);
-                    }
-
-                    return yScale(0) - yScale(d.amt);
+                    return Math.abs(yScale(d.amt) - yScale(0));
                 },
 
                 fill: function (d, i) {
