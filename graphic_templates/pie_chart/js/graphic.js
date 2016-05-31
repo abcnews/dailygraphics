@@ -103,7 +103,7 @@ var renderPieChart = function () {
         .data(pie(DATA))
         .enter().append('g')
         .attr('class', 'arc')
-        .attr('transform', 'translate(' + (chartWidth / 2) + ',' + (chartHeight / 2) + ')');
+        .attr('transform', makeTranslate((chartWidth / 2), chartHeight / 2));
 
     g.append('path')
         .attr('d', arc)

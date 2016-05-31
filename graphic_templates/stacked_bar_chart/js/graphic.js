@@ -185,7 +185,7 @@ var renderStackedBarChart = function () {
                 return 'group ' + classify(d.label);
             })
             .attr('transform', function (d, i) {
-                return 'translate(0,' + (i * (barHeight + barGap)) + ')';
+                return makeTranslate(0, (i * (barHeight + barGap)));
             });
 
     group.selectAll('rect')
