@@ -144,6 +144,11 @@ var renderColumnChart = function () {
     var colorScale = d3.scale.ordinal()
         .range(colorList);
 
+    var accessibleColorScale = d3.scale.ordinal()
+        .range(_.map(colorList, function (color) {
+            return getAccessibleColor(color);
+        }));
+
     /*
      * Render bars to chart.
      */
@@ -229,6 +234,10 @@ var renderColumnChart = function () {
                     }
 
                     return yScale(d.amt) - valueGap;
+                },
+
+                fill: function (d, i) {
+                    return accessibleColorScale(i);
                 },
 
             });
