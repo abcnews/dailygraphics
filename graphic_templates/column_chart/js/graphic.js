@@ -142,7 +142,7 @@ var renderColumnChart = function () {
     /*
      * Render bars to chart.
      */
-    chartElement.append('g')
+    var bars = chartElement.append('g')
         .classed('bars', true)
         .selectAll('rect')
         .data(DATA)
@@ -176,29 +176,34 @@ var renderColumnChart = function () {
             });
 
     if (LABELS.theme == 'highlight') {
-        chartWrapper.on('mousemove', function (e) {
-            var pos = d3.mouse(chartWrapper.node());
-            var index = Math.floor(pos[0] / (xScale.rangeBand() + valueGap)) + 1;
+        var highlightIndex;
 
-            chartWrapper.selectAll('.bars rect')
-                .attr('fill', function (d, i) {
+        chartWrapper.on('mousemove', function (e) {
+            var posX = d3.mouse(chartWrapper.node())[0];
+            var index = Math.floor(posX / (xScale.rangeBand() + valueGap));
+
+            if (highlightIndex === index) {
+                return;
+            }
+
+            highlightIndex = index;
+
+            bars.attr('fill', function (d, i) {
                     return colorScale(i);
                 })
-                .filter(':nth-child(' + index + ')')
-                    .attr('fill', highlightColor);
+                .filter(':nth-child(' + (index + 1) + ')')
+                    .attr('fill', HIGHLIGHTCOLORS.active);
 
-            chartWrapper.selectAll('.value text')
-                .classed('over', false)
-                .filter(':nth-child(' + index + ')')
+            values.classed('over', false)
+                .filter(':nth-child(' + (index + 1) + ')')
                     .classed('over', true);
-
         });
     }
 
     /*
      * Render bar values.
      */
-    chartElement.append('g')
+    var values = chartElement.append('g')
         .classed('value', true)
         .selectAll('text')
         .data(DATA)

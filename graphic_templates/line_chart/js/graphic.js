@@ -367,7 +367,7 @@ var renderLineChart = function () {
 
                 stroke: function (d, i) {
                     if (highlighted.indexOf(d.key) !== -1) {
-                        return highlightColor;
+                        return HIGHLIGHTCOLORS.active;
                     }
 
                     return colorScale(i);
@@ -407,18 +407,18 @@ var renderLineChart = function () {
         shadowLines.on({
             mouseover: function () {
                 var index = this.getAttribute('data-index');
-                chartElement.select('.visible-lines .line-' + index)
-                    .attr('stroke', highlightColor);
-                chartElement.selectAll('.label-' + index + ' tspan')
-                    .attr('fill', highlightColor);
+                lines.filter('.line-' + index)
+                    .attr('stroke', HIGHLIGHTCOLORS.active);
+                labels.selectAll('.label-' + index)
+                    .style('color', getAccessibleColor(HIGHLIGHTCOLORS.active));
             },
 
             mouseout: function () {
                 var index = this.getAttribute('data-index');
-                chartElement.select('.visible-lines .line-' + index)
-                    .attr('stroke', HIGHLIGHTCOLORS[0]);
-                chartElement.selectAll('.label-' + index + ' tspan')
-                    .attr('fill', null);
+                lines.filter('.line-' + index)
+                    .attr('stroke', HIGHLIGHTCOLORS.inactive);
+                labels.selectAll('.label-' + index)
+                    .style('color', getAccessibleColor(HIGHLIGHTCOLORS.inactive));
             },
         });
 
@@ -491,7 +491,7 @@ var renderLineChart = function () {
         break;
     }
 
-    chartWrapper.append('div')
+    var labels = chartWrapper.append('div')
         .classed('label-wrapper', true)
         .selectAll('div.label')
             .data(getGroupedData(lastObj, labelLines * 20))

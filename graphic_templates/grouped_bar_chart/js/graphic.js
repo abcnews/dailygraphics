@@ -165,7 +165,7 @@ var renderGroupedBarChart = function () {
                 return makeTranslate(0, (groupHeight + groupGap) * i + groupHeadingHeight);
             });
 
-    barGroups.selectAll('rect')
+    var bars = barGroups.selectAll('rect')
         .data(function (d) {
             return d.values;
         })
@@ -250,7 +250,7 @@ var renderGroupedBarChart = function () {
     /*
      * Render bar values.
      */
-    barGroups.append('g')
+    var values = barGroups.append('g')
         .attr('class', 'value')
         .selectAll('text')
         .data(function (d) {
@@ -290,28 +290,37 @@ var renderGroupedBarChart = function () {
             });
 
     if (LABELS.theme == 'highlight') {
+        var highlightGroupIndex;
+        var highlightBarIndex;
+
         chartWrapper.on('mousemove', function (e) {
-            var pos = d3.mouse(chartWrapper.node());
-            var gh = groupHeight + groupGap;
-            var index = Math.floor(pos[1] / gh);
-            var relativeY = pos[1] - index * gh;
+            var posY = d3.mouse(chartWrapper.node())[1];
+            var groupOffset = groupHeight + groupGap;
+            var groupIndex = Math.floor(posY / groupOffset);
+            var relativeY = posY - groupIndex * groupOffset;
             var barIndex = Math.floor((relativeY - groupHeadingHeight) / (barHeight + barGap));
 
-            chartWrapper.selectAll('.value text.over')
-                .classed('over', false);
-            chartWrapper.selectAll('.bars rect')
-                .attr('fill', function (d, i) {
+            if ((highlightGroupIndex === groupIndex && highlightBarIndex === barIndex)) {
+                return; // still over the same element
+            }
+
+            highlightGroupIndex = groupIndex;
+            highlightBarIndex = barIndex;
+
+            bars.attr('fill', function (d, i) {
                     return colorScale(i);
                 });
 
-            if (relativeY <= groupHeadingHeight) {
-                // in the group heading
-                return;
+            values.classed('over', false);
+
+            if (relativeY < groupHeadingHeight) {
+                return; // in the group heading
             }
 
-            var hoveredBarGroup = chartWrapper.selectAll('.bars:nth-child(' + (index + 1) + ')');
+            var hoveredBarGroup = barGroups.filter(':nth-child(' + (groupIndex + 1) + ')');
+
             hoveredBarGroup.selectAll('rect:nth-child(' + (barIndex + 1) + ')')
-                .attr('fill', highlightColor);
+                .attr('fill', HIGHLIGHTCOLORS.active);
             hoveredBarGroup.selectAll('.value text:nth-child(' + (barIndex + 1) + ')')
                 .classed('over', true);
         });

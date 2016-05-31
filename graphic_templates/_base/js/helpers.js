@@ -3,13 +3,16 @@
  */
 
 var PTYCOLORS = {
-    ptyalp: '#C93636',
-    ptylab: '#C93636',
-    ptylib: '#006DBD',
-    ptylnp: '#006DBD',
+    ptyalp: '#C93636', ptylab: '#C93636',
+    ptylib: '#006DBD', ptylnp: '#006DBD',
     ptynat: '#008761',
     ptygrn: '#7AAC00',
     ptyoth: '#666666',
+};
+
+var HIGHLIGHTCOLORS = {
+    active: '#478CCC',
+    inactive: '#CCCCCC',
 };
 
 var MULTICOLORS = [
@@ -23,12 +26,6 @@ var MONOCHROMECOLORS = [
 var SINGLECOLORS = [
     '#478CCC',
 ];
-
-var HIGHLIGHTCOLORS = [
-    '#CCCCCC',
-];
-
-var highlightColor = '#478CCC';
 
 /*
  * Convert arbitrary strings to valid css classes.
@@ -95,8 +92,8 @@ var colorArray = function (config, defaultColorArr) {
             colorArr = MULTICOLORS;
         } else if (config.theme == 'single') {
             colorArr = SINGLECOLORS;
-        } else if (config.theme == 'highlight' || config.theme == 'highlighted') {
-            colorArr = HIGHLIGHTCOLORS;
+        } else if (config.theme == 'highlight') {
+            colorArr = [HIGHLIGHTCOLORS.inactive];
         }
     }
 

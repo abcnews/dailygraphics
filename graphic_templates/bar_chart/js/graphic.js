@@ -238,15 +238,14 @@ var renderBarChart = function () {
 
     if (LABELS.theme == 'highlight') {
         chartWrapper.on('mousemove', function (e) {
-            var pos = d3.mouse(chartWrapper.node());
-            var index = Math.floor(pos[1] / (barHeight + barGap)) + 1;
+            var posY = d3.mouse(chartWrapper.node())[1];
+            var barIndex = Math.floor(posY / (barHeight + barGap));
 
-            bars
-                .attr('fill', function (d, i) {
+            bars.attr('fill', function (d, i) {
                     return colorScale(i);
                 })
-                .filter(':nth-child(' + index + ')')
-                    .attr('fill', highlightColor);
+                .filter(':nth-child(' + (barIndex + 1) + ')')
+                    .attr('fill', HIGHLIGHTCOLORS.active);
         });
     }
 
