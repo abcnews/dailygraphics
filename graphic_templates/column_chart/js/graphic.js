@@ -50,13 +50,12 @@ var renderColumnChart = function () {
      * Setup chart container.
      */
     var aspectRatio = getAspectRatio(LABELS.ratio);
-
     var valueGap = parseInt(LABELS.valueGap || 6, 10);
 
     var margins = {
-        top: parseInt(LABELS.marginTop || 5, 10),
+        top: parseInt(LABELS.marginTop || 30, 10),
         right: parseInt(LABELS.marginRight || 0, 10),
-        bottom: parseInt(LABELS.marginBottom || 20, 10),
+        bottom: parseInt(LABELS.marginBottom || 30, 10),
         left: parseInt(LABELS.marginLeft || 0, 10),
     };
 
@@ -220,42 +219,20 @@ var renderColumnChart = function () {
                 );
             })
             .attr({
-                x: function (d, i) {
+                x: function (d) {
                     return xScale(d.label) + (xScale.rangeBand() / 2);
                 },
 
                 y: function (d) {
-                    return yScale(d.amt);
-                },
-
-                dy: function (d) {
-                    var textHeight = d3.select(this).node().getBBox().height;
-                    var barHeight = 0;
-
                     if (d.amt < 0) {
-                        barHeight = yScale(d.amt) - yScale(0);
-
-                        if (textHeight + valueGap * 2 < barHeight) {
-                            d3.select(this).classed('in', true);
-                            return -(textHeight - valueGap / 2);
-                        } else {
-                            d3.select(this).classed('out', true);
-                            return textHeight + valueGap;
-                        }
-                    } else {
-                        barHeight = yScale(0) - yScale(d.amt);
-
-                        if (textHeight + valueGap * 2 < barHeight) {
-                            d3.select(this).classed('in', true);
-                            return textHeight + valueGap;
-                        } else {
-                            d3.select(this).classed('out', true);
-                            return -(textHeight - valueGap / 2);
-                        }
+                        return yScale(0) - valueGap;
                     }
+
+                    return yScale(d.amt) - valueGap;
                 },
 
             });
+
 };
 
 /*
