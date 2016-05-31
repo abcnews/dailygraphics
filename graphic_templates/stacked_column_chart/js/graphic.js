@@ -220,7 +220,12 @@ var renderStackedColumnChart = function () {
         })
         .enter().append('text')
             .text(function (d) {
-                return d.val;
+                return formattedNumber(
+                    d.val,
+                    LABELS.prefixY,
+                    LABELS.suffixY,
+                    LABELS.maxDecimalPlaces
+                );
             })
             .attr('class', function (d) {
                 return classify(d.name);
