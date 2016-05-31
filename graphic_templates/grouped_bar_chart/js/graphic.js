@@ -310,8 +310,8 @@ var renderGroupedBarChart = function () {
 
                 dy: (barHeight / 2),
 
-                fill: function (d, i) {
-                    return accessibleColorScale(i);
+                fill: function (d) {
+                    return accessibleColorScale(d.label);
                 },
 
             });
