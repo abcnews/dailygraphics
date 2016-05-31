@@ -57,7 +57,7 @@ var renderBarChart = function () {
 
     var margins = {
         top: parseInt(LABELS.marginTop || 0, 10),
-        right: parseInt(LABELS.marginRight || 15, 10),
+        right: parseInt(LABELS.marginRight || 20, 10),
         bottom: parseInt(LABELS.marginBottom || 20, 10),
         left: parseInt(LABELS.marginLeft || (labelWidth + labelMargin), 10),
     };
@@ -229,42 +229,20 @@ var renderBarChart = function () {
             })
             .attr({
                 x: function (d) {
+                    if (d.amt < 0) {
+                        return xScale(0);
+                    }
+
                     return xScale(d.amt);
                 },
 
                 y: function (d, i) {
-                    return i * (barHeight + barGap);
+                    return (barHeight + barGap) * i;
                 },
 
-                dx: function (d) {
-                    var xStart = xScale(d.amt);
-                    var textWidth = this.getComputedTextLength();
+                dx: valueGap,
 
-                    // Negative case
-                    if (d.amt < 0) {
-                        var outsideOffset = -(valueGap + textWidth);
-
-                        if (xStart + outsideOffset < 0) {
-                            d3.select(this).classed('in', true);
-                            return valueGap;
-                        } else {
-                            d3.select(this).classed('out', true);
-                            return outsideOffset;
-                        }
-
-                    // Positive case
-                    } else {
-                        if (xStart + valueGap + textWidth > chartWidth) {
-                            d3.select(this).classed('in', true);
-                            return -(valueGap + textWidth);
-                        } else {
-                            d3.select(this).classed('out', true);
-                            return valueGap;
-                        }
-                    }
-                },
-
-                dy: (barHeight / 2) + 3,
+                dy: (barHeight / 2),
 
                 fill: function (d, i) {
                     return accessibleColorScale(i);

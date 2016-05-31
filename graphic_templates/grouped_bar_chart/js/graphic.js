@@ -78,7 +78,7 @@ var renderGroupedBarChart = function () {
 
     var margins = {
         top: parseInt(LABELS.marginTop || 0, 10),
-        right: parseInt(LABELS.marginRight || 15, 10),
+        right: parseInt(LABELS.marginRight || 30, 10),
         bottom: parseInt(LABELS.marginBottom || 20, 10),
         left: parseInt(LABELS.marginLeft || (labelWidth + labelMargin), 10),
     };
@@ -266,7 +266,7 @@ var renderGroupedBarChart = function () {
             var hoveredBarGroup = chartWrapper.selectAll('.bars:nth-child(' + (index + 1) + ')');
             hoveredBarGroup.selectAll('rect:nth-child(' + (barIndex + 1) + ')')
                 .attr('fill', highlightColor);
-            hoveredBarGroup.selectAll('.value text.out:nth-child(' + (barIndex + 1) + ')')
+            hoveredBarGroup.selectAll('.value text:nth-child(' + (barIndex + 1) + ')')
                 .classed('over', true);
         });
     }
@@ -292,6 +292,10 @@ var renderGroupedBarChart = function () {
             })
             .attr({
                 x: function (d) {
+                    if (d.amt < 0) {
+                        return xScale(0);
+                    }
+
                     return xScale(d.amt);
                 },
 
@@ -299,37 +303,14 @@ var renderGroupedBarChart = function () {
                     return (barHeight + barGap) * i;
                 },
 
-                dx: function (d) {
-                    var xStart = xScale(d.amt);
-                    var textWidth = this.getComputedTextLength();
+                dx: valueGap,
 
-                    if (d.amt < 0) {
-                        // Negative case
-                        var outsideOffset = -(valueGap + textWidth);
+                dy: (barHeight / 2),
 
-                        if (xStart + outsideOffset < 0) {
-                            d3.select(this).classed('in', true);
-                            return valueGap;
-                        } else {
-                            d3.select(this).classed('out', true);
-                            return outsideOffset;
-                        }
-                    } else {
-                        // Positive case
-                        if (xStart + valueGap + textWidth > chartWidth) {
-                            d3.select(this).classed('in', true);
-                            return -(valueGap + textWidth);
-                        } else {
-                            d3.select(this).classed('out', true);
-                            return valueGap;
-                        }
-                    }
-                },
-
-                dy: (barHeight / 2) + 4,
                 fill: function (d, i) {
                     return accessibleColorScale(i);
                 },
+
             });
 };
 
