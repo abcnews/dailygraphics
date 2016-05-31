@@ -180,6 +180,9 @@ var renderBarChart = function () {
         .data(DATA)
         .enter()
         .append('li')
+            .attr('class', function (d) {
+                return classify(d.label);
+            })
             .style({
                 width: labelWidth + 'px',
                 height: barHeight + 'px',
@@ -187,9 +190,6 @@ var renderBarChart = function () {
                 top: function (d, i) {
                     return (i * (barHeight + barGap)) + 'px';
                 },
-            })
-            .attr('class', function (d) {
-                return classify(d.label);
             })
             .append('span')
                 .text(function (d) {

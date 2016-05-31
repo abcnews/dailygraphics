@@ -226,6 +226,9 @@ var renderGroupedBarChart = function () {
         .data(labelData)
         .enter()
         .append('li')
+            .attr('class', function (d, i) {
+                return classify(d);//.key);
+            })
             .style({
                 width: labelWidth + 'px',
                 height: barHeight + 'px',
@@ -238,9 +241,6 @@ var renderGroupedBarChart = function () {
                     var top = groupOffset + groupHeadingHeight + barOffset;
                     return top + 'px';
                 },
-            })
-            .attr('class', function (d, i) {
-                return classify(d);//.key);
             })
             .append('span')
                 .text(function (d) {
