@@ -50,7 +50,7 @@ var renderBarChart = function () {
      * Setup
      */
     var barHeight = parseInt(LABELS.barHeight || 30, 10);
-    var barGap = parseInt(LABELS.barGap || 5, 10);
+    var barGap = parseInt(LABELS.barGap || 10, 10);
     var labelWidth = parseInt(LABELS.labelWidth || 85, 10);
     var labelMargin = parseInt(LABELS.labelMargin || 6, 10);
     var valueGap = parseInt(LABELS.valueGap || 6, 10);
