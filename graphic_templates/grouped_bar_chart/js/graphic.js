@@ -70,7 +70,7 @@ var renderGroupedBarChart = function () {
 
     var barHeight = parseInt(LABELS.barHeight || 30, 10);
     var barGap = parseInt(LABELS.barGap || 10, 10);
-    var groupGap = parseInt(LABELS.groupGap || 30, 10);
+    var groupGap = parseInt(LABELS.groupGap || 35, 10);
     var labelWidth = parseInt(LABELS.labelWidth || 85, 10);
     var labelMargin = parseInt(LABELS.labelMargin || 6, 10);
     var valueGap = parseInt(LABELS.valueGap || 6, 10);
@@ -198,8 +198,7 @@ var renderGroupedBarChart = function () {
             });
 
     barGroups.append('text')
-            .attr('x', 0)
-            .attr('y', -8)
+            .attr('y', -barGap)
             .attr('class', 'group-label')
             .text(function (d) { return d.key; });
 
