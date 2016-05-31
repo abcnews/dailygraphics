@@ -137,12 +137,20 @@ var renderStackedBarChart = function () {
         .domain([minX, maxX])
         .rangeRound([0, chartWidth]);
 
+    var colorScaleDomain = d3.keys(DATA[0]).filter(function (d) {
+        return d != 'label' && d != 'values';
+    });
+
     var colorList = colorArray(LABELS, MULTICOLORS);
     var colorScale = d3.scale.ordinal()
-        .domain(d3.keys(DATA[0]).filter(function (d) {
-            return d != 'label' && d != 'values';
-        }))
+        .domain(colorScaleDomain)
         .range(colorList);
+
+    var accessibleColorScale = d3.scale.ordinal()
+        .domain(colorScaleDomain)
+        .range(_.map(colorList, function (color) {
+            return getAccessibleColor(color);
+        }));
 
     /*
      * Render the legend.
@@ -150,7 +158,7 @@ var renderStackedBarChart = function () {
     var legend = containerElement.append('ul')
         .attr('class', 'key')
         .selectAll('g')
-            .data(colorScale.domain())
+            .data(colorScaleDomain)
         .enter().append('li')
             .attr('class', function (d, i) {
                 return 'key-item key-' + i + ' ' + classify(d);
@@ -158,7 +166,7 @@ var renderStackedBarChart = function () {
 
     legend.append('b')
         .style('background-color', function (d) {
-            return colorScale(d);
+            return accessibleColorScale(d);
         });
 
     legend.append('label')
@@ -196,7 +204,7 @@ var renderStackedBarChart = function () {
             })
             .attr('height', barHeight)
             .style('fill', function (d) {
-                return colorScale(d.name);
+                return accessibleColorScale(d.name);
             })
             .attr('class', function (d) {
                 return classify(d.name);
