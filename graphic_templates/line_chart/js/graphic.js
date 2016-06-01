@@ -1,6 +1,13 @@
 // Global vars
 var pymChild = null;
 var isMobile = false;
+var isDateScale = !!DATA[0].date;
+var xCol = isDateScale ? 'date' : 'x';
+var FORMATTED_DATA = {};
+var FLAT_DATA = [];
+
+var lineKeys = d3.set(d3.map(DATA[0]).keys());
+lineKeys.remove(xCol);
 
 // D3 formatters
 var bisectDate = d3.bisector(function (d) { return d.date; }).left;
@@ -10,9 +17,7 @@ var bisectDate = d3.bisector(function (d) { return d.date; }).left;
  */
 var onWindowLoaded = function () {
     if (Modernizr.svg) {
-        if (DATA[0].date) {
-            formatData();
-        }
+        formatData();
 
         pymChild = new pym.Child({
             renderCallback: render,
@@ -26,26 +31,59 @@ var onWindowLoaded = function () {
  * Format graphic data for processing by D3.
  */
 var formatData = function () {
-    DATA.forEach(function (d) {
-        var date;
+    if (isDateScale) {
+        DATA = DATA.map(function (obj) {
+            return _.mapObject(obj, function (val, key) {
+                if (key === xCol) {
+                    var date;
+                    if (LABELS.parseDateFormat) {
+                        date = d3.time.format(LABELS.parseDateFormat).parse(val);
+                    } else {
+                        date = d3.time.format('%d/%m/%y').parse(val);
+                        if (!date) {
+                            date = d3.time.format('%d/%m/%Y').parse(val);
+                        }
+                    }
 
-        if (LABELS.parseDateFormat) {
-            date = d3.time.format(LABELS.parseDateFormat).parse(d.date);
-        } else {
-            date = d3.time.format('%d/%m/%y').parse(d.date);
-            if (!date) {
-                date = d3.time.format('%d/%m/%Y').parse(d.date);
-            }
-        }
+                    return date;
+                }
 
-        d.date = date;
+                return +val; // turn string into number
+            });
+        });
+    } else {
+        DATA = DATA.map(function (obj) {
+            return _.mapObject(obj, function (val, key) {
+                if (key === xCol) {
+                    return val;
+                }
 
-        for (var key in d) {
-            if (key != 'date') {
-                d[key] = +d[key];
-            }
-        }
+                return +val; // turn string into number
+            });
+        });
+    }
+
+    /*
+     * Restructure tabular data for easier charting.
+     */
+    lineKeys.forEach(function (d, i) {
+        FORMATTED_DATA[d] = DATA.map(function (v) {
+            return {
+                x: v[xCol],
+                amt: v[d],
+            };
+        });
+
+        FLAT_DATA = FLAT_DATA.concat(DATA.map(function (v) {
+            return {
+                x: v[xCol],
+                amt: v[d],
+                key: d,
+            };
+        }));
     });
+
+    FORMATTED_DATA = d3.entries(FORMATTED_DATA);
 };
 
 /*
@@ -71,8 +109,6 @@ var renderLineChart = function () {
     /*
      * Setup
      */
-    var dateColumn = 'date';
-
     var strokeDashArrayAliases = {
         solid: '0',
         dotted: '1, 4',
@@ -125,37 +161,6 @@ var renderLineChart = function () {
     var chartWidth = innerWidth - margins.left - margins.right;
     var chartHeight = Math.ceil(innerWidth / aspectRatio) - margins.top - margins.bottom;
 
-    var formattedData = {};
-    var flatData = [];
-
-    /*
-     * Restructure tabular data for easier charting.
-     */
-    var i = 0;
-    for (var column in DATA[0]) {
-        if (column == dateColumn || column == 'x') {
-            continue;
-        }
-
-        formattedData[column] = DATA.map(function (d) {
-            return {
-                x: d[dateColumn] || d.x,
-                amt: +d[column],
-            };
-        });
-
-        flatData = flatData.concat(DATA.map(function (d) {
-            return {
-                x: d[dateColumn] || d.x,
-                amt: +d[column],
-                i: i,
-                key: column,
-            };
-        }));
-
-        i++;
-    }
-
     /*
      * Create D3 scale objects.
      */
@@ -163,7 +168,7 @@ var renderLineChart = function () {
     if (LABELS.minValue) {
         minY = parseFloat(LABELS.minValue, 10);
     } else {
-        minY = d3.min(d3.entries(formattedData), function (c) {
+        minY = d3.min(FORMATTED_DATA, function (c) {
             return d3.min(c.value, function (v) {
                 var n = v.amt;
                 return Math.floor(n / roundTicksFactor) * roundTicksFactor;
@@ -175,7 +180,7 @@ var renderLineChart = function () {
     if (LABELS.maxValue) {
         maxY = parseFloat(LABELS.maxValue, 10);
     } else {
-        maxY = d3.max(d3.entries(formattedData), function (c) {
+        maxY = d3.max(FORMATTED_DATA, function (c) {
             return d3.max(c.value, function (v) {
                 var n = v.amt;
                 return Math.ceil(n / roundTicksFactor) * roundTicksFactor;
@@ -186,7 +191,7 @@ var renderLineChart = function () {
     var xFormat;
     var xScale;
 
-    if (DATA[0].date) {
+    if (isDateScale) {
         if (!isMobile && LABELS.timeFormatLarge) {
             xFormat = d3.time.format(LABELS.timeFormatLarge);
         } else if (isMobile && LABELS.timeFormatSmall) {
@@ -213,7 +218,7 @@ var renderLineChart = function () {
 
         xScale = d3.time.scale()
             .domain(d3.extent(DATA, function (d) {
-                return d[dateColumn];
+                return d.date;
             }))
             .range([0, chartWidth]);
     } else {
@@ -226,10 +231,6 @@ var renderLineChart = function () {
             .domain(DATA.map(function (d) {
                 return d.x;
             }));
-
-        // .range([0, chartWidth]);
-
-        dateColumn = 'x';
     }
 
     var yScale = d3.scale.linear()
@@ -237,10 +238,13 @@ var renderLineChart = function () {
         .range([chartHeight, 0]);
 
     var colorList = colorArray(LABELS, MONOCHROMECOLORS);
-    var colorScale = d3.scale.ordinal()
+
+    var lineKeyScale = d3.scale.ordinal().domain(lineKeys);
+
+    var colorScale = lineKeyScale.copy()
         .range(colorList);
 
-    var accessibleColorScale = d3.scale.ordinal()
+    var accessibleColorScale = lineKeyScale.copy()
         .range(_.map(colorList, function (color) {
             return getAccessibleColor(color);
         }));
@@ -341,18 +345,18 @@ var renderLineChart = function () {
     var line = d3.svg.line()
         .interpolate(LABELS.interpolate || 'monotone')
         .x(function (d) {
-            return xScale(d[dateColumn] || d.x);
+            return xScale(d.x);
         })
         .y(function (d) {
             return yScale(d.amt);
         });
 
-    var highlighted = LABELS.highlighted ? LABELS.highlighted.split(/\s*,\s*/) : [];
+    var highlighted = LABELS.highlighted ? LABELS.highlighted.split(/\s*,\s*/) : []; //??
     var lineStyleArr = LABELS.lineStyles ? LABELS.lineStyles.split(/\s*,\s*/) : [];
     var lines = chartElement.append('g')
         .classed('lines visible-lines', true)
         .selectAll('path')
-        .data(d3.entries(formattedData))
+        .data(FORMATTED_DATA)
         .enter()
         .append('path')
             .attr('class', function (d, i) {
@@ -365,12 +369,12 @@ var renderLineChart = function () {
                     return strokeDashArrayAliases[lineStyleArr[i]];
                 },
 
-                stroke: function (d, i) {
+                stroke: function (d) {
                     if (highlighted.indexOf(d.key) !== -1) {
                         return HIGHLIGHTCOLORS.active;
                     }
 
-                    return colorScale(i);
+                    return colorScale(d.key);
                 },
 
                 d: function (d) {
@@ -383,7 +387,7 @@ var renderLineChart = function () {
         var shadowLines = chartElement.append('g')
             .classed('lines shadow-lines', true)
             .selectAll('path')
-            .data(d3.entries(formattedData))
+            .data(FORMATTED_DATA)
             .enter()
             .append('path')
                 .attr('class', function (d, i) {
@@ -426,59 +430,44 @@ var renderLineChart = function () {
 
     var getGroupedData = function (obj, labelHeight) {
         labelHeight = labelHeight || 40;
-
-        // convert object into array of objects
-        var dataArr = [];
-        for (var key in obj) {
-            dataArr.push({
-                label: key,
-                value: obj[key],
-                yPos: yScale(obj[key]),
-                accessibleColor: accessibleColorScale(dataArr.length),
-            });
-        }
-
-        // sort by yPos
-        dataArr.sort(function (a, b) {
-            return a.yPos - b.yPos;
-        });
-
-        // grouping
         var groupedArr = [];
-        for (var i = 0; i < dataArr.length; ++i) {
-            var thisData = dataArr[i];
-            if (i === 0) {
-                // start new group
-                groupedArr.push([thisData]);
-            } else {
-                var noOfItemsInLastGroup = groupedArr[groupedArr.length - 1].length;
-                var actualPixelDiff = Math.abs(thisData.yPos - dataArr[i - 1].yPos);
-                var minPixelDiff = (noOfItemsInLastGroup * labelHeight / 2) + (labelHeight / 2);
-                if (actualPixelDiff > minPixelDiff) {
+
+        d3.entries(obj) // convert object into array of objects
+            .map(function (d, i) {
+                d.i = i;
+                d.accessibleColor = accessibleColorScale(d.key);
+                d.yPos = yScale(obj[d.key]); // add yPos
+                return d;
+            })
+            .sort(function (a, b) { // sort by yPos
+                return a.yPos - b.yPos;
+            })
+            .forEach(function (d, i, array) { // grouping
+                if (i === 0) {
                     // start new group
-                    groupedArr.push([thisData]);
+                    groupedArr.push([d]);
                 } else {
-                    // add to previous group
-                    groupedArr[groupedArr.length - 1].push(thisData);
+                    var prevGroupIndex = groupedArr.length - 1;
+                    var noOfItemsInLastGroup = groupedArr[prevGroupIndex].length;
+                    var actualPixelDiff = Math.abs(d.yPos - array[i - 1].yPos);
+                    var minPixelDiff = (noOfItemsInLastGroup + 1) * labelHeight / 2;
+                    if (actualPixelDiff > minPixelDiff) {
+                        // start new group
+                        groupedArr.push([d]);
+                    } else {
+                        // add to previous group
+                        groupedArr[prevGroupIndex].push(d);
+                    }
                 }
-            }
-        }
+            });
 
         return groupedArr;
     };
 
     // labels on right of data
-    var lastObj;
-    var lastObjxVal;
-
-    lastObj = _.clone(DATA[DATA.length - 1]);
-    if (dateColumn === 'date') {
-        lastObjxVal = lastObj.date;
-        delete lastObj.date;
-    } else {
-        lastObjxVal = lastObj.x;
-        delete lastObj.x;
-    }
+    var lastObj = _.clone(DATA[DATA.length - 1]);
+    var lastObjxVal = lastObj[xCol];
+    delete lastObj[xCol];
 
     var labelLines;
     for (var key in lastObj) {
@@ -496,8 +485,8 @@ var renderLineChart = function () {
                 var h = '';
                 for (var i = 0; i < d.length; ++i) {
                     var thisData = d[i];
-                    h += '<div style="color: ' + thisData.accessibleColor + '">' +
-                        thisData.label.replace('\\n', '<br>') +
+                    h += '<div class="label-' + thisData.i + '" style="color: ' + thisData.accessibleColor + '">' +
+                        thisData.key.replace('\\n', '<br>') +
                         '<br><strong>' +
                         formattedNumber(thisData.value, LABELS.prefixY, LABELS.suffixY, LABELS.maxDecimalPlaces) +
                         '</strong>' +
@@ -507,9 +496,7 @@ var renderLineChart = function () {
                 return h;
             })
             .style({
-                left: function (d) {
-                    return (xScale(lastObjxVal) + margins.left + 10) + 'px';
-                },
+                left: (xScale(lastObjxVal) + margins.left + 10) + 'px',
 
                 top: function (d) {
                     var yPosAvg = _.reduce(d, function (memo, num) {
@@ -549,7 +536,7 @@ var renderLineChart = function () {
     if (LABELS.circleMarker !== 'off') {
         chartElement.append('g')
             .selectAll('circle')
-            .data(flatData)
+            .data(FLAT_DATA)
             .enter().append('circle')
             .classed('point', true)
             .attr({
@@ -563,12 +550,12 @@ var renderLineChart = function () {
                     return yScale(d.amt);
                 },
 
-                fill: function (d, i) {
-                    return colorScale(d.i);
+                fill: function (d) {
+                    return colorScale(d.key);
                 },
 
-                stroke: function (d, i) {
-                    return colorScale(d.i);
+                stroke: function (d) {
+                    return colorScale(d.key);
                 },
 
             });
@@ -583,7 +570,7 @@ var renderLineChart = function () {
                 var posX = d3.mouse(overlay.node())[0];
                 var xVal;
                 var obj;
-                if (dateColumn === 'date') {
+                if (isDateScale) {
                     var x = xScale.invert(posX);
                     var index = bisectDate(DATA, x, 1);
                     obj = _.clone(DATA[index - 1]);
@@ -595,7 +582,6 @@ var renderLineChart = function () {
                     }
 
                     xVal = obj.date;
-                    delete obj.date;
                 } else {
                     var domain = xScale.domain();
                     var range = xScale.range();
@@ -603,7 +589,6 @@ var renderLineChart = function () {
                     var left = domain[i - 1];
                     var right = domain[i];
 
-                    // var obj = getObjectFromArray(DATA, dateColumn, left);
                     obj = _.clone(_.findWhere(DATA, { x: left }));
                     if (!obj) {
                         return;
@@ -615,9 +600,9 @@ var renderLineChart = function () {
                         obj = _.clone(_.findWhere(DATA, { x: right }));
                         xVal = right;
                     }
-
-                    delete obj.x;
                 }
+
+                delete obj[xCol];
 
                 var tooltip = tooltipWrapper.selectAll('div.tooltip')
                     .data(getGroupedData(obj));
@@ -630,7 +615,7 @@ var renderLineChart = function () {
                     for (var i = 0; i < d.length; ++i) {
                         var thisData = d[i];
                         h += '<div style="color: ' + thisData.accessibleColor + '">' +
-                            thisData.label.replace('\\n', ' ') +
+                            thisData.key.replace('\\n', ' ') +
                             ' <strong>' +
                             formattedNumber(thisData.value, LABELS.prefixY, LABELS.suffixY, LABELS.maxDecimalPlaces) +
                             '</strong>' +
