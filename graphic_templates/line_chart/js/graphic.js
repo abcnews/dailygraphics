@@ -424,11 +424,6 @@ var renderLineChart = function () {
 
     }
 
-    function labelXFunc(d, i) {
-        var last = d.value[d.value.length - 1];
-        return xScale(last[dateColumn] || last.x) + 5;
-    }
-
     var getGroupedData = function (obj, labelHeight) {
         labelHeight = labelHeight || 40;
 
