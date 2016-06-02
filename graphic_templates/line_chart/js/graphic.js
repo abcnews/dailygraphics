@@ -3,14 +3,15 @@ var pymChild = null;
 var isMobile = false;
 var isDateScale = !!DATA[0].date;
 var xCol = isDateScale ? 'date' : 'x';
-var FORMATTED_DATA;
+var KEY_NESTED_DATA;
+var X_NESTED_DATA;
 var FLAT_DATA = [];
 
 var lineKeys = d3.set(d3.map(DATA[0]).keys());
 lineKeys.remove(xCol);
 
 // D3 formatters
-var bisectDate = d3.bisector(function (d) { return d.date; }).left;
+var bisectDate = d3.bisector(function (d) { return d.values[0].x; }).left;
 
 /*
  * Initialize graphic
@@ -67,8 +68,12 @@ var formatData = function () {
         }));
     });
 
-    FORMATTED_DATA = d3.nest()
+    KEY_NESTED_DATA = d3.nest()
         .key(function(d) { return d.key; })
+        .entries(FLAT_DATA);
+
+    X_NESTED_DATA = d3.nest()
+        .key(function(d) { return d.x; })
         .entries(FLAT_DATA);
 
 };
@@ -155,7 +160,7 @@ var renderLineChart = function () {
     if (LABELS.minValue) {
         minY = parseFloat(LABELS.minValue, 10);
     } else {
-        minY = d3.min(FORMATTED_DATA, function (c) {
+        minY = d3.min(KEY_NESTED_DATA, function (c) {
             return d3.min(c.values, function (v) {
                 var n = v.amt;
                 return Math.floor(n / roundTicksFactor) * roundTicksFactor;
@@ -167,7 +172,7 @@ var renderLineChart = function () {
     if (LABELS.maxValue) {
         maxY = parseFloat(LABELS.maxValue, 10);
     } else {
-        maxY = d3.max(FORMATTED_DATA, function (c) {
+        maxY = d3.max(KEY_NESTED_DATA, function (c) {
             return d3.max(c.values, function (v) {
                 var n = v.amt;
                 return Math.ceil(n / roundTicksFactor) * roundTicksFactor;
@@ -343,7 +348,7 @@ var renderLineChart = function () {
     var lines = chartElement.append('g')
         .classed('lines visible-lines', true)
         .selectAll('path')
-        .data(FORMATTED_DATA)
+        .data(KEY_NESTED_DATA)
         .enter()
         .append('path')
             .attr('class', function (d, i) {
@@ -374,7 +379,7 @@ var renderLineChart = function () {
         var shadowLines = chartElement.append('g')
             .classed('lines shadow-lines', true)
             .selectAll('path')
-            .data(FORMATTED_DATA)
+            .data(KEY_NESTED_DATA)
             .enter()
             .append('path')
                 .attr('class', function (d, i) {
@@ -418,12 +423,11 @@ var renderLineChart = function () {
     var getGroupedData = function (obj, labelHeight) {
         labelHeight = labelHeight || 40;
         var groupedArr = [];
-
-        d3.entries(obj) // convert object into array of objects
+        obj.values
             .map(function (d, i) {
                 d.i = i;
                 d.accessibleColor = accessibleColorScale(d.key);
-                d.yPos = yScale(obj[d.key]); // add yPos
+                d.yPos = yScale(d.amt); // add yPos
                 return d;
             })
             .sort(function (a, b) { // sort by yPos
@@ -452,20 +456,13 @@ var renderLineChart = function () {
     };
 
     // labels on right of data
-    var lastObj = _.clone(DATA[DATA.length - 1]);
-    var lastObjxVal = lastObj[xCol];
-    delete lastObj[xCol];
-
-    var labelLines;
-    for (var key in lastObj) {
-        labelLines = key.split('\\n').length + 1;
-        break;
-    }
+    var lastObj = X_NESTED_DATA[X_NESTED_DATA.length - 1];
+    var noOfLabelLines = lastObj.values[0].key.split('\\n').length + 1;
 
     var labels = chartWrapper.append('div')
         .classed('label-wrapper', true)
         .selectAll('div.label')
-            .data(getGroupedData(lastObj, labelLines * 20))
+            .data(getGroupedData(lastObj, noOfLabelLines * 20))
         .enter().append('div')
             .classed('label', true)
             .html(function (d) {
@@ -475,7 +472,7 @@ var renderLineChart = function () {
                     h += '<div class="label-' + thisData.i + '" style="color: ' + thisData.accessibleColor + '">' +
                         thisData.key.replace('\\n', '<br>') +
                         '<br><strong>' +
-                        formattedNumber(thisData.value, LABELS.prefixY, LABELS.suffixY, LABELS.maxDecimalPlaces) +
+                        formattedNumber(thisData.amt, LABELS.prefixY, LABELS.suffixY, LABELS.maxDecimalPlaces) +
                         '</strong>' +
                         '</div>';
                 }
@@ -483,7 +480,7 @@ var renderLineChart = function () {
                 return h;
             })
             .style({
-                left: (xScale(lastObjxVal) + margins.left + 10) + 'px',
+                left: (xScale(lastObj.values[0].x) + margins.left + 10) + 'px',
 
                 top: function (d) {
                     var yPosAvg = _.reduce(d, function (memo, num) {
@@ -558,25 +555,24 @@ var renderLineChart = function () {
                 var xVal;
                 var obj;
                 if (isDateScale) {
-                    var x = xScale.invert(posX);
-                    var index = bisectDate(DATA, x, 1);
-                    obj = _.clone(DATA[index - 1]);
-                    var obj2 = _.clone(DATA[index]);
+                    var hoverDate = xScale.invert(posX);
+                    var index = bisectDate(X_NESTED_DATA, hoverDate, 1);
+                    obj = X_NESTED_DATA[index - 1];
+                    var obj2 = X_NESTED_DATA[index];
 
                     // choose the closest object to the mouse
-                    if (index < DATA.length - 1 && x - obj.date > obj2.date - x) {
+                    if (index < X_NESTED_DATA.length - 1 && hoverDate - obj.values[0].x > obj2.values[0].x - hoverDate) {
                         obj = obj2;
                     }
 
-                    xVal = obj.date;
+                    xVal = obj.values[0].x;
                 } else {
                     var domain = xScale.domain();
                     var range = xScale.range();
                     var i = d3.bisect(range, posX);
                     var left = domain[i - 1];
                     var right = domain[i];
-
-                    obj = _.clone(_.findWhere(DATA, { x: left }));
+                    obj = _.findWhere(X_NESTED_DATA, { key: left });
                     if (!obj) {
                         return;
                     }
@@ -584,12 +580,10 @@ var renderLineChart = function () {
                     xVal = left;
 
                     if (i < domain.length - 1 && posX - xScale(left) > xScale(right) - posX) {
-                        obj = _.clone(_.findWhere(DATA, { x: right }));
+                        obj = _.findWhere(X_NESTED_DATA, { key: right });
                         xVal = right;
                     }
                 }
-
-                delete obj[xCol];
 
                 var tooltip = tooltipWrapper.selectAll('div.tooltip')
                     .data(getGroupedData(obj));
@@ -604,7 +598,7 @@ var renderLineChart = function () {
                         h += '<div style="color: ' + thisData.accessibleColor + '">' +
                             thisData.key.replace('\\n', ' ') +
                             ' <strong>' +
-                            formattedNumber(thisData.value, LABELS.prefixY, LABELS.suffixY, LABELS.maxDecimalPlaces) +
+                            formattedNumber(thisData.amt, LABELS.prefixY, LABELS.suffixY, LABELS.maxDecimalPlaces) +
                             '</strong>' +
                             '</div>';
                     }
