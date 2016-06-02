@@ -90,36 +90,37 @@ var renderPieChart = function () {
     var colorScale = d3.scale.ordinal()
         .range(colorList);
 
-    var radius = chartWidth / 2 - 10;
+    var radius = chartWidth / 2;
+
     var arc = d3.svg.arc()
         .outerRadius(radius)
         .innerRadius(0);
 
     var pie = d3.layout.pie()
         .sort(null)
-        .value(function (d) { return d.amt; });
+        .value(function (d) {
+            return d.amt;
+        });
 
     var g = chartElement.selectAll('.arc')
         .data(pie(DATA))
         .enter().append('g')
-        .attr('class', 'arc')
-        .attr('transform', makeTranslate((chartWidth / 2), chartHeight / 2));
+            .attr('class', 'arc')
+            .attr('transform', makeTranslate(radius, radius));
 
     g.append('path')
         .attr('d', arc)
-        .style('fill', function (d, i) { return colorScale(i); });
+        .style('fill', function (d, i) {
+            return colorScale(i);
+        });
 
-    if (LABELS.showLabels) {
-        g.append('text')
-            .attr('transform', function (d) {
-                return 'translate(' + arc.centroid(d) + ')';
-            })
-            .style('text-anchor', 'middle')
-            .attr('fill', 'white')
-            .text(function (d) {
-                return d.data.label;
-            });
-    }
+    g.append('text')
+        .attr('transform', function (d) {
+            return 'translate(' + arc.centroid(d) + ')';
+        })
+        .text(function (d) {
+            return d.data.label;
+        });
 };
 
 /*

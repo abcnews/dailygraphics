@@ -364,11 +364,7 @@ TODO
 
 ### Pie Chart
 
-NOT READY FOR USE IN PRODUCTION
-
-TODO
-
-#### showLabels
+No further config options.
 
 
 
