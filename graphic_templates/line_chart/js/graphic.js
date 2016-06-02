@@ -3,7 +3,7 @@ var pymChild = null;
 var isMobile = false;
 var isDateScale = !!DATA[0].date;
 var xCol = isDateScale ? 'date' : 'x';
-var FORMATTED_DATA = {};
+var FORMATTED_DATA;
 var FLAT_DATA = [];
 
 var lineKeys = d3.set(d3.map(DATA[0]).keys());
@@ -31,49 +31,33 @@ var onWindowLoaded = function () {
  * Format graphic data for processing by D3.
  */
 var formatData = function () {
-    if (isDateScale) {
-        DATA = DATA.map(function (obj) {
-            return _.mapObject(obj, function (val, key) {
-                if (key === xCol) {
-                    var date;
+    DATA = DATA.map(function (obj) {
+        return _.mapObject(obj, function (val, key) {
+            if (key === xCol) {
+                if (isDateScale) {
                     if (LABELS.parseDateFormat) {
-                        date = d3.time.format(LABELS.parseDateFormat).parse(val);
+                        return d3.time.format(LABELS.parseDateFormat).parse(val);
                     } else {
-                        date = d3.time.format('%d/%m/%y').parse(val);
+                        // fall back to guessing date format
+                        var date = d3.time.format('%d/%m/%y').parse(val);
                         if (!date) {
                             date = d3.time.format('%d/%m/%Y').parse(val);
                         }
+                        return date;
                     }
-
-                    return date;
-                }
-
-                return +val; // turn string into number
-            });
-        });
-    } else {
-        DATA = DATA.map(function (obj) {
-            return _.mapObject(obj, function (val, key) {
-                if (key === xCol) {
+                } else {
                     return val;
                 }
+            }
 
-                return +val; // turn string into number
-            });
+            return +val; // turn string into number
         });
-    }
+    });
 
     /*
      * Restructure tabular data for easier charting.
      */
-    lineKeys.forEach(function (d, i) {
-        FORMATTED_DATA[d] = DATA.map(function (v) {
-            return {
-                x: v[xCol],
-                amt: v[d],
-            };
-        });
-
+    lineKeys.forEach(function (d) {
         FLAT_DATA = FLAT_DATA.concat(DATA.map(function (v) {
             return {
                 x: v[xCol],
@@ -83,7 +67,10 @@ var formatData = function () {
         }));
     });
 
-    FORMATTED_DATA = d3.entries(FORMATTED_DATA);
+    FORMATTED_DATA = d3.nest()
+        .key(function(d) { return d.key; })
+        .entries(FLAT_DATA);
+
 };
 
 /*
@@ -169,7 +156,7 @@ var renderLineChart = function () {
         minY = parseFloat(LABELS.minValue, 10);
     } else {
         minY = d3.min(FORMATTED_DATA, function (c) {
-            return d3.min(c.value, function (v) {
+            return d3.min(c.values, function (v) {
                 var n = v.amt;
                 return Math.floor(n / roundTicksFactor) * roundTicksFactor;
             });
@@ -181,7 +168,7 @@ var renderLineChart = function () {
         maxY = parseFloat(LABELS.maxValue, 10);
     } else {
         maxY = d3.max(FORMATTED_DATA, function (c) {
-            return d3.max(c.value, function (v) {
+            return d3.max(c.values, function (v) {
                 var n = v.amt;
                 return Math.ceil(n / roundTicksFactor) * roundTicksFactor;
             });
@@ -378,7 +365,7 @@ var renderLineChart = function () {
                 },
 
                 d: function (d) {
-                    return line(d.value);
+                    return line(d.values);
                 },
 
             });
@@ -399,7 +386,7 @@ var renderLineChart = function () {
                     },
 
                     d: function (d) {
-                        return line(d.value);
+                        return line(d.values);
                     },
 
                     'data-index': function (d, i) {
