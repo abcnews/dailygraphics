@@ -60,16 +60,12 @@ var renderSlopegraph = function () {
 
     var margins = {
         top: parseInt(LABELS.marginTop || 20, 10),
-        right: parseInt(LABELS.marginRight || 185, 10),
+        right: parseInt(LABELS.marginRight || 30, 10),
         bottom: parseInt(LABELS.marginBottom || 20, 10),
-        left: parseInt(LABELS.marginLeft || 40, 10),
+        left: parseInt(LABELS.marginLeft || 30, 10),
     };
 
-    if (isMobile) {
-        margins.right = 145;
-    }
-
-    var labelGap = parseInt(LABELS.labelGap || 45, 10);
+    var labelWidth = parseInt(LABELS.labelWidth || 80, 10);
     var valueGap = parseInt(LABELS.valueGap || 6, 10);
 
     // Clear existing graphic (for redraw)
@@ -84,14 +80,21 @@ var renderSlopegraph = function () {
 
     // Calculate actual chart dimensions
     var innerWidth = chartWrapper.node().getBoundingClientRect().width;
-    var chartWidth = innerWidth - margins.left - margins.right;
-    var chartHeight = Math.ceil(innerWidth / aspectRatio) - margins.top - margins.bottom;
+    var horizMargins = margins.left + margins.right;
+    var vertMargins = margins.top + margins.bottom;
+    var labelAndGapWidth = labelWidth + valueGap;
+    var noOfLabelCols = isMobile ? 1 : 2;
+    var chartWidth = innerWidth - horizMargins - (labelAndGapWidth * noOfLabelCols);
+    var chartHeight = Math.ceil(innerWidth / aspectRatio) - vertMargins;
 
     /*
      * Create D3 scale objects.
      */
+
+    var xLabels = [startLabel, endLabel];
+
     var xScale = d3.scale.ordinal()
-        .domain([startLabel, endLabel])
+        .domain(xLabels)
         .range([0, chartWidth]);
 
     var minY = d3.min(DATA, function (d) {
@@ -115,46 +118,37 @@ var renderSlopegraph = function () {
             return getAccessibleColor(color);
         }));
 
-    /*
-     * Create D3 axes.
-     */
-    var xAxis = d3.svg.axis()
-        .scale(xScale)
-        .orient('top')
-        .ticks(2)
-        .innerTickSize(0)
-        .tickFormat(function (d) {
-            return d;
-        });
+    var leftOffset = isMobile ? margins.left : margins.left + labelAndGapWidth;
 
     var chartElement = chartWrapper.append('svg')
         .attr({
-            width: chartWidth + margins.left + margins.right,
-            height: chartHeight + margins.top + margins.bottom,
+            width: chartWidth + horizMargins + (labelAndGapWidth * noOfLabelCols),
+            height: chartHeight + vertMargins,
         })
         .append('g')
-            .attr('transform', makeTranslate(margins.left, margins.top));
+            .attr('transform', makeTranslate(leftOffset, margins.top));
 
     /*
      * Render axes to chart.
      */
-    chartElement.append('g')
+    chartWrapper.selectAll('svg').append('g')
         .attr('class', 'x axis')
-        .call(xAxis)
         .selectAll('text')
+        .data(xLabels)
+        .enter()
+        .append('text')
             .style('text-anchor', function (d, i) {
                 if (i) {
-                    return 'start';
+                    return 'end';
                 }
-
-                return 'end';
             })
-            .attr('dx', function (d, i) {
+            .attr('x', function (d, i) {
                 if (i) {
-                    return valueGap;
+                    return innerWidth;
                 }
-
-                return -valueGap;
+            })
+            .text(function (d) {
+                return d;
             });
 
     /*
@@ -191,7 +185,7 @@ var renderSlopegraph = function () {
     /*
      * Render values.
      */
-    chartElement.append('g')
+    var valuesStart = chartElement.append('g')
         .attr('class', 'value start')
         .selectAll('text')
         .data(DATA)
@@ -204,9 +198,7 @@ var renderSlopegraph = function () {
             .attr('y', function (d) {
                 return yScale(d.start);
             })
-            .attr('text-anchor', 'end')
             .attr('dx', -valueGap)
-            .attr('dy', 3)
             .style('fill', function (d, i) {
                 return accessibleColorScale(i);
             })
@@ -219,7 +211,7 @@ var renderSlopegraph = function () {
                 );
             });
 
-    chartElement.append('g')
+    var valuesEnd = chartElement.append('g')
         .attr('class', 'value end')
         .selectAll('text')
         .data(DATA)
@@ -232,9 +224,7 @@ var renderSlopegraph = function () {
             .attr('y', function (d) {
                 return yScale(d.end);
             })
-            .attr('text-anchor', 'begin')
             .attr('dx', valueGap)
-            .attr('dy', 3)
             .style('fill', function (d, i) {
                 return accessibleColorScale(i);
             })
@@ -250,8 +240,37 @@ var renderSlopegraph = function () {
     /*
      * Render labels.
      */
+    if (!isMobile) {
+        var valuesStartMaxWidth = getMaxElemWidth(valuesStart);
+
+        chartElement.append('g')
+            .attr('class', 'label start')
+            .selectAll('text')
+            .data(DATA)
+            .enter()
+            .append('text')
+                .attr('class', function (d, i) {
+                    return classify(d.label);
+                })
+                .attr('x', xScale(startLabel))
+                .attr('y', function (d) {
+                    return yScale(d.start);
+                })
+                .attr('dx', -(valuesStartMaxWidth + (valueGap * 2)))
+                .attr('dy', 4)
+                .style('fill', function (d, i) {
+                    return accessibleColorScale(i);
+                })
+                .text(function (d) {
+                    return d.label;
+                })
+                .call(wrapText, labelWidth, 14);
+    }
+
+    var valuesEndMaxWidth = getMaxElemWidth(valuesEnd);
+
     chartElement.append('g')
-        .attr('class', 'label')
+        .attr('class', 'label end')
         .selectAll('text')
         .data(DATA)
         .enter()
@@ -263,20 +282,31 @@ var renderSlopegraph = function () {
             .attr('y', function (d) {
                 return yScale(d.end);
             })
-            .attr('text-anchor', 'begin')
-            .attr('dx', labelGap)
-            .attr('dy', 3)
+            .attr('dx', valuesEndMaxWidth + (valueGap * 2))
+            .attr('dy', 4)
             .style('fill', function (d, i) {
                 return accessibleColorScale(i);
             })
             .text(function (d) {
                 return d.label;
             })
-            .call(wrapText, (margins.right - labelGap), 16);
+            .call(wrapText, labelWidth, 14);
 
     chartElement.selectAll('.value, .label, .lines')
         .attr('transform', 'translate(0,15)');
 
+};
+
+var getMaxElemWidth = function (elems) {
+    var maxWidth = 0;
+    elems.each(function () {
+        var width = d3.select(this).node().getComputedTextLength();
+        if (width > maxWidth) {
+            maxWidth = width;
+        }
+    });
+
+    return maxWidth;
 };
 
 /*
@@ -295,8 +325,8 @@ var wrapText = function (texts, width, lineHeight) {
         var x = text.attr('x');
         var y = text.attr('y');
 
-        var dx = parseFloat(text.attr('dx'));
-        var dy = parseFloat(text.attr('dy'));
+        var dx = parseFloat(text.attr('dx') || 0);
+        var dy = parseFloat(text.attr('dy') || 0);
 
         var tspan = text.text(null)
             .append('tspan')
@@ -323,8 +353,7 @@ var wrapText = function (texts, width, lineHeight) {
                         x: x,
                         y: y,
                         dx: dx + 'px',
-                        dy: lineNumber * lineHeight,
-                        'text-anchor': 'begin',
+                        dy: (dy + (lineNumber * lineHeight)) + 'px',
                     })
                     .text(word);
             }
