@@ -109,7 +109,7 @@ var renderStackedColumnChart = function () {
      * Create D3 scale objects.
      */
     var xScale = d3.scale.ordinal()
-        .domain(_.pluck(DATA, 'label'))
+        .domain(DATA.map(function (d) { return d.label; }))
         .rangeRoundBands([0, chartWidth], 0.1);
 
     var minY = d3.min(DATA, function (d) {
@@ -157,7 +157,7 @@ var renderStackedColumnChart = function () {
 
     var accessibleColorScale = d3.scale.ordinal()
         .domain(colorScaleDomain)
-        .range(_.map(colorList, function (color) {
+        .range(colorList.map(function (color) {
             return getAccessibleColor(color);
         }));
 

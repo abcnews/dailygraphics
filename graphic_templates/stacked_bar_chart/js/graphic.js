@@ -149,7 +149,7 @@ var renderStackedBarChart = function () {
 
     var accessibleColorScale = d3.scale.ordinal()
         .domain(colorScaleDomain)
-        .range(_.map(colorList, function (color) {
+        .range(colorList.map(function (color) {
             return getAccessibleColor(color);
         }));
 

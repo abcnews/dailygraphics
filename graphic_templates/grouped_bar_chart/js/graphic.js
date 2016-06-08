@@ -21,24 +21,20 @@ var onWindowLoaded = function () {
  * Format graphic data for processing by D3.
  */
 var formatData = function () {
-    var groupColumn = 'Group';
-    DATA.forEach(function (d) {
-        d.key = d[groupColumn];
-        d.values = [];
+    DATA = DATA.map(function (d) {
+        return {
+            key: d.Group,
+            values: d3.entries(d).reduce(function (memo, val) {
+                if (val.key !== 'Group') {
+                    memo.push({
+                        label: val.key,
+                        amt: +val.value,
+                    });
+                }
 
-        _.each(d, function (v, k) {
-            if (_.contains([groupColumn, 'key', 'values'], k)) {
-                return;
-            }
-
-            d.values.push({
-                label: k,
-                amt: +v,
-            });
-            delete d[k];
-        });
-
-        delete d[groupColumn];
+                return memo;
+            }, []),
+        };
     });
 };
 
@@ -140,7 +136,7 @@ var renderGroupedBarChart = function () {
         .domain([minX, maxX])
         .range([0, chartWidth]);
 
-    var colorScaleDomain = _.pluck(DATA[0].values, 'label');
+    var colorScaleDomain = DATA[0].values.map(function (d) { return d.label; });
 
     var colorList = colorArray(LABELS, MONOCHROMECOLORS);
     var colorScale = d3.scale.ordinal()
@@ -149,7 +145,7 @@ var renderGroupedBarChart = function () {
 
     var accessibleColorScale = d3.scale.ordinal()
         .domain(colorScaleDomain)
-        .range(_.map(colorList, function (color) {
+        .range(colorList.map(function (color) {
             return getAccessibleColor(color);
         }));
 
@@ -206,8 +202,8 @@ var renderGroupedBarChart = function () {
             });
 
     var labelData = [];
-    _.each(DATA, function (d) {
-        _.each(d.values, function (e) {
+    DATA.forEach(function (d) {
+        d.values.forEach(function (e) {
             labelData.push(e.label);
         });
     });

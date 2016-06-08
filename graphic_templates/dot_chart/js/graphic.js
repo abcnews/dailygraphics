@@ -221,7 +221,7 @@ var renderDotChart = function () {
     /*
      * Render bar values.
      */
-    _.each(['shadow', 'value'], function (cls) {
+    ['shadow', 'value'].forEach(function (cls) {
         chartElement.append('g')
             .attr('class', cls)
             .selectAll('text')

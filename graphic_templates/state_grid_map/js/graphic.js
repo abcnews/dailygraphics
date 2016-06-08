@@ -49,7 +49,7 @@ var renderStateGridMap = function () {
     // Extract categories from data
     var categories = [];
 
-    _.each(MAP_DATA, function (state) {
+    MAP_DATA.forEach(function (state) {
         if (state.category !== null) {
             categories.push(state.category);
         }
@@ -65,7 +65,7 @@ var renderStateGridMap = function () {
     // Create legend
     var legendElement = containerElement.select('.key');
 
-    _.each(colorScale.domain(), function (key, i) {
+    colorScale.domain().forEach(function (key, i) {
         var keyItem = legendElement.append('li')
             .classed('key-item', true);
 
@@ -80,7 +80,7 @@ var renderStateGridMap = function () {
     var chartElement = containerElement.select('svg');
 
     // Set state colors
-    _.each(MAP_DATA, function (state) {
+    MAP_DATA.forEach(function (state) {
         if (state.category !== null) {
             var stateClass = 'state-' + classify(state.state_name);
 
@@ -97,7 +97,10 @@ var renderStateGridMap = function () {
         .enter().append('text')
             .attr('text-anchor', 'middle')
             .text(function (d) {
-                var state = _.findWhere(STATES, { name: d.state_name });
+                var state;
+                STATES.some(function (s) {
+                    return s.name === d.state_name && (state = s, true);
+                });
 
                 return isMobile ? state.usps : state.ap;
             })

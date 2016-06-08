@@ -126,7 +126,7 @@ var renderBarChart = function () {
         .range(colorList);
 
     var accessibleColorScale = d3.scale.ordinal()
-        .range(_.map(colorList, function (color) {
+        .range(colorList.map(function (color) {
             return getAccessibleColor(color);
         }));
 

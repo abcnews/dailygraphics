@@ -34,7 +34,7 @@ var formatData = function () {
     }
 
     // put states in bins
-    _.each(DATA, function (d) {
+    DATA.forEach(function (d) {
         if (d.amt !== null) {
             var amt = +d.amt;
             var state = d.usps;
@@ -86,9 +86,9 @@ var renderBlockHistogram = function () {
     var ticksY = parseInt(LABELS.ticksY || 4, 10);
 
     // Determine largest bin
-    var largestBin = _.max(binnedData, function (bin) {
-        return bin.length;
-    }).length;
+    var largestBin = binnedData.reduce(function (p, v) {
+        return v.length > p.length ? v : p;
+    }, []).length;
 
     // Clear existing graphic (for redraw)
     var containerElement = d3.select('#block-histogram');

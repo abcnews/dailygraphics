@@ -33,26 +33,31 @@ var onWindowLoaded = function () {
  */
 var formatData = function () {
     DATA = DATA.map(function (obj) {
-        return _.mapObject(obj, function (val, key) {
+        return d3.entries(obj).reduce(function (memo, val) {
+            var key = val.key;
+            var value = val.value;
+            var formattedValue;
             if (key === xCol) {
                 if (isDateScale) {
                     if (LABELS.parseDateFormat) {
-                        return d3.time.format(LABELS.parseDateFormat).parse(val);
-                    } else {
+                        formattedValue = d3.time.format(LABELS.parseDateFormat).parse(value);
+                    }
+
+                    if (!formattedValue) {
                         // fall back to guessing date format
-                        var date = d3.time.format('%d/%m/%y').parse(val);
-                        if (!date) {
-                            date = d3.time.format('%d/%m/%Y').parse(val);
-                        }
-                        return date;
+                        formattedValue = d3.time.format('%d/%m/%y').parse(value) ||
+                                         d3.time.format('%d/%m/%Y').parse(value);
                     }
                 } else {
-                    return val;
+                    formattedValue = value; // leave as string
                 }
+            } else {
+                formattedValue = +value; // turn string into number
             }
 
-            return +val; // turn string into number
-        });
+            memo[key] = formattedValue;
+            return memo;
+        }, {});
     });
 
     /*
@@ -69,11 +74,11 @@ var formatData = function () {
     });
 
     KEY_NESTED_DATA = d3.nest()
-        .key(function(d) { return d.key; })
+        .key(function (d) { return d.key; })
         .entries(FLAT_DATA);
 
     X_NESTED_DATA = d3.nest()
-        .key(function(d) { return d.x; })
+        .key(function (d) { return d.x; })
         .entries(FLAT_DATA);
 
 };
@@ -237,7 +242,7 @@ var renderLineChart = function () {
         .range(colorList);
 
     var accessibleColorScale = lineKeyScale.copy()
-        .range(_.map(colorList, function (color) {
+        .range(colorList.map(function (color) {
             return getAccessibleColor(color);
         }));
 
@@ -483,7 +488,7 @@ var renderLineChart = function () {
                 left: (xScale(lastObj.values[0].x) + margins.left + 10) + 'px',
 
                 top: function (d) {
-                    var yPosAvg = _.reduce(d, function (memo, num) {
+                    var yPosAvg = d.reduce(function (memo, num) {
                         return memo + num.yPos;
                     }, 0) / d.length;
                     if (LABELS.yLabel) {
@@ -572,7 +577,10 @@ var renderLineChart = function () {
                     var i = d3.bisect(range, posX);
                     var left = domain[i - 1];
                     var right = domain[i];
-                    obj = _.findWhere(X_NESTED_DATA, { key: left });
+                    X_NESTED_DATA.some(function (d) {
+                        return d.key === left && (obj = d, true);
+                    });
+
                     if (!obj) {
                         return;
                     }
@@ -580,7 +588,10 @@ var renderLineChart = function () {
                     xVal = left;
 
                     if (i < domain.length - 1 && posX - xScale(left) > xScale(right) - posX) {
-                        obj = _.findWhere(X_NESTED_DATA, { key: right });
+                        X_NESTED_DATA.some(function (d) {
+                            return d.key === right && (obj = d, true);
+                        });
+
                         xVal = right;
                     }
                 }
@@ -612,7 +623,7 @@ var renderLineChart = function () {
                     },
 
                     top: function (d) {
-                        var yPosAvg = _.reduce(d, function (memo, num) {
+                        var yPosAvg = d.reduce(function (memo, num) {
                             return memo + num.yPos;
                         }, 0) / d.length;
                         return (yPosAvg - (this.clientHeight / 2)) + 'px';
