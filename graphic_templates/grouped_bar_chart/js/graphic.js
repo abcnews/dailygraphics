@@ -143,7 +143,7 @@ var renderGroupedBarChart = function () {
         var groupLabels = chartWrapper.append('div')
             .attr('class', 'group-label')
             .style('margin-left', margins.left + 'px')
-            .text(dat.key + ' is a long group');
+            .text(dat.key);
 
         var labelData = [];
         dat.values.forEach(function (e) {
