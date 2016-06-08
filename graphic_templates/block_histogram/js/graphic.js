@@ -1,6 +1,5 @@
 // Global config
 var COLOR_BINS = [-4, -2, 0, 2, 4, 6, 8, 10];
-var COLOR_RANGE = MULTICOLORS;
 
 // Global vars
 var pymChild = null;
@@ -124,9 +123,10 @@ var renderBlockHistogram = function () {
         .domain([0, largestBin])
         .rangeRound([chartHeight, 0]);
 
+    var colorList = colorArray(LABELS, MONOCHROMECOLORS);
+
     var colorScale = d3.scale.ordinal()
-        .domain(COLOR_BINS)
-        .range(COLOR_RANGE);
+        .range(colorList);
 
     /*
      * Create D3 axes.
@@ -198,16 +198,20 @@ var renderBlockHistogram = function () {
         });
 
     lastTick.append('line')
-        .attr('x1', 0)
-        .attr('x2', 0)
-        .attr('y1', 0)
-        .attr('y2', 6);
+        .attr({
+            x1: 0,
+            x2: 0,
+            y1: 0,
+            y2: 6,
+        });
 
     lastTick.append('text')
-        .attr('text-anchor', 'middle')
-        .attr('x', 0)
-        .attr('y', 9)
-        .attr('dy', '0.71em')
+        .attr({
+            'text-anchor': 'middle',
+            x: 0,
+            y: 9,
+            dy: '0.71em',
+        })
         .text(function () {
             var t = COLOR_BINS[COLOR_BINS.length - 1];
             if (t > 0) {
