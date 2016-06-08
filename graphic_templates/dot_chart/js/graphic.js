@@ -88,7 +88,7 @@ var renderDotChart = function () {
     // Calculate actual chart dimensions
     var innerWidth = chartWrapper.node().getBoundingClientRect().width;
     var chartWidth = innerWidth - margins.left - margins.right;
-    var chartHeight = ((barHeight + barGap) * DATA.length);
+    var chartHeight = (barHeight + barGap) * DATA.length;
 
     var chartElement = chartWrapper.append('svg')
         .attr({
@@ -98,7 +98,7 @@ var renderDotChart = function () {
         .append('g')
             .attr('transform', makeTranslate(margins.left, margins.top));
 
-    var max = d3.max(DATA, function (d) {
+    var maxX = d3.max(DATA, function (d) {
         return Math.ceil(d.max / roundTicksFactor) * roundTicksFactor;
     });
 
@@ -106,8 +106,18 @@ var renderDotChart = function () {
      * Create D3 scale objects.
      */
     var xScale = d3.scale.linear()
-        .domain([0, max])
+        .domain([0, maxX])
         .range([0, chartWidth]);
+
+    var colorList = colorArray(LABELS, MONOCHROMECOLORS);
+
+    var colorScale = d3.scale.ordinal()
+        .range(colorList);
+
+    var accessibleColorScale = d3.scale.ordinal()
+        .range(colorList.map(function (color) {
+            return getAccessibleColor(color);
+        }));
 
     /*
      * Create D3 axes.
@@ -154,11 +164,11 @@ var renderDotChart = function () {
         .enter()
         .append('line')
             .attr({
-                x1: function (d, i) {
+                x1: function (d) {
                     return xScale(d.min);
                 },
 
-                x2: function (d, i) {
+                x2: function (d) {
                     return xScale(d.max);
                 },
 
@@ -169,6 +179,9 @@ var renderDotChart = function () {
                 y2: function (d, i) {
                     return i * (barHeight + barGap) + (barHeight / 2);
                 },
+            })
+            .style('stroke', function (d, i) {
+                return colorScale(i);
             });
 
     /*
@@ -179,13 +192,20 @@ var renderDotChart = function () {
         .selectAll('circle')
         .data(DATA)
         .enter().append('circle')
-            .attr('cx', function (d, i) {
-                return xScale(d.amt);
+            .attr({
+                cx: function (d) {
+                    return xScale(d.amt);
+                },
+
+                cy: function (d, i) {
+                    return i * (barHeight + barGap) + (barHeight / 2);
+                },
+
+                r: dotRadius,
             })
-            .attr('cy', function (d, i) {
-                return i * (barHeight + barGap) + (barHeight / 2);
-            })
-            .attr('r', dotRadius);
+            .style('fill', function (d, i) {
+                return colorScale(i);
+            });
 
     /*
      * Render bar labels.
@@ -227,14 +247,20 @@ var renderDotChart = function () {
             .selectAll('text')
             .data(DATA)
             .enter().append('text')
-                .attr('x', function (d, i) {
-                    return xScale(d.max) + 6;
-                })
-                .attr('y', function (d, i) {
-                    return i * (barHeight + barGap) + (barHeight / 2) + 3;
+                .attr({
+                    x: function (d, i) {
+                        return xScale(d.max) + 6;
+                    },
+
+                    y: function (d, i) {
+                        return i * (barHeight + barGap) + (barHeight / 2);
+                    },
                 })
                 .text(function (d) {
                     return d.amt.toFixed(1) + '%';
+                })
+                .style('fill', function (d, i) {
+                    return accessibleColorScale(i);
                 });
     });
 };
