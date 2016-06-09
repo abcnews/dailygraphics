@@ -265,46 +265,41 @@ var renderGroupedBarChart = function () {
 
                 });
 
+        if (LABELS.theme == 'highlight') {
+            var highlightBarIndex;
+
+            var clearHighlight = function () {
+                bars.attr('fill', function (d, i) {
+                        return colorScale(i);
+                    });
+
+                values.classed('over', false);
+            };
+
+            chartElement.on({
+                mousemove: function (e) {
+                    var posY = d3.mouse(chartElement.node())[1];
+                    var barIndex = Math.floor(posY / (barHeight + barGap));
+                    if (highlightBarIndex === barIndex) {
+                        return; // still over the same element
+                    }
+
+                    highlightBarIndex = barIndex;
+                    clearHighlight();
+                    bars.filter(':nth-child(' + (barIndex + 1) + ')')
+                        .attr('fill', HIGHLIGHTCOLORS.active);
+                    values.filter(':nth-child(' + (barIndex + 1) + ')')
+                        .classed('over', true);
+                },
+
+                mouseout: function (e) {
+                    highlightBarIndex = -1;
+                    clearHighlight();
+                },
+            });
+        }
+
     });
-
-    /*
-    if (LABELS.theme == 'highlight') {
-        var highlightGroupIndex;
-        var highlightBarIndex;
-
-        chartWrapper.on('mousemove', function (e) {
-            var posY = d3.mouse(chartWrapper.node())[1];
-            var groupOffset = groupHeight;
-            var groupIndex = Math.floor(posY / groupOffset);
-            var relativeY = posY - groupIndex * groupOffset;
-            var barIndex = Math.floor((relativeY - groupHeadingLineHeight) / (barHeight + barGap));
-
-            if ((highlightGroupIndex === groupIndex && highlightBarIndex === barIndex)) {
-                return; // still over the same element
-            }
-
-            highlightGroupIndex = groupIndex;
-            highlightBarIndex = barIndex;
-
-            bars.attr('fill', function (d, i) {
-                    return colorScale(i);
-                });
-
-            values.classed('over', false);
-
-            if (relativeY < groupHeadingLineHeight) {
-                return; // in the group heading
-            }
-
-            var hoveredBarGroup = barGroups.filter(':nth-child(' + (groupIndex + 1) + ')');
-
-            hoveredBarGroup.selectAll('rect:nth-child(' + (barIndex + 1) + ')')
-                .attr('fill', HIGHLIGHTCOLORS.active);
-            hoveredBarGroup.selectAll('.value text:nth-child(' + (barIndex + 1) + ')')
-                .classed('over', true);
-        });
-    }
-    */
 
 };
 
