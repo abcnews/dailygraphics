@@ -186,7 +186,7 @@ var renderBarChart = function () {
                 return classify(d.label);
             })
             .style({
-                'line-height': barHeight >= 20 ? 14 + 'px' : barHeight + 'px',
+                'line-height': (barHeight >= 20 ? 14 : barHeight) + 'px',
                 width: labelWidth + 'px',
                 height: barHeight + 'px',
                 left: 0,

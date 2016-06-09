@@ -277,6 +277,7 @@ var renderStackedBarChart = function () {
             .enter()
                 .append('li')
                     .style({
+                        'line-height': (barHeight >= 20 ? 14 : barHeight) + 'px',
                         width: labelWidth + 'px',
                         height: barHeight + 'px',
                         left: 0,
