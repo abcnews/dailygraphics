@@ -76,6 +76,7 @@ var renderStackedBarChart = function () {
     var labelWidth = parseInt(LABELS.labelWidth || 60, 10);
     var labelMargin = parseInt(LABELS.labelMargin || 6, 10);
     var valueGap = parseInt(LABELS.valueGap || 6, 10);
+    var labelLineHeight = barHeight >= 20 ? 14 : barHeight;
 
     var margins = {
         top: parseInt(LABELS.marginTop || 0, 10),
@@ -277,7 +278,7 @@ var renderStackedBarChart = function () {
             .enter()
                 .append('li')
                     .style({
-                        'line-height': (barHeight >= 20 ? 14 : barHeight) + 'px',
+                        'line-height': labelLineHeight + 'px',
                         width: labelWidth + 'px',
                         height: barHeight + 'px',
                         left: 0,

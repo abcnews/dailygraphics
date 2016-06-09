@@ -70,6 +70,7 @@ var renderGroupedBarChart = function () {
     var labelMargin = parseInt(LABELS.labelMargin || 6, 10);
     var valueGap = parseInt(LABELS.valueGap || 6, 10);
     var groupHeight = (barHeight + barGap) * numGroupBars;
+    var labelLineHeight = barHeight >= 20 ? 14 : barHeight;
 
     var margins = {
         top: parseInt(LABELS.marginTop || 0, 10),
@@ -168,7 +169,7 @@ var renderGroupedBarChart = function () {
                     return classify(d);//.key);
                 })
                 .style({
-                    'line-height': (barHeight >= 20 ? 14 : barHeight) + 'px',
+                    'line-height': labelLineHeight + 'px',
                     width: labelWidth + 'px',
                     height: barHeight + 'px',
                     left: 0,
