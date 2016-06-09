@@ -277,12 +277,7 @@ A string to put at the end of the values. e.g. `%`.
 
 ### Grouped Bar Chart
 
-Grouped Bar Charts have all the same options as [Bar Charts](#bar-chart) with one extra:
-
-#### groupGap
-> Default: `30`
-
-Vertical spacing between each bar group.
+Grouped Bar Charts have all the same options as [Bar Charts](#bar-chart).
 
 
 
