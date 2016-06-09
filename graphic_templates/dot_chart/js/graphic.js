@@ -127,7 +127,12 @@ var renderDotChart = function () {
         .orient('bottom')
         .ticks(ticksX)
         .tickFormat(function (d) {
-            return d + '%';
+            return formattedNumber(
+                d,
+                LABELS.prefixX,
+                LABELS.suffixX,
+                LABELS.maxDecimalPlaces
+            );
         })
         .outerTickSize(0);
 
@@ -257,7 +262,12 @@ var renderDotChart = function () {
                     },
                 })
                 .text(function (d) {
-                    return d.amt.toFixed(1) + '%';
+                    return formattedNumber(
+                        d.amt,
+                        LABELS.valuePrefix,
+                        LABELS.valueSuffix,
+                        LABELS.maxDecimalPlaces
+                    );
                 })
                 .style('fill', function (d, i) {
                     return accessibleColorScale(i);
