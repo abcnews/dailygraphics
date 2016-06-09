@@ -114,13 +114,32 @@ var renderPieChart = function () {
             return colorScale(i);
         });
 
-    g.append('text')
+    var text = g.append('text')
         .attr('transform', function (d) {
             return 'translate(' + arc.centroid(d) + ')';
-        })
+        });
+
+    text.append('tspan')
+        .attr('class', 'label')
         .text(function (d) {
             return d.data.label;
         });
+
+    text.append('tspan')
+        .attr('class', 'value')
+        .text(function (d) {
+            return formattedNumber(
+                d.data.amt,
+                LABELS.valuePrefix,
+                LABELS.valueSuffix,
+                LABELS.maxDecimalPlaces
+            );
+        })
+        .attr({
+            x: 0,
+            y: 20,
+        });
+
 };
 
 /*
