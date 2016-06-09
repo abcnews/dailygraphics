@@ -234,7 +234,7 @@ Set to `off` to hide the tooltips.
 Spacing between the end of the bar and the value.
 
 #### barHeight
-> Default: `30`
+> Default: `30` if 2 or fewer bars in chart/group and `10` if more
 
 The height of the bars.
 
