@@ -16,11 +16,11 @@ This project is used with the [Chart Builder](https://github.com/abcnews/chart-b
   * [Slopegraph](#slopegraph)
   * [Dot Chart](#dot-chart)
   * [Pie Chart](#pie-chart)
-  * [Responsive HTML Table](#responsive-html-table)
-  * [Block Histogram](#block-histogram)
+  * [Responsive HTML Table](#responsive-html-table) (TODO)
+  * [Block Histogram](#block-histogram) (TODO)
   * [USA State Grid Map](#usa-state-grid-map) (TODO)
   * [Locator Map](#locator-map) (TODO)
-  * [Graphic](#graphic)
+  * [Graphic](#graphic) (TODO)
 * [Common issues](#common-issues)
 * [Development](#development)
 
@@ -101,9 +101,10 @@ Spacing at the top of the graphic in pixels.
 > Default: `30`
 
 #### maxDecimalPlaces
-> Default: 10
+> Default: `10`
 
-Maximum number of decimal places to show on the formatted data labels. Any trailing zeros will be omitted.
+Maximum number of decimal places to show on the formatted value labels and axes. Any trailing zeros will be omitted.
+
 
 
 
@@ -301,8 +302,6 @@ Specify a custom aspect ratio. The graphic is responsive and resizable and will 
 
 #### suffixY
 
-#### maxDecimalPlaces
-
 
 
 ### Stacked Column Chart
@@ -313,8 +312,6 @@ Stacked Column Charts have all the same options as [Column Charts](#column-chart
 
 ### Slopegraph
 
-TODO
-
 #### ratio
 > Default: `4x3` on mobile, `16x9` otherwise
 
@@ -324,21 +321,13 @@ Specify a custom aspect ratio. The graphic is responsive and resizable and will 
 
 #### end_label
 
-#### labelGap
+#### labelWidth
 
 #### valueGap
-
-#### prefixY
-
-#### suffixY
-
-#### maxDecimalPlaces
 
 
 
 ### Dot Chart
-
-TODO
 
 #### barHeight
 
@@ -368,15 +357,21 @@ No further config options.
 
 ### Responsive HTML Table
 
-No further config options.
+NOT READY FOR USE IN PRODUCTION
+
+#### hdr_state
+
+#### hdr_usps
+
+#### hdr_ap
+
+#### hdr_value
 
 
 
 ### Block Histogram
 
 NOT READY FOR USE IN PRODUCTION
-
-TODO
 
 #### blockGap
 
