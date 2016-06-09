@@ -205,8 +205,8 @@ var renderSlopegraph = function () {
             .text(function (d) {
                 return formattedNumber(
                     d.start,
-                    LABELS.prefixY,
-                    LABELS.suffixY,
+                    LABELS.valuePrefix,
+                    LABELS.valueSuffix,
                     LABELS.maxDecimalPlaces
                 );
             });
@@ -231,8 +231,8 @@ var renderSlopegraph = function () {
             .text(function (d) {
                 return formattedNumber(
                     d.end,
-                    LABELS.prefixY,
-                    LABELS.suffixY,
+                    LABELS.valuePrefix,
+                    LABELS.valueSuffix,
                     LABELS.maxDecimalPlaces
                 );
             });

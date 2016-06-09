@@ -230,8 +230,8 @@ var renderStackedBarChart = function () {
             .text(function (d) {
                 return formattedNumber(
                     d.val,
-                    LABELS.prefixX,
-                    LABELS.suffixX,
+                    LABELS.valuePrefix,
+                    LABELS.valueSuffix,
                     LABELS.maxDecimalPlaces
                 );
             })

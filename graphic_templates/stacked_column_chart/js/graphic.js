@@ -239,8 +239,8 @@ var renderStackedColumnChart = function () {
             .text(function (d) {
                 return formattedNumber(
                     d.val,
-                    LABELS.prefixY,
-                    LABELS.suffixY,
+                    LABELS.valuePrefix,
+                    LABELS.valueSuffix,
                     LABELS.maxDecimalPlaces
                 );
             })

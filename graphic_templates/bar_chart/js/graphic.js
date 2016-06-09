@@ -212,8 +212,8 @@ var renderBarChart = function () {
             .text(function (d) {
                 return formattedNumber(
                     d.amt,
-                    LABELS.prefixX,
-                    LABELS.suffixX,
+                    LABELS.valuePrefix,
+                    LABELS.valueSuffix,
                     LABELS.maxDecimalPlaces
                 );
             })

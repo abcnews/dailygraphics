@@ -477,7 +477,7 @@ var renderLineChart = function () {
                     h += '<div class="label-' + thisData.i + '" style="color: ' + thisData.accessibleColor + '">' +
                         thisData.key.replace('\\n', '<br>') +
                         '<br><strong>' +
-                        formattedNumber(thisData.amt, LABELS.prefixY, LABELS.suffixY, LABELS.maxDecimalPlaces) +
+                        formattedNumber(thisData.amt, LABELS.valuePrefix, LABELS.valueSuffix, LABELS.maxDecimalPlaces) +
                         '</strong>' +
                         '</div>';
                 }
@@ -609,7 +609,7 @@ var renderLineChart = function () {
                         h += '<div style="color: ' + thisData.accessibleColor + '">' +
                             thisData.key.replace('\\n', ' ') +
                             ' <strong>' +
-                            formattedNumber(thisData.amt, LABELS.prefixY, LABELS.suffixY, LABELS.maxDecimalPlaces) +
+                            formattedNumber(thisData.amt, LABELS.valuePrefix, LABELS.valueSuffix, LABELS.maxDecimalPlaces) +
                             '</strong>' +
                             '</div>';
                     }

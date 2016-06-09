@@ -212,8 +212,8 @@ var renderColumnChart = function () {
             .text(function (d) {
                 return formattedNumber(
                     d.amt,
-                    LABELS.prefixY,
-                    LABELS.suffixY,
+                    LABELS.valuePrefix,
+                    LABELS.valueSuffix,
                     LABELS.maxDecimalPlaces
                 );
             })

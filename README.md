@@ -105,6 +105,15 @@ Spacing at the top of the graphic in pixels.
 
 Maximum number of decimal places to show on the formatted value labels and axes. Any trailing zeros will be omitted.
 
+#### valuePrefix
+> Default: empty string
+
+A string to put in front of the values. e.g. `$`.
+
+#### valueSuffix
+> Default: empty string
+
+A string to put at the end of the values. e.g. `%`.
 
 
 
@@ -264,16 +273,6 @@ Minimum value on the X axis.
 
 Maximum value on the X axis.
 
-#### prefixX
-> Default: empty string
-
-A string to put in front of the values. e.g. `$`.
-
-#### suffixX
-> Default: empty string
-
-A string to put at the end of the values. e.g. `%`.
-
 
 
 ### Grouped Bar Chart
@@ -297,10 +296,6 @@ Stacked Bar Charts have all the same options as [Bar Charts](#bar-chart).
 > Default: `4x3` on mobile, `16x9` otherwise
 
 Specify a custom aspect ratio. The graphic is responsive and resizable and will retain this ratio.
-
-#### prefixY
-
-#### suffixY
 
 
 
@@ -346,6 +341,16 @@ Specify a custom aspect ratio. The graphic is responsive and resizable and will 
 #### mobileTicksX
 
 #### roundTicksFactor
+
+#### prefixX
+> Default: empty string
+
+A string to put in front of the ticks in the X axis. e.g. `$`.
+
+#### suffixX
+> Default: empty string
+
+A string to put at the end of the ticks in the X axis. e.g. `%`.
 
 
 
