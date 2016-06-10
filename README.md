@@ -26,6 +26,8 @@ This project is used with the [Chart Builder](https://github.com/abcnews/chart-b
 
 ## Chart configuration options
 
+See the [graphic config matrix](https://github.com/abcnews/dailygraphics/blob/master/graphic-config-matrix.csv) for an overview.
+
 
 
 ### Common
