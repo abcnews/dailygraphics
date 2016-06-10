@@ -458,13 +458,13 @@ fab debug_deploy:GRAPHIC-NAME,template=line_chart
 
 ### Viewing a debug graphic
 
-Navigate to the generated graphic folder and run a HTTP server:
+Navigate to the graphic folder and run a HTTP server:
 
 ~~~
 python -m SimpleHTTPServer 8000
 ~~~
 
-Then visit http://localhost:8000/build or http://localhost.abc.net.au:8000/build (for web fonts to work)
+Then visit http://localhost:8000/ or http://localhost.abc.net.au:8000/ (for web fonts to work) and navigate into the graphic `build` directory.
 
 ### Modifying the data
 
