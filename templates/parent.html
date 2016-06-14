@@ -216,37 +216,31 @@ $(function() {
     <script type="text/javascript" src="http://www.abc.net.au/dat/news/interactives/graphics/lib/pym.min.js"></script>
 
     <script type="text/javascript">
+
         var previewWrapperEl = document.querySelector('#preview-wrapper');
-        var resizeEls = document.querySelectorAll('.resizer');
 
-        for (var i = 0; i < resizeEls.length; i++) {
-            resizeEls.item(i).addEventListener('click', function (e) {
+        var setWrapperWidthFromDataAttr = function (el) {
+            previewWrapperEl.style.width = el.getAttribute('data-width');
+        };
+
+        var windowHash = window.location.hash.replace('#', '') || 'fluid';
+        var pymParent = new pym.Parent('preview', 'child.html', {});
+        var buttonEls = document.querySelectorAll('.resizer');
+        for (var i = 0; i < buttonEls.length; i++) {
+            var buttonEl = buttonEls.item(i);
+
+            buttonEl.addEventListener('click', function (e) {
                 e.preventDefault();
-
-                previewWrapperEl.style.width = this.getAttribute('data-width');
+                setWrapperWidthFromDataAttr(this);
                 pymParent.sendWidth();
-
                 window.location.hash = this.getAttribute('data-hash');
             });
+
+            if (buttonEl.getAttribute('data-hash') === windowHash) {
+                setWrapperWidthFromDataAttr(buttonEl);
+            }
         }
 
-        var width;
-        switch (window.location.hash) {
-            case '#sidebar':
-                width = '220px';
-                break;
-            case '#mobile':
-                width = '300px';
-                break;
-            case '#desktop':
-                width = '700px';
-                break;
-            default:
-                width = '100%';
-        }
-        previewWrapperEl.style.width = width;
-
-        var pymParent = new pym.Parent('preview', 'child.html', {});
     </script>
 </body>
 </html>
