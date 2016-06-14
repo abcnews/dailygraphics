@@ -4,9 +4,6 @@ var isMobile = false;
 var isDateScale = !!DATA[0].date;
 var xCol = isDateScale ? 'date' : 'x';
 
-// D3 formatters
-var bisectDate = d3.bisector(function (d) { return d.values[0].x; }).left;
-
 /*
  * Initialize graphic
  */
@@ -359,31 +356,73 @@ var renderScatterplot = function () {
 
         });
 
-    if (false) {
-        chartElement.append('g')
-            .selectAll('text.label')
-            .data(DATA)
-            .enter().append('text')
-            .classed('label', true)
-            .text(function (d) {
-                return d.Label;
-            })
-            .attr({
-                x: function (d) {
-                    return xScale(isDateScale ? d.date : d.x);
-                },
+    chartElement.append('g')
+        .selectAll('text.label')
+        .data(DATA)
+        .enter().append('text')
+        .classed('label', true)
+        .text(function (d) {
+            return d.Label;
+        })
+        .attr({
+            x: function (d) {
+                return xScale(isDateScale ? d.date : d.x);
+            },
 
-                y: function (d) {
-                    return yScale(d.y);
-                },
+            y: function (d) {
+                return yScale(d.y);
+            },
 
-                fill: function (d) {
-                    return accessibleColorScale(d.Group);
-                },
+            dx: function (d) {
+                var pos = d.LabelPosition || 'above';
+                if (pos === 'left') {
+                    return -6;
+                } else if (pos === 'right') {
+                    return 6;
+                }
 
-            });
+                return 0;
+            },
 
-    }
+            dy: function (d) {
+                var pos = d.LabelPosition || 'above';
+                if (pos === 'above') {
+                    return -6;
+                } else if (pos === 'below') {
+                    return 6;
+                }
+
+                return 0;
+            },
+
+            fill: function (d) {
+                return accessibleColorScale(d.Group);
+            },
+
+        })
+        .style({
+            'text-anchor': function (d) {
+                var pos = d.LabelPosition || 'above';
+                if (pos === 'left') {
+                    return 'end';
+                } else if (pos === 'right') {
+                    return 'start';
+                }
+
+                return 'middle';
+            },
+
+            'dominant-baseline': function (d) {
+                var pos = d.LabelPosition || 'above';
+                if (pos === 'above') {
+                    return 'auto';
+                } else if (pos === 'below') {
+                    return 'hanging';
+                }
+
+                return 'central';
+            },
+        });
 
 };
 
