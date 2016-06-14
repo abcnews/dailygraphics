@@ -2,6 +2,8 @@
 fab debug_deploy:blake-line-chart,template=line_chart
 fab debug_deploy:blake-line-chart-linear,template=line_chart
 fab debug_deploy:blake-dot-chart,template=dot_chart
+fab debug_deploy:blake-scatterplot,template=scatterplot
+fab debug_deploy:blake-scatterplot-linear,template=scatterplot
 fab debug_deploy:blake-slopegraph,template=slopegraph
 fab debug_deploy:blake-bar-chart,template=bar_chart
 fab debug_deploy:blake-grouped-bar-chart,template=grouped_bar_chart
