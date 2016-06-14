@@ -202,12 +202,20 @@ var renderScatterplot = function () {
         .domain([minY, maxY])
         .range([chartHeight, 0]);
 
+    var groups = DATA.map(function (d) {
+            return d.Group;
+        }).filter(function (value, index, self) {
+            return self.indexOf(value) === index;
+        });
+
     var colorList = colorArray(LABELS, MONOCHROMECOLORS);
 
     var colorScale = d3.scale.ordinal()
+        .domain(groups)
         .range(colorList);
 
     var accessibleColorScale = d3.scale.ordinal()
+        .domain(groups)
         .range(colorList.map(function (color) {
             return getAccessibleColor(color);
         }));
@@ -334,7 +342,6 @@ var renderScatterplot = function () {
             r: 1.5,
 
             cx: function (d) {
-                console.log(isDateScale ? d.date : d.x);
                 return xScale(isDateScale ? d.date : d.x);
             },
 
@@ -343,11 +350,11 @@ var renderScatterplot = function () {
             },
 
             fill: function (d) {
-                return colorScale(d.key);
+                return colorScale(d.Group);
             },
 
             stroke: function (d) {
-                return colorScale(d.key);
+                return colorScale(d.Group);
             },
 
         });
@@ -362,8 +369,6 @@ var renderScatterplot = function () {
                 return d.Label;
             })
             .attr({
-                r: 1.5,
-
                 x: function (d) {
                     return xScale(isDateScale ? d.date : d.x);
                 },
@@ -373,7 +378,7 @@ var renderScatterplot = function () {
                 },
 
                 fill: function (d) {
-                    return accessibleColorScale(d.key);
+                    return accessibleColorScale(d.Group);
                 },
 
             });
