@@ -90,6 +90,8 @@ def deploy_to_production(slug):
         ignore=['%s/*' % graphic_assets]
     )
 
+    local('rm %s/.undeployed-changes.flag' % (graphic_root))
+
 @task
 def update_from_content(slug):
     require('settings', provided_by=[production, staging])
@@ -101,6 +103,9 @@ def update_from_content(slug):
     update_copy(slug)
     render.render(slug)
 
+    graphic_path = '%s/%s' % (app_config.GRAPHICS_PATH, slug)
+    local('touch %s/.undeployed-changes.flag' % (graphic_path))
+
 @task
 def update_from_template(slug, template):
     require('settings', provided_by=[production, staging])
@@ -111,6 +116,9 @@ def update_from_template(slug, template):
 
     recopy_templates(slug, template)
     render.render(slug)
+
+    graphic_path = '%s/%s' % (app_config.GRAPHICS_PATH, slug)
+    local('touch %s/.undeployed-changes.flag' % (graphic_path))
 
 @task
 def debug_deploy(slug, template):
