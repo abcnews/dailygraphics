@@ -162,7 +162,7 @@
             {% if COPY_GOOGLE_DOC_KEY %}
             {% if COPY_GOOGLE_DOC_KEY != 'None' %}
             <div class="segment">
-                <form action="http://newsdev3.aus.aunty.abc.net.au/tools/chart-builder/server.php?action=deploy" method="post">
+                <form action="http://newsdev3.aus.aunty.abc.net.au/tools/chart-builder/server.php?action=update_from_content" method="post">
                     <input type="hidden" name="slug" value="{{ slug }}">
                     <input type="hidden" name="redirect" value="{{ slug }}">
                     <button class="btn refresh" type="submit">Refresh content</button>
