@@ -332,6 +332,13 @@ def add_slopegraph(slug, debug=False):
     _add_graphic(slug, 'slopegraph', debug)
 
 @task
+def add_scatterplot(slug, debug=False):
+    """
+    Create a scatterplot.
+    """
+    _add_graphic(slug, 'scatterplot', debug)
+
+@task
 def add_map(slug):
     """
     Create a locator map.
