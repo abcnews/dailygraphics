@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>{% if DEPLOYMENT_TARGET %}{{ DEPLOYMENT_TARGET }} : {% endif %}{{ slug }}</title>
+    <title>{{ slug }}</title>
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no" />
     <style type="text/css">
         /* Basic styles */
@@ -69,12 +69,20 @@
             position: fixed;
             top: 0px;
             width: 100%;
-            height: 40px;
-            padding: 10px 5px 0 5px;
+            height: 80px;
             overflow: hidden;
         }
-        .parent-header:after { clear: both; }
-
+        .parent-header:after,
+        .parent-header .row {
+            clear: both;
+        }
+        .parent-header .row {
+            height: 30px;
+            padding: 5px;
+        }
+        .parent-header .top {
+            background-color: #f7f7f7;
+        }
         .parent-header .segment {
             float: left;
             padding-left: 5px;
@@ -84,7 +92,6 @@
 
         .parent-header .right {
             float: right;
-            margin-right: 15px;
         }
 
         .localhost,
@@ -111,7 +118,7 @@
 
         /* Content */
         .content {
-            margin: 60px 10px 10px 10px;
+            margin: 100px 10px 10px 10px;
         }
 
         #preview-wrapper {
@@ -130,55 +137,107 @@
             width: 100%;
         }
 
+        body.unknown .hide-on-unknown,
+        body.production .hide-on-production,
+        body.staging .hide-on-staging,
+        .show-on-unknown,
+        .show-on-production,
+        .show-on-staging {
+            display: none;
+        }
+
+        body.unknown .show-on-unknown,
+        body.production .show-on-production,
+        body.staging .show-on-staging {
+            display: block;
+        }
+
+
     </style>
 </head>
 <body>
 
     <header class="parent-header">
-        <!--
-        <div class="segment">
-            <h1 class="{{ DEPLOYMENT_TARGET or 'localhost' }}">{{ DEPLOYMENT_TARGET or 'localhost' }}</h1>
+
+        <div class="row top">
+
+            <div class="segment show-on-unknown">
+                <h1 class="unknown">Unknown</h1>
+            </div>
+
+            <div class="segment show-on-staging">
+                <h1 class="staging">Staging</h1>
+            </div>
+
+            <div class="segment show-on-production">
+                <h1 class="production">Production</h1>
+            </div>
+
+            <div class="segment hide-on-production">
+                <a class="btn" href="http://www.abc.net.au/dat/news/interactives/graphics/{{ slug }}/">view in production</a>
+            </div>
+
+            <div class="segment hide-on-staging">
+                <a class="btn" href="http://newsdev3.aus.aunty.abc.net.au/tools/chart-builder/graphics/{{ slug }}/build">view in staging</a>
+            </div>
+
+            <div class="right">
+
+                <div class="segment">
+                    <a class="btn" href="http://newsdev3.aus.aunty.abc.net.au/tools/chart-builder/">Chart Builder</a>
+                </div>
+
+            </div>
         </div>
 
-        <div class="segment">
-            <a class="btn resizer" data-width="220px" data-hash="sidebar" href="#">Sidebar (220px)</a>
-        </div>
-        -->
+        <div class="row">
 
-        <div class="segment">
-            <a class="btn resizer" data-width="300px" data-hash="mobile" href="#">Mobile (300px)</a>
-        </div>
-
-        <div class="segment">
-            <a class="btn resizer" data-width="700px" data-hash="desktop" href="#">Desktop (700px)</a>
-        </div>
-
-        <div class="segment">
-            <a class="btn resizer" data-width="100%" data-hash="fluid" href="#">Fluid (100%)</a>
-        </div>
-
-        <div class="right">
-
-            {% if COPY_GOOGLE_DOC_KEY %}
-            {% if COPY_GOOGLE_DOC_KEY != 'None' %}
+            <!--
             <div class="segment">
-                <form action="http://newsdev3.aus.aunty.abc.net.au/tools/chart-builder/server.php?action=update_from_content" method="post">
-                    <input type="hidden" name="slug" value="{{ slug }}">
-                    <button class="btn refresh" type="submit">Refresh content</button>
-                </form>
+                <a class="btn resizer" data-width="220px" data-hash="sidebar" href="#">Sidebar (220px)</a>
+            </div>
+            -->
+
+            <div class="segment">
+                <a class="btn resizer" data-width="300px" href="#mobile">Mobile (300px)</a>
             </div>
 
             <div class="segment">
-                <a class="btn" href="https://docs.google.com/spreadsheets/d/{{ COPY_GOOGLE_DOC_KEY }}/edit" >Google Sheet</a>
+                <a class="btn resizer" data-width="700px" href="#desktop">Desktop (700px)</a>
             </div>
-            {% endif %}
-            {% endif %}
 
             <div class="segment">
-                <a class="btn" href="http://newsdev3.aus.aunty.abc.net.au/tools/chart-builder/">Chart Builder</a>
+                <a class="btn resizer" data-width="100%" href="#fluid">Fluid (100%)</a>
+            </div>
+
+            <div class="right">
+
+                {% if COPY_GOOGLE_DOC_KEY %}
+                {% if COPY_GOOGLE_DOC_KEY != 'None' %}
+                <div class="segment show-on-staging">
+                    <form action="http://newsdev3.aus.aunty.abc.net.au/tools/chart-builder/server.php?action=update_from_content" method="post">
+                        <input type="hidden" name="slug" value="{{ slug }}">
+                        <button class="btn" type="submit">Refresh content</button>
+                    </form>
+                </div>
+
+                <div class="segment show-on-production">
+                    <form action="http://newsdev3.aus.aunty.abc.net.au/tools/chart-builder/server.php?action=deploy_to_production" method="post">
+                        <input type="hidden" name="slug" value="{{ slug }}">
+                        <button class="btn" type="submit">Update from staging</button>
+                    </form>
+                </div>
+
+                <div class="segment">
+                    <a class="btn" href="https://docs.google.com/spreadsheets/d/{{ COPY_GOOGLE_DOC_KEY }}/edit" >Google Sheet</a>
+                </div>
+                {% endif %}
+                {% endif %}
+
             </div>
 
         </div>
+
     </header>
 
     <div class="content">
@@ -216,26 +275,33 @@ $(function() {
 
     <script type="text/javascript">
 
+        var hostname = window.location.hostname;
+        var environment = 'unknown';
+        if (hostname === 'newsdev3.aus.aunty.abc.net.au') {
+            environment = 'staging';
+        } else if (hostname === 'www.abc.net.au' || hostname === 'mobile.abc.net.au') {
+            environment = 'production';
+        }
+
+        document.body.className = environment;
+
         var previewWrapperEl = document.querySelector('#preview-wrapper');
 
         var setWrapperWidthFromDataAttr = function (el) {
             previewWrapperEl.style.width = el.getAttribute('data-width');
         };
 
-        var windowHash = window.location.hash.replace('#', '') || 'fluid';
         var pymParent = new pym.Parent('preview', 'child.html', {});
         var buttonEls = document.querySelectorAll('.resizer');
         for (var i = 0; i < buttonEls.length; i++) {
             var buttonEl = buttonEls.item(i);
 
             buttonEl.addEventListener('click', function (e) {
-                e.preventDefault();
                 setWrapperWidthFromDataAttr(this);
                 pymParent.sendWidth();
-                window.location.hash = this.getAttribute('data-hash');
             });
 
-            if (buttonEl.getAttribute('data-hash') === windowHash) {
+            if (buttonEl.getAttribute('href') === (window.location.hash || '#fluid')) {
                 setWrapperWidthFromDataAttr(buttonEl);
             }
         }
