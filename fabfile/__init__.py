@@ -90,7 +90,7 @@ def deploy_to_production(slug):
         ignore=['%s/*' % graphic_assets]
     )
 
-    local('rm %s/.undeployed-changes.flag' % (graphic_root))
+    write_meta_json(slug, 'deploy')
 
 @task
 def update_from_content(slug):
@@ -102,9 +102,7 @@ def update_from_content(slug):
 
     update_copy(slug)
     render.render(slug)
-
-    graphic_path = '%s/%s' % (app_config.GRAPHICS_PATH, slug)
-    local('touch %s/.undeployed-changes.flag' % (graphic_path))
+    write_meta_json(slug, 'content')
 
 @task
 def update_from_template(slug, template):
@@ -116,9 +114,7 @@ def update_from_template(slug, template):
 
     recopy_templates(slug, template)
     render.render(slug)
-
-    graphic_path = '%s/%s' % (app_config.GRAPHICS_PATH, slug)
-    local('touch %s/.undeployed-changes.flag' % (graphic_path))
+    write_meta_json(slug, 'template', template)
 
 @task
 def debug_deploy(slug, template):
@@ -130,7 +126,34 @@ def debug_deploy(slug, template):
 
     recopy_templates(slug, template)
     # update_copy(slug)
+    # write_meta_json(slug, 'content')
     render.render(slug)
+    write_meta_json(slug, 'template', template)
+
+def write_meta_json(slug, action, template=''):
+    meta_path = '%s/%s/meta.json' % (app_config.GRAPHICS_PATH, slug)
+
+    import json
+    try:
+        with open(meta_path) as f:
+            json_data = json.load(f)
+    except: # catch *all* exceptions
+        default_json_str = '{"production": {"date": ""}, "staging": {"content": {"date": ""}, "template": {"date": "", "type": ""}}}'
+        json_data = json.loads(default_json_str)
+
+    import time
+    date_string = int(time.time())
+
+    if "content" == action:
+        json_data["staging"]["content"]["date"] = date_string
+    elif "template" == action:
+        json_data["staging"]["template"]["date"] = date_string
+        json_data["staging"]["template"]["type"] = template
+    elif "deploy" == action:
+        json_data["production"]["date"] = date_string
+
+    with open(meta_path, 'w') as f:
+        json.dump(json_data, f)
 
 def recopy_templates(slug, template):
     graphic_path = '%s/%s' % (app_config.GRAPHICS_PATH, slug)

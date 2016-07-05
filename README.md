@@ -16,6 +16,7 @@ This project is used with the [Chart Builder](https://github.com/abcnews/chart-b
   * [Slopegraph](#slopegraph)
   * [Dot Chart](#dot-chart)
   * [Pie Chart](#pie-chart)
+  * [Scatterplot](#scatterplot)
   * [Responsive HTML Table](#responsive-html-table) (TODO)
   * [Block Histogram](#block-histogram) (TODO)
   * [USA State Grid Map](#usa-state-grid-map) (TODO)
@@ -193,7 +194,7 @@ Use this when relying on the default min or max value. When calculating the min 
 #### ticksX
 > Default: `10`
 
-How many ticks on the X axis.
+Approximate number of ticks to show on the X axis. Only applies to date-based line charts. Otherwise every x value has a tick.
 
 #### mobileTicksX
 > Default: `5`
@@ -201,7 +202,7 @@ How many ticks on the X axis.
 #### ticksY
 > Default: `10`
 
-How many ticks on the Y axis.
+Approximate number of ticks to show on the Y axis.
 
 #### mobileTicksY
 > Default: `5`
@@ -359,6 +360,12 @@ A string to put at the end of the ticks in the X axis. e.g. `%`.
 ### Pie Chart
 
 No further config options.
+
+
+
+### Scatterplot
+
+NOT READY FOR USE IN PRODUCTION
 
 
 
