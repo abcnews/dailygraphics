@@ -20,11 +20,28 @@
     position: absolute;
     white-space: nowrap;
     color: #666;
+    text-anchor: middle;
+    dominant-baseline: auto;
 
-    div {
-        line-height: 1.2;
-        padding: 0.2em 0;
+    &.shadow {
+        stroke: #fff;
+        stroke-width: 5px;
     }
+
+    &.above {
+    }
+    &.below {
+        dominant-baseline: hanging;
+    }
+    &.left {
+        text-anchor: end;
+        dominant-baseline: central;
+    }
+    &.right {
+        text-anchor: start;
+        dominant-baseline: central;
+    }
+
 }
 
 @media screen and (max-width: 500px) {
