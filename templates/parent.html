@@ -221,6 +221,13 @@
                     </form>
                 </div>
 
+                <div class="segment show-on-staging">
+                    <form action="http://newsdev3.aus.aunty.abc.net.au/tools/chart-builder/server.php?action=deploy_to_production" method="post">
+                        <input type="hidden" name="slug" value="{{ slug }}">
+                        <button class="btn" type="submit">Push to production</button>
+                    </form>
+                </div>
+
                 <div class="segment show-on-production">
                     <form action="http://newsdev3.aus.aunty.abc.net.au/tools/chart-builder/server.php?action=deploy_to_production" method="post">
                         <input type="hidden" name="slug" value="{{ slug }}">
