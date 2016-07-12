@@ -290,7 +290,7 @@ var renderLineChart = function () {
             .each(function () {
                 // Finds "\n" in text and splits it into tspans
                 var el = d3.select(this);
-                var words = el.text().replace('\\n', '\n').split('\n');
+                var words = el.text().replace(/\\n/g, '\n').split('\n');
                 el.text('');
 
                 for (var i = 0; i < words.length; i++) {
@@ -475,7 +475,7 @@ var renderLineChart = function () {
                 for (var i = 0; i < d.length; ++i) {
                     var thisData = d[i];
                     h += '<div class="label-' + thisData.i + '" style="color: ' + thisData.accessibleColor + '">' +
-                        thisData.key.replace('\\n', '<br>') +
+                        thisData.key.replace(/\\n/g, '<br>') +
                         '<br><strong>' +
                         formattedNumber(thisData.amt, LABELS.valuePrefix, LABELS.valueSuffix, LABELS.maxDecimalPlaces) +
                         '</strong>' +
@@ -607,7 +607,7 @@ var renderLineChart = function () {
                     for (var i = 0; i < d.length; ++i) {
                         var thisData = d[i];
                         h += '<div style="color: ' + thisData.accessibleColor + '">' +
-                            thisData.key.replace('\\n', ' ') +
+                            thisData.key.replace(/\\n/g, ' ') +
                             ' <strong>' +
                             formattedNumber(thisData.amt, LABELS.valuePrefix, LABELS.valueSuffix, LABELS.maxDecimalPlaces) +
                             '</strong>' +
