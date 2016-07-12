@@ -39,7 +39,6 @@
             float: left;
             padding: 0 11px;
             border: none;
-            border-radius: 4px;
             background-color: #f7f7f7;
             font-weight: bold;
             cursor: pointer;
@@ -48,6 +47,31 @@
         .btn:hover,
         .btn:active {
             background-color: #fff;
+        }
+
+        .btn:first-child {
+            border-top-left-radius: 4px;
+            border-bottom-left-radius: 4px;
+            border-right: 1px solid #ccc;
+        }
+        .btn + .btn {
+            border-radius: 0;
+            border-right: 1px solid #ccc;
+        }
+        .btn:last-child {
+            border-right: none;
+            border-top-right-radius: 4px;
+            border-bottom-right-radius: 4px;
+        }
+
+        a.btn.active,
+        a.btn.active:link,
+        a.btn.active:visited,
+        a.btn.active:hover,
+        a.btn.active:active {
+            background: #ccc;
+            color: #333;
+            cursor: default;
         }
 
         button.btn {
@@ -200,13 +224,7 @@
 
             <div class="segment">
                 <a class="btn resizer" data-width="300px" href="#mobile">Mobile (300px)</a>
-            </div>
-
-            <div class="segment">
                 <a class="btn resizer" data-width="700px" href="#desktop">Desktop (700px)</a>
-            </div>
-
-            <div class="segment">
                 <a class="btn resizer" data-width="100%" href="#fluid">Fluid (100%)</a>
             </div>
 
@@ -296,6 +314,12 @@ $(function() {
 
         var setWrapperWidthFromDataAttr = function (el) {
             previewWrapperEl.style.width = el.getAttribute('data-width');
+            var activeEls = document.querySelectorAll('.btn.resizer.active');
+            for (var i = 0; i < activeEls.length; i++) {
+                activeEls.item(i).className = 'btn resizer';
+            }
+
+            el.className = 'active btn resizer';
         };
 
         var pymParent = new pym.Parent('preview', 'child.html', {});
@@ -308,7 +332,7 @@ $(function() {
                 pymParent.sendWidth();
             });
 
-            if (buttonEl.getAttribute('href') === (window.location.hash || '#fluid')) {
+            if (buttonEl.getAttribute('href') === (window.location.hash || '#desktop')) {
                 setWrapperWidthFromDataAttr(buttonEl);
             }
         }
