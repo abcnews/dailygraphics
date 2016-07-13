@@ -6,7 +6,7 @@ This project is used with the [Chart Builder](https://github.com/abcnews/chart-b
 
 
 * [Chart configuration options](#chart-configuration-options)
-  * [Common](#common-options)
+  * [Common](#common)
   * [Line Chart](#line-chart)
   * [Bar Chart](#bar-chart)
   * [Grouped Bar Chart](#grouped-bar-chart)
