@@ -3,6 +3,7 @@ var pymChild = null;
 var isMobile = false;
 var isDateScale = !!DATA[0].date;
 var xCol = isDateScale ? 'date' : 'x';
+var GROUPED_DATA;
 
 /*
  * Initialize graphic
@@ -52,6 +53,12 @@ var formatData = function () {
             return memo;
         }, {});
     });
+
+    GROUPED_DATA = d3.nest()
+        .key(function (d) {
+            return d.Group;
+        })
+        .entries(DATA);
 
 };
 
@@ -199,11 +206,9 @@ var renderScatterplot = function () {
         .domain([minY, maxY])
         .range([chartHeight, 0]);
 
-    var groups = DATA.map(function (d) {
-            return d.Group;
-        }).filter(function (value, index, self) {
-            return self.indexOf(value) === index;
-        });
+    var groups = GROUPED_DATA.map(function (d) {
+        return d.key;
+    });
 
     var colorList = colorArray(LABELS, MONOCHROMECOLORS);
 
@@ -330,32 +335,6 @@ var renderScatterplot = function () {
             });
     }
 
-    chartElement.append('g')
-        .selectAll('circle')
-        .data(DATA)
-        .enter().append('circle')
-        .classed('point', true)
-        .attr({
-            r: 1.5,
-
-            cx: function (d) {
-                return xScale(isDateScale ? d.date : d.x);
-            },
-
-            cy: function (d) {
-                return yScale(d.y);
-            },
-
-            fill: function (d) {
-                return colorScale(d.Group);
-            },
-
-            stroke: function (d) {
-                return colorScale(d.Group);
-            },
-
-        });
-
     ['shadow label', 'label'].forEach(function (cls) {
         chartElement.append('g')
             .selectAll('text.label')
@@ -403,6 +382,178 @@ var renderScatterplot = function () {
                 },
 
             });
+
+    });
+
+    var squareSide = 6;
+    var area = Math.pow(squareSide, 2);
+    var circleRadius = Math.sqrt(area / Math.PI); // to give same area as square
+    var triangleSide = Math.sqrt(area / (Math.sqrt(3) / 4)); // to give same area as square
+    var triangleHeight = Math.sqrt(Math.pow(triangleSide, 2) - Math.pow((triangleSide / 2), 2));
+    var triangleCentre = Math.sqrt(3) / 6 * triangleSide;
+    var pentagonSide = Math.sqrt(4 * area / Math.sqrt(25 + 10 * Math.sqrt(5)));
+    var pentagonWidth = pentagonSide / 2 * (1 + Math.sqrt(5));
+    var pentagonHeight = pentagonSide / 2 * (Math.sqrt(5 + 2 * Math.sqrt(5)));
+    var pentagonRadius = pentagonSide / 10 * Math.sqrt(50 + 10 * Math.sqrt(5));
+    var pentagonSideOffset = Math.sqrt(Math.pow(pentagonSide, 2) - Math.pow(pentagonWidth / 2, 2));
+
+    var makePointsString = function (arrOfArrs) {
+        var arrOfStr = [];
+        for (var i = 0; i < arrOfArrs.length; i++) {
+            arrOfStr.push(arrOfArrs[i].join(','));
+        }
+
+        return arrOfStr.join(' ');
+    };
+
+    GROUPED_DATA.forEach(function (group, i) {
+        var groupElem = chartElement.append('g')
+            .attr('class', classify(group.key))
+            .attr({
+                fill: colorScale(group.key),
+                stroke: colorScale(group.key),
+            });
+
+        switch (i) {
+            case 1: // diamond
+                groupElem
+                    .selectAll('rect')
+                    .data(group.values)
+                    .enter().append('rect')
+                    .classed('point', true)
+                    .attr({
+                        height: squareSide,
+                        width: squareSide,
+
+                        x: function (d) {
+                            return xScale(isDateScale ? d.date : d.x) - (squareSide / 2);
+                        },
+
+                        y: function (d) {
+                            return yScale(d.y) - (squareSide / 2);
+                        },
+
+                        transform: function (d) {
+                            var x = xScale(isDateScale ? d.date : d.x);
+                            var y = yScale(d.y);
+                            return 'rotate(45 ' + x + ' ' + y + ')';
+                        },
+
+                    });
+                break;
+            case 2: // up triangle
+                groupElem
+                    .selectAll('polygon')
+                    .data(group.values)
+                    .enter().append('polygon')
+                    .classed('point', true)
+                    .attr({
+                        points: function (d) {
+                            var xOffset = xScale(isDateScale ? d.date : d.x) - triangleSide / 2;
+                            var yOffset = yScale(d.y) - triangleHeight + triangleCentre;
+                            var topY = yOffset;
+                            var bottomY = topY + triangleHeight;
+                            var leftX = xOffset;
+                            var centreX = leftX + (triangleSide / 2);
+                            var rightX = leftX + triangleSide;
+                            return makePointsString([
+                                [leftX, bottomY],
+                                [rightX, bottomY],
+                                [centreX, topY],
+                            ]);
+                        },
+                    });
+                break;
+            case 3: // square
+                groupElem
+                    .selectAll('rect')
+                    .data(group.values)
+                    .enter().append('rect')
+                    .classed('point', true)
+                    .attr({
+                        height: squareSide,
+                        width: squareSide,
+
+                        x: function (d) {
+                            return xScale(isDateScale ? d.date : d.x) - (squareSide / 2);
+                        },
+
+                        y: function (d) {
+                            return yScale(d.y) - (squareSide / 2);
+                        },
+
+                    });
+                break;
+            case 4: // pentagon
+                groupElem
+                    .selectAll('polygon')
+                    .data(group.values)
+                    .enter().append('polygon')
+                    .classed('point', true)
+                    .attr({
+                        points: function (d) {
+                            var xOffset = xScale(isDateScale ? d.date : d.x) - pentagonWidth / 2;
+                            var yOffset = yScale(d.y) - pentagonRadius;
+                            var topY = yOffset;
+                            var midY = topY + pentagonSideOffset;
+                            var bottomY = topY + pentagonHeight;
+                            var leftX = xOffset;
+                            var centreLeftX = leftX + ((pentagonWidth - pentagonSide) / 2);
+                            var centreX = centreLeftX + (pentagonSide / 2);
+                            var centreRightX = centreX + (pentagonSide / 2);
+                            var rightX = leftX + pentagonWidth;
+                            return makePointsString([
+                                [leftX, midY],
+                                [centreX, topY],
+                                [rightX, midY],
+                                [centreRightX, bottomY],
+                                [centreLeftX, bottomY],
+                            ]);
+                        },
+                    });
+                break;
+            case 5: // down triangle
+                groupElem
+                    .selectAll('polygon')
+                    .data(group.values)
+                    .enter().append('polygon')
+                    .classed('point', true)
+                    .attr({
+                        points: function (d) {
+                            var xOffset = xScale(isDateScale ? d.date : d.x) - triangleSide / 2;
+                            var yOffset = yScale(d.y) - triangleCentre;
+                            var topY = yOffset;
+                            var bottomY = topY + triangleHeight;
+                            var leftX = xOffset;
+                            var centreX = leftX + (triangleSide / 2);
+                            var rightX = leftX + triangleSide;
+                            return makePointsString([
+                                [leftX, topY],
+                                [rightX, topY],
+                                [centreX, bottomY],
+                            ]);
+                        },
+                    });
+                break;
+            default: // circle
+                groupElem
+                    .selectAll('circle')
+                    .data(group.values)
+                    .enter().append('circle')
+                    .classed('point', true)
+                    .attr({
+                        r: circleRadius,
+
+                        cx: function (d) {
+                            return xScale(isDateScale ? d.date : d.x);
+                        },
+
+                        cy: function (d) {
+                            return yScale(d.y);
+                        },
+
+                    });
+        }
 
     });
 
