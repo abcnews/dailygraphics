@@ -335,11 +335,13 @@ var renderScatterplot = function () {
             });
     }
 
+    var labelGroup = chartElement.append('g')
+        .selectAll('g')
+        .data(DATA)
+        .enter().append('g');
+
     ['shadow label', 'label'].forEach(function (cls) {
-        chartElement.append('g')
-            .selectAll('text.label')
-            .data(DATA)
-            .enter().append('text')
+        labelGroup.append('text')
             .attr('class', function (d) {
                 return cls + ' ' + (d.LabelPosition || '');
             })
