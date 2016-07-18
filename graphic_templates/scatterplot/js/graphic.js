@@ -119,6 +119,65 @@ var renderScatterplot = function () {
     var containerElement = d3.select('#scatterplot');
     containerElement.html('');
 
+    var groups = GROUPED_DATA.map(function (d) {
+        return d.key;
+    });
+
+    var colorList = colorArray(LABELS, MONOCHROMECOLORS);
+
+    var colorScale = d3.scale.ordinal()
+        .domain(groups)
+        .range(colorList);
+
+    var accessibleColorScale = d3.scale.ordinal()
+        .domain(groups)
+        .range(colorList.map(function (color) {
+            return getAccessibleColor(color);
+        }));
+
+    if (GROUPED_DATA.length > 1) {
+
+        // Groups legend
+        var groupsLegend = containerElement.append('div')
+            .attr('class', 'group-legend')
+            .selectAll('div')
+            .data(GROUPED_DATA)
+            .enter().append('div');
+
+        groupsLegend
+            .append('svg')
+                .attr({
+                    width: 15,
+                    height: 15,
+                })
+                .append('use')
+                    .attr({
+                        'xlink:href': function (d, i) {
+                            return '#point' + i;
+                        },
+
+                        x: 6,
+                        y: 6,
+
+                        fill: function (d) {
+                            return colorScale(d.key);
+                        },
+
+                        stroke: function (d) {
+                            return colorScale(d.key);
+                        },
+                    });
+
+        groupsLegend
+            .append('span')
+                .text(function (d) {
+                    return d.key;
+                })
+                .style('color', function (d) {
+                    return accessibleColorScale(d.key);
+                });
+    }
+
     /*
      * Create the root SVG element.
      */
@@ -205,22 +264,6 @@ var renderScatterplot = function () {
     var yScale = d3.scale.linear()
         .domain([minY, maxY])
         .range([chartHeight, 0]);
-
-    var groups = GROUPED_DATA.map(function (d) {
-        return d.key;
-    });
-
-    var colorList = colorArray(LABELS, MONOCHROMECOLORS);
-
-    var colorScale = d3.scale.ordinal()
-        .domain(groups)
-        .range(colorList);
-
-    var accessibleColorScale = d3.scale.ordinal()
-        .domain(groups)
-        .range(colorList.map(function (color) {
-            return getAccessibleColor(color);
-        }));
 
     var svg = chartWrapper.append('svg')
         .attr({
@@ -342,7 +385,10 @@ var renderScatterplot = function () {
     var labelGroup = chartElement.append('g')
         .selectAll('g')
         .data(DATA)
-        .enter().append('g');
+        .enter().append('g')
+            .attr('fill', function (d) {
+                return accessibleColorScale(d.Group);
+            });
 
     ['shadow label', 'label'].forEach(function (cls) {
         labelGroup.append('text')
@@ -381,10 +427,6 @@ var renderScatterplot = function () {
                     }
 
                     return 0;
-                },
-
-                fill: function (d) {
-                    return accessibleColorScale(d.Group);
                 },
 
             });
