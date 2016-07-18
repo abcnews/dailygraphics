@@ -400,12 +400,9 @@ var renderScatterplot = function () {
     var pentagonSideOffset = Math.sqrt(Math.pow(pentagonSide, 2) - Math.pow(pentagonWidth / 2, 2));
 
     var makePointsString = function (arrOfArrs) {
-        var arrOfStr = [];
-        for (var i = 0; i < arrOfArrs.length; i++) {
-            arrOfStr.push(arrOfArrs[i].join(','));
-        }
-
-        return arrOfStr.join(' ');
+        return arrOfArrs.map(function (arr) {
+            return arr.join(',');
+        }).join(' ');
     };
 
     GROUPED_DATA.forEach(function (group, i) {
