@@ -158,14 +158,6 @@ var renderScatterplot = function () {
 
                         x: 6,
                         y: 6,
-
-                        fill: function (d) {
-                            return colorScale(d.key);
-                        },
-
-                        stroke: function (d) {
-                            return colorScale(d.key);
-                        },
                     });
 
         groupsLegend
@@ -449,18 +441,13 @@ var renderScatterplot = function () {
     // Points
     GROUPED_DATA.forEach(function (group, i) {
         var groupElem = chartElement.append('g')
-            .attr('class', classify(group.key))
-            .attr({
-                fill: colorScale(group.key),
-                stroke: colorScale(group.key),
-            });
+            .attr('class', classify(group.key));
 
+        var pointDef;
         switch (i) {
             case 1: // diamond
-                defs.append('rect')
-                    .classed('point', true)
+                pointDef = defs.append('rect')
                     .attr({
-                        id: 'point' + i,
                         height: squareSide,
                         width: squareSide,
                         x: -squareSide / 2,
@@ -469,10 +456,8 @@ var renderScatterplot = function () {
                     });
                 break;
             case 2: // up triangle
-                defs.append('polygon')
-                    .classed('point', true)
+                pointDef = defs.append('polygon')
                     .attr({
-                        id: 'point' + i,
                         points: function () {
                             var topY = triangleCentre - triangleHeight;
                             var bottomY = topY + triangleHeight;
@@ -490,10 +475,8 @@ var renderScatterplot = function () {
                     });
                 break;
             case 3: // square
-                defs.append('rect')
-                    .classed('point', true)
+                pointDef = defs.append('rect')
                     .attr({
-                        id: 'point' + i,
                         height: squareSide,
                         width: squareSide,
                         x: -(squareSide / 2),
@@ -501,10 +484,8 @@ var renderScatterplot = function () {
                     });
                 break;
             case 4: // pentagon
-                defs.append('polygon')
-                    .classed('point', true)
+                pointDef = defs.append('polygon')
                     .attr({
-                        id: 'point' + i,
                         points: function () {
                             var side = Math.sqrt(4 * area / Math.sqrt(25 + 10 * Math.sqrt(5)));
                             var width = side / 2 * (1 + Math.sqrt(5));
@@ -533,10 +514,8 @@ var renderScatterplot = function () {
                     });
                 break;
             case 5: // down triangle
-                defs.append('polygon')
-                    .classed('point', true)
+                pointDef = defs.append('polygon')
                     .attr({
-                        id: 'point' + i,
                         points: function () {
                             var topY = -triangleCentre;
                             var bottomY = topY + triangleHeight;
@@ -554,15 +533,19 @@ var renderScatterplot = function () {
                     });
                 break;
             default: // circle
-                defs.append('circle')
-                    .classed('point', true)
+                pointDef = defs.append('circle')
                     .attr({
-                        id: 'point' + i,
                         r: circleRadius,
                         cx: 0,
                         cy: 0,
                     });
         }
+
+        pointDef.classed('point', true).attr({
+            id: 'point' + i,
+            fill: colorScale(group.key),
+            stroke: colorScale(group.key),
+        });
 
         groupElem
             .selectAll('use')
