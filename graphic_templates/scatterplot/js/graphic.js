@@ -147,8 +147,8 @@ var renderScatterplot = function () {
         groupsLegend
             .append('svg')
                 .attr({
-                    width: 15,
-                    height: 15,
+                    width: 12,
+                    height: 12,
                 })
                 .append('use')
                     .attr({
