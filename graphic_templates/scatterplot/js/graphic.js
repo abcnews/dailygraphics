@@ -222,12 +222,15 @@ var renderScatterplot = function () {
             return getAccessibleColor(color);
         }));
 
-    var chartElement = chartWrapper.append('svg')
+    var svg = chartWrapper.append('svg')
         .attr({
             width: chartWidth + margins.left + margins.right,
             height: chartHeight + margins.top + margins.bottom,
-        })
-        .append('g')
+        });
+
+    var defs = svg.append('defs');
+
+    var chartElement = svg.append('g')
             .attr('transform', makeTranslate(margins.left, margins.top));
 
     var overlay = chartElement.append('rect')
@@ -335,6 +338,7 @@ var renderScatterplot = function () {
             });
     }
 
+    // Data labels
     var labelGroup = chartElement.append('g')
         .selectAll('g')
         .data(DATA)
@@ -393,11 +397,6 @@ var renderScatterplot = function () {
     var triangleSide = Math.sqrt(area / (Math.sqrt(3) / 4)); // to give same area as square
     var triangleHeight = Math.sqrt(Math.pow(triangleSide, 2) - Math.pow((triangleSide / 2), 2));
     var triangleCentre = Math.sqrt(3) / 6 * triangleSide;
-    var pentagonSide = Math.sqrt(4 * area / Math.sqrt(25 + 10 * Math.sqrt(5)));
-    var pentagonWidth = pentagonSide / 2 * (1 + Math.sqrt(5));
-    var pentagonHeight = pentagonSide / 2 * (Math.sqrt(5 + 2 * Math.sqrt(5)));
-    var pentagonRadius = pentagonSide / 10 * Math.sqrt(50 + 10 * Math.sqrt(5));
-    var pentagonSideOffset = Math.sqrt(Math.pow(pentagonSide, 2) - Math.pow(pentagonWidth / 2, 2));
 
     var makePointsString = function (arrOfArrs) {
         return arrOfArrs.map(function (arr) {
@@ -405,6 +404,7 @@ var renderScatterplot = function () {
         }).join(' ');
     };
 
+    // Points
     GROUPED_DATA.forEach(function (group, i) {
         var groupElem = chartElement.append('g')
             .attr('class', classify(group.key))
@@ -415,46 +415,30 @@ var renderScatterplot = function () {
 
         switch (i) {
             case 1: // diamond
-                groupElem
-                    .selectAll('rect')
-                    .data(group.values)
-                    .enter().append('rect')
+                defs.append('rect')
                     .classed('point', true)
                     .attr({
+                        id: 'point' + i,
                         height: squareSide,
                         width: squareSide,
-
-                        x: function (d) {
-                            return xScale(isDateScale ? d.date : d.x) - (squareSide / 2);
-                        },
-
-                        y: function (d) {
-                            return yScale(d.y) - (squareSide / 2);
-                        },
-
-                        transform: function (d) {
-                            var x = xScale(isDateScale ? d.date : d.x);
-                            var y = yScale(d.y);
-                            return 'rotate(45 ' + x + ' ' + y + ')';
-                        },
-
+                        x: -squareSide / 2,
+                        y: -squareSide / 2,
+                        transform: 'rotate(45 0 0)',
                     });
                 break;
             case 2: // up triangle
-                groupElem
-                    .selectAll('polygon')
-                    .data(group.values)
-                    .enter().append('polygon')
+                defs.append('polygon')
                     .classed('point', true)
                     .attr({
-                        points: function (d) {
-                            var xOffset = xScale(isDateScale ? d.date : d.x) - triangleSide / 2;
-                            var yOffset = yScale(d.y) - triangleHeight + triangleCentre;
-                            var topY = yOffset;
+                        id: 'point' + i,
+                        points: function () {
+                            var topY = triangleCentre - triangleHeight;
                             var bottomY = topY + triangleHeight;
-                            var leftX = xOffset;
-                            var centreX = leftX + (triangleSide / 2);
-                            var rightX = leftX + triangleSide;
+
+                            var leftX = -triangleSide / 2;
+                            var centreX = 0;
+                            var rightX = triangleSide / 2;
+
                             return makePointsString([
                                 [leftX, bottomY],
                                 [rightX, bottomY],
@@ -464,43 +448,38 @@ var renderScatterplot = function () {
                     });
                 break;
             case 3: // square
-                groupElem
-                    .selectAll('rect')
-                    .data(group.values)
-                    .enter().append('rect')
+                defs.append('rect')
                     .classed('point', true)
                     .attr({
+                        id: 'point' + i,
                         height: squareSide,
                         width: squareSide,
-
-                        x: function (d) {
-                            return xScale(isDateScale ? d.date : d.x) - (squareSide / 2);
-                        },
-
-                        y: function (d) {
-                            return yScale(d.y) - (squareSide / 2);
-                        },
-
+                        x: -(squareSide / 2),
+                        y: -(squareSide / 2),
                     });
                 break;
             case 4: // pentagon
-                groupElem
-                    .selectAll('polygon')
-                    .data(group.values)
-                    .enter().append('polygon')
+                defs.append('polygon')
                     .classed('point', true)
                     .attr({
-                        points: function (d) {
-                            var xOffset = xScale(isDateScale ? d.date : d.x) - pentagonWidth / 2;
-                            var yOffset = yScale(d.y) - pentagonRadius;
-                            var topY = yOffset;
-                            var midY = topY + pentagonSideOffset;
-                            var bottomY = topY + pentagonHeight;
-                            var leftX = xOffset;
-                            var centreLeftX = leftX + ((pentagonWidth - pentagonSide) / 2);
-                            var centreX = centreLeftX + (pentagonSide / 2);
-                            var centreRightX = centreX + (pentagonSide / 2);
-                            var rightX = leftX + pentagonWidth;
+                        id: 'point' + i,
+                        points: function () {
+                            var side = Math.sqrt(4 * area / Math.sqrt(25 + 10 * Math.sqrt(5)));
+                            var width = side / 2 * (1 + Math.sqrt(5));
+                            var height = side / 2 * (Math.sqrt(5 + 2 * Math.sqrt(5)));
+                            var radius = side / 10 * Math.sqrt(50 + 10 * Math.sqrt(5));
+                            var sideOffset = Math.sqrt(Math.pow(side, 2) - Math.pow(width / 2, 2));
+
+                            var topY = -radius;
+                            var midY = topY + sideOffset;
+                            var bottomY = topY + height;
+
+                            var leftX = -width / 2;
+                            var centreLeftX = -side / 2;
+                            var centreX = 0;
+                            var centreRightX = side / 2;
+                            var rightX = width / 2;
+
                             return makePointsString([
                                 [leftX, midY],
                                 [centreX, topY],
@@ -512,20 +491,18 @@ var renderScatterplot = function () {
                     });
                 break;
             case 5: // down triangle
-                groupElem
-                    .selectAll('polygon')
-                    .data(group.values)
-                    .enter().append('polygon')
+                defs.append('polygon')
                     .classed('point', true)
                     .attr({
-                        points: function (d) {
-                            var xOffset = xScale(isDateScale ? d.date : d.x) - triangleSide / 2;
-                            var yOffset = yScale(d.y) - triangleCentre;
-                            var topY = yOffset;
+                        id: 'point' + i,
+                        points: function () {
+                            var topY = -triangleCentre;
                             var bottomY = topY + triangleHeight;
-                            var leftX = xOffset;
-                            var centreX = leftX + (triangleSide / 2);
-                            var rightX = leftX + triangleSide;
+
+                            var leftX = -triangleSide / 2;
+                            var centreX = 0;
+                            var rightX = triangleSide / 2;
+
                             return makePointsString([
                                 [leftX, topY],
                                 [rightX, topY],
@@ -535,24 +512,32 @@ var renderScatterplot = function () {
                     });
                 break;
             default: // circle
-                groupElem
-                    .selectAll('circle')
-                    .data(group.values)
-                    .enter().append('circle')
+                defs.append('circle')
                     .classed('point', true)
                     .attr({
+                        id: 'point' + i,
                         r: circleRadius,
-
-                        cx: function (d) {
-                            return xScale(isDateScale ? d.date : d.x);
-                        },
-
-                        cy: function (d) {
-                            return yScale(d.y);
-                        },
-
+                        cx: 0,
+                        cy: 0,
                     });
         }
+
+        groupElem
+            .selectAll('use')
+            .data(group.values)
+            .enter().append('use')
+            .attr({
+                'xlink:href': '#point' + i,
+
+                x: function (d) {
+                    return xScale(isDateScale ? d.date : d.x);
+                },
+
+                y: function (d) {
+                    return yScale(d.y);
+                },
+
+            });
 
     });
 
