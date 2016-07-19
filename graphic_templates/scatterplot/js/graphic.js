@@ -304,7 +304,7 @@ var renderScatterplot = function () {
             .each(function () {
                 // Finds "\n" in text and splits it into tspans
                 var el = d3.select(this);
-                var words = el.text().replace('\\n', '\n').split('\n');
+                var words = el.text().replace(/\\n/g, '\n').split('\n');
                 el.text('');
 
                 for (var i = 0; i < words.length; i++) {
