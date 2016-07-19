@@ -153,7 +153,7 @@ var renderScatterplot = function () {
                 .append('use')
                     .attr({
                         'xlink:href': function (d, i) {
-                            return '#point' + i;
+                            return '#group' + i;
                         },
 
                         x: 6,
@@ -425,134 +425,52 @@ var renderScatterplot = function () {
 
     });
 
-    var squareSide = 6;
-    var area = Math.pow(squareSide, 2);
-    var circleRadius = Math.sqrt(area / Math.PI); // to give same area as square
-    var triangleSide = Math.sqrt(area / (Math.sqrt(3) / 4)); // to give same area as square
-    var triangleHeight = Math.sqrt(Math.pow(triangleSide, 2) - Math.pow((triangleSide / 2), 2));
-    var triangleCentre = Math.sqrt(3) / 6 * triangleSide;
+    var shapesArr = [];
 
-    var makePointsString = function (arrOfArrs) {
-        return arrOfArrs.map(function (arr) {
-            return arr.join(',');
-        }).join(' ');
-    };
-
-    // Points
+    // Point markers
     GROUPED_DATA.forEach(function (group, i) {
-        var groupElem = chartElement.append('g')
-            .attr('class', classify(group.key));
-
-        var pointDef;
+        var shape;
         switch (i) {
-            case 1: // diamond
-                pointDef = defs.append('rect')
-                    .attr({
-                        height: squareSide,
-                        width: squareSide,
-                        x: -squareSide / 2,
-                        y: -squareSide / 2,
-                        transform: 'rotate(45 0 0)',
-                    });
+            // first 2 groups will use default circle shape
+            case 2:
+                shape = 'diamond'; // ⬥
                 break;
-            case 2: // up triangle
-                pointDef = defs.append('polygon')
-                    .attr({
-                        points: function () {
-                            var topY = triangleCentre - triangleHeight;
-                            var bottomY = topY + triangleHeight;
-
-                            var leftX = -triangleSide / 2;
-                            var centreX = 0;
-                            var rightX = triangleSide / 2;
-
-                            return makePointsString([
-                                [leftX, bottomY],
-                                [rightX, bottomY],
-                                [centreX, topY],
-                            ]);
-                        },
-                    });
+            case 3:
+                shape = 'triangle-up'; // ▲
                 break;
-            case 3: // square
-                pointDef = defs.append('rect')
-                    .attr({
-                        height: squareSide,
-                        width: squareSide,
-                        x: -(squareSide / 2),
-                        y: -(squareSide / 2),
-                    });
+            case 4:
+                shape = 'square'; // ■
                 break;
-            case 4: // pentagon
-                pointDef = defs.append('polygon')
-                    .attr({
-                        points: function () {
-                            var side = Math.sqrt(4 * area / Math.sqrt(25 + 10 * Math.sqrt(5)));
-                            var width = side / 2 * (1 + Math.sqrt(5));
-                            var height = side / 2 * (Math.sqrt(5 + 2 * Math.sqrt(5)));
-                            var radius = side / 10 * Math.sqrt(50 + 10 * Math.sqrt(5));
-                            var sideOffset = Math.sqrt(Math.pow(side, 2) - Math.pow(width / 2, 2));
-
-                            var topY = -radius;
-                            var midY = topY + sideOffset;
-                            var bottomY = topY + height;
-
-                            var leftX = -width / 2;
-                            var centreLeftX = -side / 2;
-                            var centreX = 0;
-                            var centreRightX = side / 2;
-                            var rightX = width / 2;
-
-                            return makePointsString([
-                                [leftX, midY],
-                                [centreX, topY],
-                                [rightX, midY],
-                                [centreRightX, bottomY],
-                                [centreLeftX, bottomY],
-                            ]);
-                        },
-                    });
+            case 5:
+                shape = 'pentagon'; // ⬟
                 break;
-            case 5: // down triangle
-                pointDef = defs.append('polygon')
-                    .attr({
-                        points: function () {
-                            var topY = -triangleCentre;
-                            var bottomY = topY + triangleHeight;
-
-                            var leftX = -triangleSide / 2;
-                            var centreX = 0;
-                            var rightX = triangleSide / 2;
-
-                            return makePointsString([
-                                [leftX, topY],
-                                [rightX, topY],
-                                [centreX, bottomY],
-                            ]);
-                        },
-                    });
+            case 6:
+                shape = 'triangle-down'; // ▼
                 break;
-            default: // circle
-                pointDef = defs.append('circle')
-                    .attr({
-                        r: circleRadius,
-                        cx: 0,
-                        cy: 0,
-                    });
+            default:
+                shape = 'circle'; // ●
         }
 
-        pointDef.classed('point', true).attr({
-            id: 'point' + i,
-            fill: colorScale(group.key),
-            stroke: colorScale(group.key),
-        });
+        shapesArr.push(shape);
 
-        groupElem
+        // create the colored shape variant for each group
+        defs.append('use')
+            .attr('class', 'point')
+            .attr({
+                'xlink:href': '#' + shape,
+                id: 'group' + i,
+                fill: colorScale(group.key),
+                stroke: colorScale(group.key),
+            });
+
+        // add the markers to the chart
+        chartElement.append('g')
+            .attr('class', classify(group.key))
             .selectAll('use')
             .data(group.values)
             .enter().append('use')
             .attr({
-                'xlink:href': '#point' + i,
+                'xlink:href': '#group' + i,
 
                 x: function (d) {
                     return xScale(isDateScale ? d.date : d.x);
@@ -565,6 +483,128 @@ var renderScatterplot = function () {
             });
 
     });
+
+    // create generic shapes used by markers
+    var area = 36; // draw shapes with a consistent area
+
+    var makePointsString = function (arrOfArrs) {
+        return arrOfArrs.map(function (arr) {
+            return arr.join(',');
+        }).join(' ');
+    };
+
+    var inShapesArr = function (shape) {
+        return shapesArr.indexOf(shape) !== -1;
+    };
+
+    if (inShapesArr('circle')) {
+        var circleRadius = Math.sqrt(area / Math.PI);
+        defs.append('circle')
+            .attr({
+                id: 'circle',
+                r: circleRadius,
+                cx: 0,
+                cy: 0,
+            });
+    }
+
+    var containsDiamond = inShapesArr('diamond');
+    if (containsDiamond || inShapesArr('square')) {
+        var squareSide = Math.sqrt(area);
+        defs.append('rect')
+            .attr('class', 'marker')
+            .attr({
+                id: 'square',
+                height: squareSide,
+                width: squareSide,
+                x: -squareSide / 2,
+                y: -squareSide / 2,
+            });
+
+        if (containsDiamond) {
+            defs.append('use')
+                .attr({
+                    'xlink:href': '#square',
+                    id: 'diamond',
+                    transform: 'rotate(45 0 0)',
+                });
+        }
+    }
+
+    var containsTriangleDown = inShapesArr('triangle-down');
+    if (containsTriangleDown || inShapesArr('triangle-up')) {
+        defs.append('polygon')
+            .attr({
+                id: 'triangle-up',
+                points: function () {
+                    var side = Math.sqrt(area / (Math.sqrt(3) / 4));
+                    var height = Math.sqrt(Math.pow(side, 2) - Math.pow((side / 2), 2));
+                    var innerRadius = Math.sqrt(3) / 6 * side;
+
+                    var x = {
+                        left: -side / 2,
+                        centre: 0,
+                        right: side / 2,
+                    };
+
+                    var y = {
+                        top: innerRadius - height,
+                        bottom: innerRadius,
+                    };
+
+                    return makePointsString([
+                        [x.left, y.bottom],
+                        [x.right, y.bottom],
+                        [x.centre, y.top],
+                    ]);
+                },
+            });
+
+        if (containsTriangleDown) {
+            defs.append('use')
+                .attr({
+                    'xlink:href': '#triangle-up',
+                    id: 'triangle-down',
+                    transform: 'rotate(180 0 0)',
+                });
+        }
+    }
+
+    if (inShapesArr('pentagon')) {
+        defs.append('polygon')
+            .attr({
+                id: 'pentagon',
+                points: function () {
+                    var side = Math.sqrt(4 * area / Math.sqrt(25 + 10 * Math.sqrt(5)));
+                    var width = side / 2 * (1 + Math.sqrt(5));
+                    var height = side / 2 * (Math.sqrt(5 + 2 * Math.sqrt(5)));
+                    var radius = side / 10 * Math.sqrt(50 + 10 * Math.sqrt(5));
+                    var sideOffset = Math.sqrt(Math.pow(side, 2) - Math.pow(width / 2, 2));
+
+                    var x = {
+                        left: -width / 2,
+                        centreLeft: -side / 2,
+                        centre: 0,
+                        centreRight: side / 2,
+                        right: width / 2,
+                    };
+
+                    var y = {
+                        top: -radius,
+                        middle: sideOffset - radius,
+                        bottom: height - radius,
+                    };
+
+                    return makePointsString([
+                        [x.left, y.middle],
+                        [x.centre, y.top],
+                        [x.right, y.middle],
+                        [x.centreRight, y.bottom],
+                        [x.centreLeft, y.bottom],
+                    ]);
+                },
+            });
+    }
 
 };
 
