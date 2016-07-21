@@ -29,9 +29,15 @@
     text-anchor: middle;
     dominant-baseline: auto;
 
-    &.shadow {
-        stroke: #fff;
-        stroke-width: 4px;
+    &.never {
+        display: none;
+    }
+
+    &.on-hover {
+        display: none;
+        &.hover {
+            display: inline;
+        }
     }
 
     &.above {
@@ -48,21 +54,41 @@
         dominant-baseline: central;
     }
 
+    .outline {
+        fill: #fff;
+        stroke: #fff;
+        stroke-width: 4px;
+    }
+
+    tspan.value {
+        font-weight: bold;
+    }
+
 }
 
-.group-legend {
+.legend {
     font-size: 12px;
-    margin-bottom: 20px;
-    line-height: 1;
+    margin-bottom: 40px;
+    line-height: 23px;
 
-    div {
-        display: inline-block;
-        margin-right: 10px;
-        white-space: nowrap;
+    .groups {
+        float: left;
+
+        div {
+            display: inline-block;
+            margin-right: 10px;
+            white-space: nowrap;
+        }
     }
 
     svg {
-        vertical-align: bottom;
+        vertical-align: -7px;
+    }
+
+    .magnitude,
+    .most-average {
+        float: right;
+        margin-left: 20px;
     }
 }
 

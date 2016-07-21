@@ -4,6 +4,9 @@ var isMobile = false;
 var isDateScale = !!DATA[0].date;
 var xCol = isDateScale ? 'date' : 'x';
 var GROUPED_DATA;
+LABELS.bubbleplot = 'on';
+LABELS.mostAverage = 'on';
+LABELS.trendlines = 'on';
 
 /*
  * Initialize graphic
@@ -162,52 +165,7 @@ var renderScatterplot = function () {
         return d.key;
     });
 
-    var colorList = colorArray(LABELS, MONOCHROMECOLORS);
-
-    var colorScale = d3.scale.ordinal()
-        .domain(groups)
-        .range(colorList);
-
-    var accessibleColorScale = d3.scale.ordinal()
-        .domain(groups)
-        .range(colorList.map(function (color) {
-            return getAccessibleColor(color);
-        }));
-
-    if (GROUPED_DATA.length > 1) {
-
-        // Groups legend
-        var groupsLegend = containerElement.append('div')
-            .attr('class', 'group-legend')
-            .selectAll('div')
-            .data(GROUPED_DATA)
-            .enter().append('div');
-
-        groupsLegend
-            .append('svg')
-                .attr({
-                    width: 12,
-                    height: 12,
-                })
-                .append('use')
-                    .attr({
-                        'xlink:href': function (d, i) {
-                            return '#group' + i;
-                        },
-
-                        x: 6,
-                        y: 6,
-                    });
-
-        groupsLegend
-            .append('span')
-                .text(function (d) {
-                    return d.key;
-                })
-                .style('color', function (d) {
-                    return accessibleColorScale(d.key);
-                });
-    }
+    var legendContainer = containerElement.append('div').attr('class', 'legend');
 
     /*
      * Create the root SVG element.
@@ -308,6 +266,18 @@ var renderScatterplot = function () {
     var yScale = d3.scale.linear()
         .domain([minY, maxY])
         .range([chartHeight, 0]);
+
+    var colorList = colorArray(LABELS, MONOCHROMECOLORS);
+
+    var colorScale = d3.scale.ordinal()
+        .domain(groups)
+        .range(colorList);
+
+    var accessibleColorScale = d3.scale.ordinal()
+        .domain(groups)
+        .range(colorList.map(function (color) {
+            return getAccessibleColor(color);
+        }));
 
     var svg = chartWrapper.append('svg')
         .attr({
@@ -467,23 +437,48 @@ var renderScatterplot = function () {
             });
     }
 
+    // create generic shapes used by markers
+    var markerArea = 36; // draw shapes with a consistent area
+    var circleRadius = Math.sqrt(markerArea / Math.PI);
+
+    if (LABELS.bubbleplot === 'on') {
+        var minZ = d3.min(DATA, function (d) {
+            return d.z;
+        });
+
+        var bubbleScale = markerArea / minZ;
+    }
+
     // Data labels
     var labelGroup = chartElement.append('g')
         .selectAll('g')
         .data(DATA)
         .enter().append('g')
-            .attr('fill', function (d) {
-                return accessibleColorScale(d.Group);
+            .attr('class', function (d) {
+                var classes = ['label'];
+                if (d.LabelPosition) {
+                    classes.push(classify(d.LabelPosition));
+                }
+
+                if (d.LabelPriority) {
+                    classes.push(classify(d.LabelPriority));
+                }
+
+                return classes.join(' ');
+            })
+            .attr({
+                id: function (d) {
+                    return 'label-' + d.id;
+                },
+
+                fill: function (d) {
+                    return accessibleColorScale(d.Group);
+                },
             });
 
-    ['shadow label', 'label'].forEach(function (cls) {
-        labelGroup.append('text')
-            .attr('class', function (d) {
-                return cls + ' ' + (d.LabelPosition || '');
-            })
-            .text(function (d) {
-                return d.Label;
-            })
+    ['outline', 'text'].forEach(function (cls) {
+        var labelText = labelGroup.append('text')
+            .attr('class', cls)
             .attr({
                 x: function (d) {
                     return xScale(isDateScale ? d.date : d.x);
@@ -492,30 +487,52 @@ var renderScatterplot = function () {
                 y: function (d) {
                     return yScale(d.y);
                 },
-
-                dx: function (d) {
-                    var pos = d.LabelPosition || 'above';
-                    if (pos === 'left') {
-                        return -6;
-                    } else if (pos === 'right') {
-                        return 6;
+            })
+            .each(function (d) {
+                var offset = (function (val) {
+                    if (LABELS.bubbleplot === 'on') {
+                        var bubbleArea = val * bubbleScale;
+                        var bubbleRadius = Math.sqrt(bubbleArea / Math.PI);
+                        return bubbleRadius;
+                    } else {
+                        return circleRadius;
                     }
+                })(d.z) + 3;
 
-                    return 0;
-                },
-
-                dy: function (d) {
-                    var pos = d.LabelPosition || 'above';
-                    if (pos === 'above') {
-                        return -6;
-                    } else if (pos === 'below') {
-                        return 6;
+                var attr = (function (pos) {
+                    switch (pos) {
+                        case 'left':
+                            return { dx: -offset };
+                        case 'right':
+                            return { dx: offset };
+                        case 'bottom':
+                            return { dy: offset };
+                        default: // above
+                            return { dy: -offset };
                     }
+                })(d.LabelPosition);
 
-                    return 0;
-                },
-
+                d3.select(this).attr(attr);
             });
+
+        labelText.append('tspan')
+            .text(function (d) {
+                return d.Label;
+            });
+
+        if (LABELS.bubbleplot === 'on') {
+            labelText.append('tspan')
+                .attr('class', 'value')
+                .text(function (d) {
+                    return d.z;
+                })
+                .attr({
+                    x: function (d) {
+                        return xScale(isDateScale ? d.date : d.x);
+                    },
+                })
+                .attr('dy', '1em');
+        }
 
     });
 
@@ -523,48 +540,55 @@ var renderScatterplot = function () {
 
     // Point markers
     GROUPED_DATA.forEach(function (group, i) {
-        var shape;
-        switch (i) {
-            // first 2 groups will use default circle shape
-            case 2:
-                shape = 'diamond'; // ⬥
-                break;
-            case 3:
-                shape = 'triangle-up'; // ▲
-                break;
-            case 4:
-                shape = 'square'; // ■
-                break;
-            case 5:
-                shape = 'pentagon'; // ⬟
-                break;
-            case 6:
-                shape = 'triangle-down'; // ▼
-                break;
-            default:
-                shape = 'circle'; // ●
-        }
+        var shape = (function (groupIndex) {
+            if (LABELS.bubbleplot === 'on') {
+                return 'bubble';
+            } else {
+                switch (groupIndex) {
+                    // first 2 groups will use default circle shape
+                    case 2:
+                        return 'diamond'; // ⬥
+                    case 3:
+                        return 'triangle-up'; // ▲
+                    case 4:
+                        return 'square'; // ■
+                    case 5:
+                        return 'pentagon'; // ⬟
+                    case 6:
+                        return 'triangle-down'; // ▼
+                    default:
+                        return 'circle'; // ●
+                }
+            }
+        })(i);
 
         shapesArr.push(shape);
 
-        // create the colored shape variant for each group
+        // alias for use by legend
         defs.append('use')
-            .attr('class', 'point')
             .attr({
                 'xlink:href': '#' + shape,
                 id: 'group' + i,
-                fill: colorScale(group.key),
-                stroke: colorScale(group.key),
             });
 
         // add the markers to the chart
         chartElement.append('g')
-            .attr('class', classify(group.key))
+            .attr('class', 'point ' + classify(group.key))
+            .attr({
+                fill: colorScale(group.key),
+                stroke: colorScale(group.key),
+            })
             .selectAll('use')
             .data(group.values)
             .enter().append('use')
             .attr({
-                'xlink:href': '#group' + i,
+                'xlink:href': function (d) {
+                    if (LABELS.bubbleplot === 'on') {
+                        return '#bubble-' + d.z;
+                    }
+
+                    return '#' + shape;
+                },
 
                 x: function (d) {
                     return xScale(isDateScale ? d.date : d.x);
@@ -574,125 +598,309 @@ var renderScatterplot = function () {
                     return yScale(d.y);
                 },
 
+            })
+            .on({
+                mouseover: function (d) {
+                    chartElement.select('#label-' + d.id).classed('hover', true);
+                },
+
+                mouseout: function (d) {
+                    chartElement.select('#label-' + d.id).classed('hover', false);
+                },
             });
 
     });
 
-    // create generic shapes used by markers
-    var area = 36; // draw shapes with a consistent area
+    if (LABELS.bubbleplot === 'on') {
 
+        // create a bubble def for each unique bubble size
+        d3.map(DATA, function (d) {
+            return d.z;
+        }).keys().forEach(function (z) {
+            var bubbleArea = z * bubbleScale;
+            var bubbleRadius = Math.sqrt(bubbleArea / Math.PI);
+            defs.append('circle')
+                .attr({
+                    id: 'bubble-' + z,
+                    r: bubbleRadius,
+                });
+        });
 
-    var inShapesArr = function (shape) {
-        return shapesArr.indexOf(shape) !== -1;
-    };
-
-    if (inShapesArr('circle')) {
-        var circleRadius = Math.sqrt(area / Math.PI);
         defs.append('circle')
             .attr({
-                id: 'circle',
+                id: 'bubble',
                 r: circleRadius,
-                cx: 0,
-                cy: 0,
-            });
-    }
-
-    var containsDiamond = inShapesArr('diamond');
-    if (containsDiamond || inShapesArr('square')) {
-        var squareSide = Math.sqrt(area);
-        defs.append('rect')
-            .attr('class', 'marker')
-            .attr({
-                id: 'square',
-                height: squareSide,
-                width: squareSide,
-                x: -squareSide / 2,
-                y: -squareSide / 2,
             });
 
-        if (containsDiamond) {
-            defs.append('use')
+    } else {
+        var inShapesArr = function (shape) {
+            return shapesArr.indexOf(shape) !== -1;
+        };
+
+        if (inShapesArr('circle')) {
+            defs.append('circle')
                 .attr({
-                    'xlink:href': '#square',
-                    id: 'diamond',
-                    transform: 'rotate(45 0 0)',
+                    id: 'circle',
+                    r: circleRadius,
+                });
+        }
+
+        var containsDiamond = inShapesArr('diamond');
+        if (containsDiamond || inShapesArr('square')) {
+            var squareSide = Math.sqrt(markerArea);
+            defs.append('rect')
+                .attr('class', 'marker')
+                .attr({
+                    id: 'square',
+                    height: squareSide,
+                    width: squareSide,
+                    x: -squareSide / 2,
+                    y: -squareSide / 2,
+                });
+
+            if (containsDiamond) {
+                defs.append('use')
+                    .attr({
+                        'xlink:href': '#square',
+                        id: 'diamond',
+                        transform: 'rotate(45 0 0)',
+                    });
+            }
+        }
+
+        var containsTriangleDown = inShapesArr('triangle-down');
+        if (containsTriangleDown || inShapesArr('triangle-up')) {
+            defs.append('polygon')
+                .attr({
+                    id: 'triangle-up',
+                    points: function () {
+                        var side = Math.sqrt(markerArea / (Math.sqrt(3) / 4));
+                        var height = Math.sqrt(Math.pow(side, 2) - Math.pow((side / 2), 2));
+                        var innerRadius = Math.sqrt(3) / 6 * side;
+
+                        var x = {
+                            left: -side / 2,
+                            centre: 0,
+                            right: side / 2,
+                        };
+
+                        var y = {
+                            top: innerRadius - height,
+                            bottom: innerRadius,
+                        };
+
+                        return makePointsString([
+                            [x.left, y.bottom],
+                            [x.right, y.bottom],
+                            [x.centre, y.top],
+                        ]);
+                    },
+                });
+
+            if (containsTriangleDown) {
+                defs.append('use')
+                    .attr({
+                        'xlink:href': '#triangle-up',
+                        id: 'triangle-down',
+                        transform: 'rotate(180 0 0)',
+                    });
+            }
+        }
+
+        if (inShapesArr('pentagon')) {
+            defs.append('polygon')
+                .attr({
+                    id: 'pentagon',
+                    points: function () {
+                        var side = Math.sqrt(4 * markerArea / Math.sqrt(25 + 10 * Math.sqrt(5)));
+                        var width = side / 2 * (1 + Math.sqrt(5));
+                        var height = side / 2 * (Math.sqrt(5 + 2 * Math.sqrt(5)));
+                        var radius = side / 10 * Math.sqrt(50 + 10 * Math.sqrt(5));
+                        var sideOffset = Math.sqrt(Math.pow(side, 2) - Math.pow(width / 2, 2));
+
+                        var x = {
+                            left: -width / 2,
+                            centreLeft: -side / 2,
+                            centre: 0,
+                            centreRight: side / 2,
+                            right: width / 2,
+                        };
+
+                        var y = {
+                            top: -radius,
+                            middle: sideOffset - radius,
+                            bottom: height - radius,
+                        };
+
+                        return makePointsString([
+                            [x.left, y.middle],
+                            [x.centre, y.top],
+                            [x.right, y.middle],
+                            [x.centreRight, y.bottom],
+                            [x.centreLeft, y.bottom],
+                        ]);
+                    },
                 });
         }
     }
 
-    var containsTriangleDown = inShapesArr('triangle-down');
-    if (containsTriangleDown || inShapesArr('triangle-up')) {
-        defs.append('polygon')
-            .attr({
-                id: 'triangle-up',
-                points: function () {
-                    var side = Math.sqrt(area / (Math.sqrt(3) / 4));
-                    var height = Math.sqrt(Math.pow(side, 2) - Math.pow((side / 2), 2));
-                    var innerRadius = Math.sqrt(3) / 6 * side;
+    var legendLineHeight = 23;
 
-                    var x = {
-                        left: -side / 2,
-                        centre: 0,
-                        right: side / 2,
-                    };
+    // Add a groups legend
+    if (GROUPED_DATA.length > 1) {
 
-                    var y = {
-                        top: innerRadius - height,
-                        bottom: innerRadius,
-                    };
-
-                    return makePointsString([
-                        [x.left, y.bottom],
-                        [x.right, y.bottom],
-                        [x.centre, y.top],
-                    ]);
-                },
+        var groupsLegend = legendContainer.append('div')
+            .attr('class', 'groups')
+            .selectAll('div')
+            .data(GROUPED_DATA)
+            .enter().append('div')
+            .style('color', function (d) {
+                return accessibleColorScale(d.key);
             });
 
-        if (containsTriangleDown) {
-            defs.append('use')
+        groupsLegend // add markers
+            .append('svg')
                 .attr({
-                    'xlink:href': '#triangle-up',
-                    id: 'triangle-down',
-                    transform: 'rotate(180 0 0)',
+                    width: 15,
+                    height: legendLineHeight,
+                })
+                .append('use')
+                    .attr('class', 'point')
+                    .attr({
+                        'xlink:href': function (d, i) {
+                            return '#group' + i;
+                        },
+
+                        x: 15 / 2,
+                        y: legendLineHeight / 2,
+
+                        fill: function (d) {
+                            return colorScale(d.key);
+                        },
+
+                        stroke: function (d) {
+                            return colorScale(d.key);
+                        },
+                    });
+
+        groupsLegend // add text labels
+            .append('span')
+                .text(function (d) {
+                    return d.key;
                 });
+
+        if (LABELS.trendlines === 'on') {
+            groupsLegend // add markers
+                .append('svg')
+                    .attr({
+                        width: 21,
+                        height: legendLineHeight,
+                    })
+                    .append('line')
+                        .attr({
+                            x1: 9,
+                            x2: 18,
+                            y1: legendLineHeight / 2,
+                            y2: legendLineHeight / 2,
+
+                            fill: function (d) {
+                                return colorScale(d.key);
+                            },
+
+                            stroke: function (d) {
+                                return colorScale(d.key);
+                            },
+                        });
+
+            groupsLegend // add text labels
+                .append('span')
+                    .text('Trend line');
+
         }
     }
 
-    if (inShapesArr('pentagon')) {
-        defs.append('polygon')
+    // add a magnitude / Z axis legend
+    if (LABELS.bubbleplot === 'on') {
+
+        var magnitudeLegend = legendContainer.append('div')
+            .attr('class', 'magnitude');
+
+        var magLegSvg = magnitudeLegend.append('svg');
+
+        var offset = 1;
+        var buffer = 3;
+
+        [2, 4, 7].forEach(function (radius) {
+            defs.append('circle')
+                .attr({
+                    id: 'mag' + radius,
+                    r: radius,
+                });
+
+            magLegSvg.append('use')
+                .attr('class', 'point')
+                .attr({
+                    'xlink:href': function (d, i) {
+                        return '#mag' + radius;
+                    },
+
+                    x: radius + offset,
+                    y: legendLineHeight / 2,
+                    fill: '#ccc',
+                    stroke: '#ccc',
+                });
+
+            offset += (radius * 2) + buffer;
+        });
+
+        magLegSvg.attr({
+            width: offset,
+            height: legendLineHeight,
+        });
+
+        magnitudeLegend.append('span').text(LABELS.zLabel);
+
+    }
+
+    if (LABELS.mostAverage === 'on') {
+        var mostAverageLegend = legendContainer.append('div')
+            .attr('class', 'most-average');
+
+        var mostAvgLegSvg = mostAverageLegend.append('svg')
             .attr({
-                id: 'pentagon',
-                points: function () {
-                    var side = Math.sqrt(4 * area / Math.sqrt(25 + 10 * Math.sqrt(5)));
-                    var width = side / 2 * (1 + Math.sqrt(5));
-                    var height = side / 2 * (Math.sqrt(5 + 2 * Math.sqrt(5)));
-                    var radius = side / 10 * Math.sqrt(50 + 10 * Math.sqrt(5));
-                    var sideOffset = Math.sqrt(Math.pow(side, 2) - Math.pow(width / 2, 2));
-
-                    var x = {
-                        left: -width / 2,
-                        centreLeft: -side / 2,
-                        centre: 0,
-                        centreRight: side / 2,
-                        right: width / 2,
-                    };
-
-                    var y = {
-                        top: -radius,
-                        middle: sideOffset - radius,
-                        bottom: height - radius,
-                    };
-
-                    return makePointsString([
-                        [x.left, y.middle],
-                        [x.centre, y.top],
-                        [x.right, y.middle],
-                        [x.centreRight, y.bottom],
-                        [x.centreLeft, y.bottom],
-                    ]);
-                },
+                width: legendLineHeight + 5,
+                height: legendLineHeight,
             });
+
+        mostAvgLegSvg.append('line').attr({
+            x1: legendLineHeight / 2,
+            x2: legendLineHeight / 2,
+            y1: 0,
+            y2: legendLineHeight,
+        });
+
+        mostAvgLegSvg.append('line').attr({
+            x1: 0,
+            x2: legendLineHeight,
+            y1: legendLineHeight / 2,
+            y2: legendLineHeight / 2,
+        });
+
+        mostAvgLegSvg.append('use')
+            .attr('class', 'point')
+            .attr({
+                'xlink:href': function (d, i) {
+                    return '#group' + i;
+                },
+
+                x: legendLineHeight / 2,
+                y: legendLineHeight / 2,
+                fill: '#ccc',
+                stroke: '#ccc',
+            });
+
+        mostAverageLegend.append('span').text('Most average');
+
     }
 
 };
