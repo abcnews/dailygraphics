@@ -223,74 +223,87 @@ var renderScatterplot = function () {
     /*
      * Create D3 scale objects.
      */
-    var minY;
-    if (LABELS.minValue) {
-        minY = parseFloat(LABELS.minValue, 10);
-    } else {
-        minY = d3.min(DATA, function (d) {
-            return Math.floor(d.y / roundTicksFactor) * roundTicksFactor;
-        });
-    }
-
-    var maxY;
-    if (LABELS.maxValue) {
-        maxY = parseFloat(LABELS.maxValue, 10);
-    } else {
-        maxY = d3.max(DATA, function (d) {
-            return Math.ceil(d.y / roundTicksFactor) * roundTicksFactor;
-        });
-    }
-
-    var xFormat;
-    var xScale;
-
-    if (isDateScale) {
-        if (!isMobile && LABELS.timeFormatLarge) {
-            xFormat = d3.time.format(LABELS.timeFormatLarge);
-        } else if (isMobile && LABELS.timeFormatSmall) {
-            xFormat = d3.time.format(LABELS.timeFormatSmall);
-        } else {
-            xFormat = d3.time.format.multi([
-                ['.%L', function (d) { return d.getMilliseconds(); }],
-
-                [':%S', function (d) { return d.getSeconds(); }],
-
-                ['%-I:%M', function (d) { return d.getMinutes(); }],
-
-                ['%-I\n%p', function (d) { return d.getHours(); }],
-
-                ['%a\n%-d', function (d) { return d.getDay() && d.getDate() != 1; }],
-
-                ['%b\n%-d', function (d) { return d.getDate() != 1; }],
-
-                ['%B', function (d) { return d.getMonth(); }],
-
-                ['%Y', function () { return true; }],
-            ]);
+    var minY = (function (manual) {
+        if (manual) {
+            return parseFloat(manual, 10);
         }
 
-        xScale = d3.time.scale()
-            .domain(d3.extent(DATA, function (d) {
-                return d.date;
-            }))
-            .range([0, chartWidth]);
-    } else {
-        xFormat = function (d) {
+        return d3.min(DATA, function (d) {
+            return Math.floor(d.y / roundTicksFactor) * roundTicksFactor;
+        });
+    })(LABELS.minValue);
+
+    var maxY = (function (manual) {
+        if (manual) {
+            return parseFloat(manual, 10);
+        }
+
+        return d3.max(DATA, function (d) {
+            return Math.ceil(d.y / roundTicksFactor) * roundTicksFactor;
+        });
+    })(LABELS.maxValue);
+
+    var xFormat = (function () {
+        if (isDateScale) {
+            if (!isMobile && LABELS.timeFormatLarge) {
+                return d3.time.format(LABELS.timeFormatLarge);
+            } else if (isMobile && LABELS.timeFormatSmall) {
+                return d3.time.format(LABELS.timeFormatSmall);
+            } else {
+                return d3.time.format.multi([
+                    ['.%L', function (d) { return d.getMilliseconds(); }],
+
+                    [':%S', function (d) { return d.getSeconds(); }],
+
+                    ['%-I:%M', function (d) { return d.getMinutes(); }],
+
+                    ['%-I\n%p', function (d) { return d.getHours(); }],
+
+                    ['%a\n%-d', function (d) { return d.getDay() && d.getDate() != 1; }],
+
+                    ['%b\n%-d', function (d) { return d.getDate() != 1; }],
+
+                    ['%B', function (d) { return d.getMonth(); }],
+
+                    ['%Y', function () { return true; }],
+                ]);
+            }
+        }
+
+        return function (d) {
             return d;
         };
+    })();
 
-        var minX = d3.min(DATA, function (d) {
+    var minX = (function () {
+        if (isDateScale) {
+            return d3.min(DATA, function (d) {
+                return d.date;
+            });
+        }
+
+        return d3.min(DATA, function (d) {
             return Math.floor(d.x / roundTicksFactor) * roundTicksFactor;
         });
+    })();
 
-        var maxX = d3.max(DATA, function (d) {
+    var maxX = (function () {
+        if (isDateScale) {
+            return d3.max(DATA, function (d) {
+                return d.date;
+            });
+        }
+
+        return d3.max(DATA, function (d) {
             return Math.ceil(d.x / roundTicksFactor) * roundTicksFactor;
         });
+    })();
 
-        xScale = d3.scale.linear()
-            .domain([minX, maxX])
-            .range([0, chartWidth]);
-    }
+    var xScale = (function () {
+            return isDateScale ? d3.time.scale() : d3.scale.linear();
+        })()
+        .domain([minX, maxX])
+        .range([0, chartWidth]);
 
     var yScale = d3.scale.linear()
         .domain([minY, maxY])
