@@ -55,6 +55,13 @@ var formatData = function () {
         }, {});
     });
 
+    // sort by z value (descending) to ensure smaller bubbles appear over larger ones
+    if (LABELS.bubbleplot === 'on') {
+        DATA.sort(function (a, b) {
+            return b.z - a.z;
+        });
+    }
+
     GROUPED_DATA = d3.nest()
         .key(function (d) {
             return d.Group;
