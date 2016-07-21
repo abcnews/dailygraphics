@@ -28,16 +28,15 @@
     color: #666;
     text-anchor: middle;
     dominant-baseline: auto;
+    display: none;
 
-    &.never {
-        display: none;
+    &.always,
+    &.hover {
+        display: inline;
     }
 
-    &.on-hover {
+    &never.hover {
         display: none;
-        &.hover {
-            display: inline;
-        }
     }
 
     &.above {
