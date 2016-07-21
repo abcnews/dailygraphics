@@ -367,6 +367,24 @@ No further config options.
 
 NOT READY FOR USE IN PRODUCTION
 
+Plot points on a X and Y axis.
+
+Order of data values matter for determining which points and labels appears on top when they overlap.
+
+Data points can be categorised by groups which affects their shape and colour.
+
+Each data point also has a LabelPosition and LabelPriority value that determines where and when the Label should appear.
+
+#### mostAverage
+
+Highlights the most average data point for the X and Y axes.
+
+#### trendlines
+
+Adds trendlines for each group.
+
+
+
 
 
 ### Responsive HTML Table
