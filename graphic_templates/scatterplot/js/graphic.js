@@ -44,7 +44,7 @@ var formatData = function () {
                 } else {
                     formattedValue = +value; // turn string into number
                 }
-            } else if (key === 'y') {
+            } else if (key === 'y' || key === 'z') {
                 formattedValue = +value; // turn string into number
             } else {
                 formattedValue = value;
