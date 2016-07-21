@@ -24,7 +24,8 @@ var onWindowLoaded = function () {
  * Format graphic data for processing by D3.
  */
 var formatData = function () {
-    DATA = DATA.map(function (obj) {
+    DATA = DATA.map(function (obj, i) {
+        obj.id = i;
         return d3.entries(obj).reduce(function (memo, val) {
             var key = val.key;
             var value = val.value;
