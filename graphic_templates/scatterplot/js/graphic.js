@@ -62,6 +62,37 @@ var formatData = function () {
         });
     }
 
+    // find most average data point on the X and Y values
+    if (LABELS.mostAverage === 'on') {
+        var meanX = d3.mean(DATA, function (d) { return d.x; });
+
+        var extentX = d3.extent(DATA, function (d) { return d.x; });
+
+        var rangeX = extentX[1] - extentX[0];
+
+        var meanY = d3.mean(DATA, function (d) { return d.y; });
+
+        var extentY = d3.extent(DATA, function (d) { return d.y; });
+
+        var rangeY = extentY[1] - extentY[0];
+
+        DATA.map(function (d) {
+            d.meanDiffX = Math.abs(meanX - d.x) / rangeX;
+            d.meanDiffY = Math.abs(meanY - d.y) / rangeY;
+            d.meanDiff = d.meanDiffX * d.meanDiffY;
+            return d;
+        });
+
+        var minMeanDiff = d3.min(DATA, function (d) {
+            return d.meanDiff;
+        });
+
+        DATA.map(function (d) {
+            d.isMostAverage = (d.meanDiff === minMeanDiff);
+            return d;
+        });
+    }
+
     GROUPED_DATA = d3.nest()
         .key(function (d) {
             return d.Group;
@@ -340,6 +371,48 @@ var renderScatterplot = function () {
     var yAxisGrid = function () {
         return yAxis;
     };
+
+    if (LABELS.mostAverage === 'on') {
+
+        var mostAverageXPos;
+        var mostAverageYPos;
+
+        DATA.forEach(function (d) {
+            if (d.isMostAverage) {
+                mostAverageXPos = xScale(isDateScale ? d.date : d.x);
+                mostAverageYPos = yScale(d.y);
+            }
+        });
+
+        // TODO: test most average with date axis
+        if (mostAverageXPos && mostAverageYPos) {
+            var mostAverage = chartElement.append('g').attr('class', 'most-average');
+            mostAverage.append('rect').attr({
+                x: 0,
+                y: 0,
+                width: mostAverageXPos,
+                height: mostAverageYPos,
+            });
+            mostAverage.append('rect').attr({
+                x: mostAverageXPos,
+                y: mostAverageYPos,
+                width: xScale(maxX) - mostAverageXPos,
+                height: yScale(minY) - mostAverageYPos,
+            });
+            mostAverage.append('line').attr({
+                x1: mostAverageXPos,
+                x2: mostAverageXPos,
+                y1: yScale(minY),
+                y2: yScale(maxY),
+            });
+            mostAverage.append('line').attr({
+                x1: xScale(minX),
+                x2: xScale(maxX),
+                y1: mostAverageYPos,
+                y2: mostAverageYPos,
+            });
+        }
+    }
 
     chartElement.append('g')
         .classed('x grid', true)
