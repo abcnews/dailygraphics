@@ -844,8 +844,6 @@ var renderScatterplot = function () {
 
                     x: radius + offset,
                     y: legendLineHeight / 2,
-                    fill: '#ccc',
-                    stroke: '#ccc',
                 });
 
             offset += (radius * 2) + buffer;
@@ -893,8 +891,6 @@ var renderScatterplot = function () {
 
                 x: legendLineHeight / 2,
                 y: legendLineHeight / 2,
-                fill: '#ccc',
-                stroke: '#ccc',
             });
 
         mostAverageLegend.append('span').text('Most average');
