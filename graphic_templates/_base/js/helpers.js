@@ -221,3 +221,9 @@ var getAccessibleColor = function (foreground, background) {
     return foreground;
 
 };
+
+var makePointsString = function (arrOfArrs) {
+    return arrOfArrs.map(function (arr) {
+        return arr.join(',');
+    }).join(' ');
+};

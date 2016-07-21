@@ -488,11 +488,6 @@ var renderScatterplot = function () {
     // create generic shapes used by markers
     var area = 36; // draw shapes with a consistent area
 
-    var makePointsString = function (arrOfArrs) {
-        return arrOfArrs.map(function (arr) {
-            return arr.join(',');
-        }).join(' ');
-    };
 
     var inShapesArr = function (shape) {
         return shapesArr.indexOf(shape) !== -1;
