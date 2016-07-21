@@ -5,8 +5,6 @@ var isDateScale = !!DATA[0].date;
 var xCol = isDateScale ? 'date' : 'x';
 var GROUPED_DATA;
 LABELS.bubbleplot = 'on';
-LABELS.mostAverage = 'on';
-LABELS.trendlines = 'on';
 
 /*
  * Initialize graphic
