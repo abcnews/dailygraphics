@@ -436,7 +436,7 @@ var renderScatterplot = function () {
     }
 
     // create generic shapes used by markers
-    var markerArea = 36; // draw shapes with a consistent area
+    var markerArea = isMobile ? 16 : 36; // draw shapes with a consistent area
     var circleRadius = Math.sqrt(markerArea / Math.PI);
 
     if (LABELS.bubbleplot === 'on') {
