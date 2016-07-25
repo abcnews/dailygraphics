@@ -1,0 +1,124 @@
+@import "base";
+@import "tooltip";
+
+.point {
+    stroke-width: 1;
+    fill-opacity: 0.3;
+    stroke-opacity: 0.8;
+
+    use:hover {
+        fill-opacity: 0.5;
+    }
+}
+
+.marker {
+    shape-rendering: auto;
+}
+
+.value text {
+    fill: #666;
+}
+
+.axis-label {
+    font-size: 12px;
+    font-weight: bold;
+    fill: #666;
+}
+
+.label {
+    font-size: 12px;
+    position: absolute;
+    white-space: nowrap;
+    color: #666;
+    text-anchor: middle;
+    dominant-baseline: auto;
+    display: none;
+
+    &.always,
+    &.hover {
+        display: inline;
+    }
+
+    &never.hover {
+        display: none;
+    }
+
+    &.above {
+    }
+    &.below {
+        dominant-baseline: hanging;
+    }
+    &.left {
+        text-anchor: end;
+        dominant-baseline: central;
+    }
+    &.right {
+        text-anchor: start;
+        dominant-baseline: central;
+    }
+
+    .outline {
+        fill: #fff;
+        stroke: #fff;
+        stroke-width: 4px;
+    }
+
+    tspan.value {
+        font-weight: bold;
+    }
+
+}
+
+.legend {
+    font-size: 12px;
+    margin-bottom: 40px;
+    line-height: 23px;
+
+    .groups {
+        float: left;
+
+        div {
+            display: inline-block;
+            margin-right: 10px;
+            white-space: nowrap;
+        }
+    }
+
+    svg {
+        vertical-align: -7px;
+    }
+
+    .magnitude,
+    .most-average {
+        float: right;
+        margin-left: 20px;
+
+        .point {
+            fill: #999;
+            stroke: #999;
+        }
+
+    }
+}
+
+.most-average {
+    rect {
+        fill: #f9f9f9;
+    }
+    line {
+        stroke-dasharray: 2, 2;
+        stroke: #ccc;
+        stroke-width: 1;
+    }
+}
+
+@media screen and (max-width: 500px) {
+    .value text,
+    .axis-label {
+        font-size: 10px;
+    }
+
+    .label {
+        font-size: 11px;
+    }
+}
