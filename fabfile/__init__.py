@@ -362,6 +362,13 @@ def add_scatterplot(slug, debug=False):
     _add_graphic(slug, 'scatterplot', debug)
 
 @task
+def add_bubbleplot(slug, debug=False):
+    """
+    Create a bubbleplot.
+    """
+    _add_graphic(slug, 'bubbleplot', debug)
+
+@task
 def add_map(slug):
     """
     Create a locator map.

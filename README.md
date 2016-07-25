@@ -17,6 +17,7 @@ This project is used with the [Chart Builder](https://github.com/abcnews/chart-b
   * [Dot Chart](#dot-chart)
   * [Pie Chart](#pie-chart)
   * [Scatterplot](#scatterplot)
+  * [Bubbleplot](#bubbleplot)
   * [Responsive HTML Table](#responsive-html-table) (TODO)
   * [Block Histogram](#block-histogram) (TODO)
   * [USA State Grid Map](#usa-state-grid-map) (TODO)
@@ -385,6 +386,27 @@ Adds trendlines for each group.
 
 
 
+### Bubbleplot
+
+NOT READY FOR USE IN PRODUCTION
+
+Very similar to [Scatterplot](#scatterplot) with the following differences:
+
+* has an additional Z axis data that is represented by the area of the point marker
+* the order of data values is mostly irrelevant because they are sorted by Z value (descending)
+* only circles are used for markers
+
+#### mostAverage
+
+Same as Scatterplot - doesn't take Z axis data into account
+
+#### trendlines
+
+Same as Scatterplot - doesn't take Z axis data into account
+
+#### prefixZ
+
+#### suffixZ
 
 
 ### Responsive HTML Table
