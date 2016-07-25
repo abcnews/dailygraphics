@@ -4,7 +4,7 @@ var isMobile = false;
 var isDateScale = !!DATA[0].date;
 var xCol = isDateScale ? 'date' : 'x';
 var GROUPED_DATA;
-LABELS.bubbleplot = 'on';
+var IS_BUBBLEPLOT = false; // THIS SHOULD BE THE ONLY DIFFERENCE BETWEEN scatterplot & bubbleplot JS
 
 /*
  * Initialize graphic
@@ -57,7 +57,7 @@ var formatData = function () {
     });
 
     // sort by z value (descending) to ensure smaller bubbles appear over larger ones
-    if (LABELS.bubbleplot === 'on') {
+    if (IS_BUBBLEPLOT) {
         DATA.sort(function (a, b) {
             return b.z - a.z;
         });
@@ -439,7 +439,7 @@ var renderScatterplot = function () {
     var markerArea = isMobile ? 16 : 36; // draw shapes with a consistent area
     var circleRadius = Math.sqrt(markerArea / Math.PI);
 
-    if (LABELS.bubbleplot === 'on') {
+    if (IS_BUBBLEPLOT) {
         var minZ = d3.min(DATA, function (d) {
             return d.z;
         });
@@ -488,7 +488,7 @@ var renderScatterplot = function () {
             })
             .each(function (d) {
                 var offset = (function (val) {
-                    if (LABELS.bubbleplot === 'on') {
+                    if (IS_BUBBLEPLOT) {
                         var bubbleArea = val * bubbleScale;
                         var bubbleRadius = Math.sqrt(bubbleArea / Math.PI);
                         return bubbleRadius;
@@ -518,7 +518,7 @@ var renderScatterplot = function () {
                 return d.Label;
             });
 
-        if (LABELS.bubbleplot === 'on') {
+        if (IS_BUBBLEPLOT) {
             labelText.append('tspan')
                 .attr('class', 'value')
                 .text(function (d) {
@@ -539,7 +539,7 @@ var renderScatterplot = function () {
     // Point markers
     GROUPED_DATA.forEach(function (group, i) {
         var shape = (function (groupIndex) {
-            if (LABELS.bubbleplot === 'on') {
+            if (IS_BUBBLEPLOT) {
                 return 'bubble';
             } else {
                 switch (groupIndex) {
@@ -581,7 +581,7 @@ var renderScatterplot = function () {
             .enter().append('use')
             .attr({
                 'xlink:href': function (d) {
-                    if (LABELS.bubbleplot === 'on') {
+                    if (IS_BUBBLEPLOT) {
                         return '#bubble-' + d.z;
                     }
 
@@ -609,7 +609,7 @@ var renderScatterplot = function () {
 
     });
 
-    if (LABELS.bubbleplot === 'on') {
+    if (IS_BUBBLEPLOT) {
 
         // create a bubble def for each unique bubble size
         d3.map(DATA, function (d) {
@@ -818,7 +818,7 @@ var renderScatterplot = function () {
     }
 
     // add a magnitude / Z axis legend
-    if (LABELS.bubbleplot === 'on') {
+    if (IS_BUBBLEPLOT) {
 
         var magnitudeLegend = legendContainer.append('div')
             .attr('class', 'magnitude');
