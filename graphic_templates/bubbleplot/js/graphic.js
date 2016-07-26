@@ -795,15 +795,12 @@ var renderScatterplot = function () {
                         height: legendLineHeight,
                     })
                     .append('line')
+                        .attr('class', 'trendline')
                         .attr({
                             x1: 9,
                             x2: 18,
                             y1: legendLineHeight / 2,
                             y2: legendLineHeight / 2,
-
-                            fill: function (d) {
-                                return colorScale(d.key);
-                            },
 
                             stroke: function (d) {
                                 return colorScale(d.key);
@@ -895,6 +892,87 @@ var renderScatterplot = function () {
 
         mostAverageLegend.append('span').text('Most average');
 
+    }
+
+    if (LABELS.trendlines === 'on') {
+
+        // returns slope, intercept and r-square of the line
+        var leastSquares = function (xSeries, ySeries) {
+            var reduceSumFunc = function (prev, cur) {
+                return prev + cur;
+            };
+
+            var xBar = xSeries.reduce(reduceSumFunc) / xSeries.length;
+            var yBar = ySeries.reduce(reduceSumFunc) / ySeries.length;
+
+            var ssXX = xSeries.map(function (d) {
+                return Math.pow(d - xBar, 2);
+            }).reduce(reduceSumFunc);
+
+            /*
+            var ssYY = ySeries.map(function (d) {
+                return Math.pow(d - yBar, 2);
+            }).reduce(reduceSumFunc);
+            */
+
+            var ssXY = xSeries.map(function (d, i) {
+                return (d - xBar) * (ySeries[i] - yBar);
+            }).reduce(reduceSumFunc);
+
+            var slope = ssXY / ssXX;
+
+            return {
+                slope: slope,
+                intercept: yBar - (xBar * slope),
+
+                //rSquare: Math.pow(ssXY, 2) / (ssXX * ssYY),
+            };
+        };
+
+        GROUPED_DATA.forEach(function (group) {
+
+            // get the x and y values for least squares
+            var xSeries = group.values.map(function (d) { return d.x; });
+
+            var ySeries = group.values.map(function (d) { return d.y; });
+
+            var ls = leastSquares(xSeries, ySeries);
+
+            var getTrendlineXY = function (x) {
+                var y = x * ls.slope + ls.intercept;
+
+                if (y < minY) {
+                    return {
+                        x: (minY - ls.intercept) / ls.slope,
+                        y: minY,
+                    };
+                } else if (y > maxY) {
+                    return {
+                        x: (maxY - ls.intercept) / ls.slope,
+                        y: maxY,
+                    };
+                }
+
+                return {
+                    x: x,
+                    y: y,
+                };
+            };
+
+            var start = getTrendlineXY(minX);
+            var finish = getTrendlineXY(maxX);
+
+            chartElement.append('line')
+                .attr('class', 'trendline ' + classify(group.key))
+                .attr({
+                    x1: xScale(start.x),
+                    y1: yScale(start.y),
+                    x2: xScale(finish.x),
+                    y2: yScale(finish.y),
+                    stroke: colorScale(group.key),
+                });
+
+        });
     }
 
 };
