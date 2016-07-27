@@ -114,7 +114,6 @@ def update_from_template(slug, template):
 
     recopy_templates(slug, template)
     render.render(slug)
-    write_meta_json(slug, 'template', template)
 
 @task
 def debug_deploy(slug, template):
@@ -128,7 +127,6 @@ def debug_deploy(slug, template):
     # update_copy(slug)
     # write_meta_json(slug, 'content')
     render.render(slug)
-    write_meta_json(slug, 'template', template)
 
 def write_meta_json(slug, action, template=''):
     meta_path = '%s/%s/meta.json' % (app_config.GRAPHICS_PATH, slug)
@@ -163,6 +161,8 @@ def recopy_templates(slug, template):
     local('cp -r graphic_templates/_base/* %s' % (graphic_path))
     local('cp -r graphic_templates/%s/* %s' % (template, graphic_path))
     local('mv %s/graphic_config.py.BACKUP %s/graphic_config.py' % (graphic_path, graphic_path))
+
+    write_meta_json(slug, 'template', template)
 
 def download_copy(slug):
     """
@@ -224,6 +224,8 @@ def _add_graphic(slug, template, debug=False):
     print '\nCopying templates...'
     local('cp -r graphic_templates/_base %s' % (graphic_path))
     local('cp -r graphic_templates/%s/* %s' % (template, graphic_path))
+
+    write_meta_json(slug, 'template', template)
 
     if debug:
         local('cp debug.xlsx %s/%s.xlsx' % (graphic_path, slug))
