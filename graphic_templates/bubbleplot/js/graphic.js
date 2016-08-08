@@ -485,40 +485,38 @@ var renderScatterplot = function () {
                 y: function (d) {
                     return yScale(d.y);
                 },
-            })
-            .each(function (d) {
-                var offset = (function (val) {
-                    if (IS_BUBBLEPLOT) {
-                        var bubbleArea = val * bubbleScale;
-                        var bubbleRadius = Math.sqrt(bubbleArea / Math.PI);
-                        return bubbleRadius;
-                    } else {
-                        return circleRadius;
-                    }
-                })(d.z) + 3;
-
-                var attr = (function (pos) {
-                    switch (pos) {
-                        case 'left':
-                            return { dx: -offset };
-                        case 'right':
-                            return { dx: offset };
-                        case 'bottom':
-                            return { dy: offset };
-                        default: // above
-                            return { dy: -offset };
-                    }
-                })(d.LabelPosition);
-
-                d3.select(this).attr(attr);
             });
+
+        DATA.map(function (d) {
+            if (IS_BUBBLEPLOT) {
+                d.bubbleArea = d.z * bubbleScale;
+                d.bubbleRadius = Math.sqrt(d.bubbleArea / Math.PI);
+            }
+
+            d.labelOffset = (IS_BUBBLEPLOT ? d.bubbleRadius : circleRadius) + 3;
+            return d;
+        });
 
         labelText.append('tspan')
             .text(function (d) {
                 return d.Label;
+            })
+            .attr({
+                dy: function (d) {
+                    switch (d.LabelPosition) {
+                        case 'left':
+                        case 'right':
+                            return IS_BUBBLEPLOT ? '-0.5em' : 0;
+                        case 'below':
+                            return d.labelOffset;
+                        default: // above
+                            return IS_BUBBLEPLOT ? -d.labelOffset - 12 : -d.labelOffset;
+                    }
+                },
             });
 
         if (IS_BUBBLEPLOT) {
+
             labelText.append('tspan')
                 .attr('class', 'value')
                 .text(function (d) {
@@ -528,9 +526,23 @@ var renderScatterplot = function () {
                     x: function (d) {
                         return xScale(isDateScale ? d.date : d.x);
                     },
-                })
-                .attr('dy', '1em');
+
+                    dy: '1em',
+                });
+
         }
+
+        labelText.selectAll('tspan')
+            .attr({
+                dx: function (d) {
+                    switch (d.LabelPosition) {
+                        case 'left':
+                            return -d.labelOffset;
+                        case 'right':
+                            return d.labelOffset;
+                    }
+                },
+            });
 
     });
 
