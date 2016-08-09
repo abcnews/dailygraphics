@@ -8,6 +8,8 @@
 
     use:hover {
         fill-opacity: 0.5;
+        stroke-opacity: 1;
+        stroke: #000;
     }
 }
 
@@ -34,7 +36,6 @@
     font-size: 12px;
     position: absolute;
     white-space: nowrap;
-    color: #666;
     text-anchor: middle;
     dominant-baseline: auto;
     display: none;
@@ -42,6 +43,10 @@
     &.always,
     &.hover {
         display: inline;
+    }
+
+    &.hover {
+        fill: #000;
     }
 
     &never.hover {
