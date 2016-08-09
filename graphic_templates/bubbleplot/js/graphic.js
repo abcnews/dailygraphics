@@ -449,20 +449,21 @@ var renderScatterplot = function () {
 
     // Data labels
     var labelGroup = chartElement.append('g')
+        .attr('class', 'labels')
         .selectAll('g')
         .data(DATA)
         .enter().append('g')
             .attr('class', function (d) {
-                var classes = ['label'];
+                var classArray = ['label'];
                 if (d.LabelPosition) {
-                    classes.push(classify(d.LabelPosition));
+                    classArray.push(classify(d.LabelPosition));
                 }
 
                 if (d.LabelPriority) {
-                    classes.push(classify(d.LabelPriority));
+                    classArray.push(classify(d.LabelPriority));
                 }
 
-                return classes.join(' ');
+                return classArray.join(' ');
             })
             .attr({
                 id: function (d) {
@@ -611,15 +612,24 @@ var renderScatterplot = function () {
             })
             .on({
                 mouseover: function (d) {
-                    chartElement.select('#label-' + d.id).classed('hover', true);
+                    var el = chartElement.select('#label-' + d.id).classed('hover', true);
+                    chartElement.select('g.hover-labels').append(function () {
+                        return el.node();
+                    });
                 },
 
                 mouseout: function (d) {
-                    chartElement.select('#label-' + d.id).classed('hover', false);
+                    var el = chartElement.select('#label-' + d.id).classed('hover', false);
+                    chartElement.select('g.labels').append(function () {
+                        return el.node();
+                    });
                 },
             });
 
     });
+
+    chartElement.append('g')
+        .attr('class', 'hover-labels');
 
     if (IS_BUBBLEPLOT) {
 
