@@ -357,11 +357,13 @@ var renderScatterplot = function () {
 
         var mostAverageXPos;
         var mostAverageYPos;
+        var mostAverageColor;
 
         DATA.forEach(function (d) {
             if (d.isMostAverage) {
                 mostAverageXPos = xScale(isDateScale ? d.date : d.x);
                 mostAverageYPos = yScale(d.y);
+                mostAverageColor = colorScale(d.Group);
             }
         });
 
@@ -393,6 +395,35 @@ var renderScatterplot = function () {
                 y2: mostAverageYPos,
             });
         }
+
+        defs.append('pattern')
+            .attr({
+                id: 'diagonalHatchGrey',
+                patternUnits: 'userSpaceOnUse',
+                width: 4,
+                height: 4,
+            })
+            .append('path')
+                .attr({
+                    d: 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2',
+                    stroke: '#000',
+                    'stroke-width': 2,
+                });
+
+        defs.append('pattern')
+            .attr({
+                id: 'diagonalHatch',
+                patternUnits: 'userSpaceOnUse',
+                width: 4,
+                height: 4,
+            })
+            .append('path')
+                .attr({
+                    d: 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2',
+                    stroke: mostAverageColor,
+                    'stroke-width': 2,
+                });
+
     }
 
     chartElement.append('g')
@@ -607,6 +638,12 @@ var renderScatterplot = function () {
 
                 y: function (d) {
                     return yScale(d.y);
+                },
+
+                fill: function (d) {
+                    if (d.isMostAverage) {
+                        return 'url(#diagonalHatch)';
+                    }
                 },
 
             })
@@ -910,6 +947,7 @@ var renderScatterplot = function () {
 
                 x: legendLineHeight / 2,
                 y: legendLineHeight / 2,
+                fill: 'url(#diagonalHatchGrey)',
             });
 
         mostAverageLegend.append('span').text('Most average');
