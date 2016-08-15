@@ -158,10 +158,27 @@ var getAspectRatio = function (ratioStr, fallback) {
 
 };
 
+var colorFormula = function (val) {
+    val = val / 255;
+    if (val <= 0.03928) {
+        return val / 12.92;
+    } else {
+        return Math.pow(((val + 0.055) / 1.055), 2.4);
+    }
+};
+
+var relativeLuminance = function (rgb) {
+    var r = colorFormula(rgb.r);
+    var g = colorFormula(rgb.g);
+    var b = colorFormula(rgb.b);
+
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+};
+
 /*
- * Takes a foreground color and optional background color and returns a
- * foreground color that is WCAG AA accessible. It tests the contrast and
- * darkens / brightens the foreground color until it is compliant.
+ * Takes a foreground color and optional background color (defaults to white)
+ * and returns a foreground color that is WCAG AA accessible. It tests the
+ * contrast and darkens / brightens the foreground color until it is compliant.
  * Using color contrast logic from https://www.w3.org/TR/WCAG20-TECHS/G17.html
  */
 var getAccessibleColor = function (foreground, background) {
@@ -170,23 +187,6 @@ var getAccessibleColor = function (foreground, background) {
     var AA_CONTRAST_RATIO_THRESHOLD = 4.53;
     var isDarkTextOnLightBackground;
     var adjustedForeground;
-
-    var colorFormula = function (val) {
-        val = val / 255;
-        if (val <= 0.03928) {
-            return val / 12.92;
-        } else {
-            return Math.pow(((val + 0.055) / 1.055), 2.4);
-        }
-    };
-
-    var relativeLuminance = function (rgb) {
-        var r = colorFormula(rgb.r);
-        var g = colorFormula(rgb.g);
-        var b = colorFormula(rgb.b);
-
-        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
-    };
 
     var testContrastRatio = function (foreground, background) {
         var fl = relativeLuminance(d3.rgb(foreground));

@@ -161,6 +161,23 @@ var renderStackedColumnChart = function () {
             return getAccessibleColor(color);
         }));
 
+    var accessibleColorScaleInvert = d3.scale.ordinal()
+        .domain(colorScaleDomain)
+        .range(colorList.map(function (color) {
+            return getAccessibleColor(color, '#000');
+        }));
+
+    DATA.forEach(function (d) {
+        d.values.forEach(function (v) {
+            if (relativeLuminance(d3.rgb(colorScale(v.name))) < 0.5) {
+                v.invert = true;
+                v.accessibleColor = accessibleColorScale(v.name);
+            } else {
+                v.accessibleColor = accessibleColorScaleInvert(v.name);
+            }
+        });
+    });
+
     /*
      * Render the legend.
      */
@@ -175,7 +192,7 @@ var renderStackedColumnChart = function () {
 
     legend.append('b')
         .style('background-color', function (d) {
-            return accessibleColorScale(d);
+            return colorScale(d);
         });
 
     legend.append('label')
@@ -223,7 +240,7 @@ var renderStackedColumnChart = function () {
                 },
 
                 fill: function (d) {
-                    return accessibleColorScale(d.name);
+                    return d.accessibleColor;
                 },
             });
 
@@ -245,6 +262,10 @@ var renderStackedColumnChart = function () {
                 );
             })
             .attr('class', function (d) {
+                if (d.invert) {
+                    return classify(d.name) + ' invert';
+                }
+
                 return classify(d.name);
             })
             .attr({

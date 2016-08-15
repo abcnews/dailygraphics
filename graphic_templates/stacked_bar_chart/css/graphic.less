@@ -3,8 +3,12 @@
 @import "labels";
 
 .value text {
-    fill: #fff;
+    fill: #000;
     dominant-baseline: central;
+
+    &.invert {
+        fill: #fff;
+    }
 
     &.hidden {
         display: none;

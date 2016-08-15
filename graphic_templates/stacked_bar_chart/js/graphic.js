@@ -154,6 +154,23 @@ var renderStackedBarChart = function () {
             return getAccessibleColor(color);
         }));
 
+    var accessibleColorScaleInvert = d3.scale.ordinal()
+        .domain(colorScaleDomain)
+        .range(colorList.map(function (color) {
+            return getAccessibleColor(color, '#000');
+        }));
+
+    DATA.forEach(function (d) {
+        d.values.forEach(function (v) {
+            if (relativeLuminance(d3.rgb(colorScale(v.name))) < 0.5) {
+                v.invert = true;
+                v.accessibleColor = accessibleColorScale(v.name);
+            } else {
+                v.accessibleColor = accessibleColorScaleInvert(v.name);
+            }
+        });
+    });
+
     /*
      * Render the legend.
      */
@@ -168,12 +185,15 @@ var renderStackedBarChart = function () {
 
     legend.append('b')
         .style('background-color', function (d) {
-            return accessibleColorScale(d);
+            return colorScale(d);
         });
 
     legend.append('label')
         .text(function (d) {
             return d;
+        })
+        .style('color', function (d) {
+            return accessibleColorScale(d);
         });
 
     /*
@@ -209,9 +229,10 @@ var renderStackedBarChart = function () {
 
                 height: barHeight,
 
-            })
-            .style('fill', function (d) {
-                return accessibleColorScale(d.name);
+                fill: function (d) {
+                    return d.accessibleColor;
+                },
+
             })
             .attr('class', function (d) {
                 return classify(d.name);
@@ -236,6 +257,10 @@ var renderStackedBarChart = function () {
                 );
             })
             .attr('class', function (d) {
+                if (d.invert) {
+                    return classify(d.name) + ' invert';
+                }
+
                 return classify(d.name);
             })
             .attr({
