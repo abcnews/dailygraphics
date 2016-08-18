@@ -117,12 +117,20 @@ var renderPieChart = function () {
     var text = g.append('text')
         .attr('transform', function (d) {
             return 'translate(' + arc.centroid(d) + ')';
-        });
+        })
+        .each(function (d) {
+            // Finds "\n" in text and splits it into tspans
+            var words = d.data.label.replace(/\\n/g, '\n').split('\n');
 
-    text.append('tspan')
-        .attr('class', 'label')
-        .text(function (d) {
-            return d.data.label;
+            for (var i = 0; i < words.length; i++) {
+                var tspan = d3.select(this).append('tspan').text(words[i]);
+                if (i > 0) {
+                    tspan.attr({
+                        x: 0,
+                        dy: '1em',
+                    });
+                }
+            }
         });
 
     text.append('tspan')
@@ -137,7 +145,7 @@ var renderPieChart = function () {
         })
         .attr({
             x: 0,
-            y: 20,
+            dy: '1.5em',
         });
 
 };
