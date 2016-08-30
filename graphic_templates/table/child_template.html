@@ -1,9 +1,9 @@
 {% extends 'base_template.html' %}
 
 {% block content %}
-    {% if COPY.labels.card != 'off' %}<div class="card">{% endif %}
+    {% if COPY.labels.card|string() != 'off' %}<div class="card">{% endif %}
     {% if COPY.labels.headline %}<h1>{{ COPY.labels.headline }}</h1>{% endif %}
-    {% if COPY.labels.card != 'off' %}<div class="inner">{% endif %}
+    {% if COPY.labels.card|string() != 'off' %}<div class="inner">{% endif %}
     {% if COPY.labels.subhed %}<p>{{ render(COPY.labels.subhed) }}</p>{% endif %}
 
     <div class="graphic">
@@ -41,7 +41,7 @@
         {% if COPY.labels.credit %}<p>Credit: {{ COPY.labels.credit }}</p>{% endif %}
     </div>
 
-    {% if COPY.labels.card != 'off' %}</div></div>{% endif %}
+    {% if COPY.labels.card|string() != 'off' %}</div></div>{% endif %}
 
 {% endblock content %}
 
