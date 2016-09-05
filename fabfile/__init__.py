@@ -280,6 +280,13 @@ def add_graphic(slug):
     _add_graphic(slug, 'graphic')
 
 @task
+def add_ai2html_graphic(slug):
+    """
+    Create a graphic using an Adobe Illustrator base.
+    """
+    _add_graphic(slug, 'ai2html_graphic')
+
+@task
 def add_bar_chart(slug, debug=False):
     """
     Create a bar chart.
