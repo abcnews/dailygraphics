@@ -283,7 +283,7 @@ var renderSlopegraph = function () {
                 .text(function (d) {
                     return d.label;
                 })
-                .call(wrapText, labelWidth, 14);
+                .call(wrapText, labelWidth, 12);
     }
 
     var valuesEndMaxWidth = getMaxElemWidth(valuesEnd);
@@ -312,7 +312,7 @@ var renderSlopegraph = function () {
             .text(function (d) {
                 return d.label;
             })
-            .call(wrapText, labelWidth, 14);
+            .call(wrapText, labelWidth, 12);
 
     chartElement.selectAll('.value, .label, .lines')
         .attr('transform', 'translate(0,15)');
@@ -354,9 +354,8 @@ var wrapText = function (texts, width, lineHeight) {
             .append('tspan')
             .attr({
                 x: x,
-                y: y,
-                dx: dx + 'px',
-                dy: dy + 'px',
+                dx: dx,
+                dy: dy,
             });
 
         while (word = words.pop()) {
@@ -373,9 +372,8 @@ var wrapText = function (texts, width, lineHeight) {
                 tspan = text.append('tspan')
                     .attr({
                         x: x,
-                        y: y,
-                        dx: dx + 'px',
-                        dy: (dy + (lineNumber * lineHeight)) + 'px',
+                        dx: dx,
+                        dy: (dy + (lineNumber * lineHeight)),
                     })
                     .text(word);
             }
