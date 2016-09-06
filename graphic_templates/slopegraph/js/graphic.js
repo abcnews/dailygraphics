@@ -190,33 +190,47 @@ var renderSlopegraph = function () {
 
     // svg.select('line.unaffiliated').moveToFront();
 
+    var DATA_GROUPED_START = d3.nest()
+        .key(function (d) { return d.start; })
+        .entries(DATA.sort(function (a, b) { // sort by start value descending
+            return b.start - a.start;
+        }));
+
+    var DATA_GROUPED_END = d3.nest()
+        .key(function (d) { return d.end; })
+        .entries(DATA.sort(function (a, b) { // sort by end value descending
+            return b.end - a.end;
+        }));
+
     /*
      * Render values.
      */
     var valuesStart = chartElement.append('g')
         .attr('class', 'value start')
         .selectAll('text')
-        .data(DATA)
+        .data(DATA_GROUPED_START)
         .enter()
         .append('text')
             .attr('class', function (d) {
-                return classify(d.label);
+                return d.values.map(function (v) {
+                    return classify(v.label);
+                }).join(' ');
             })
             .attr({
                 x: xScale(startLabel),
                 y: function (d) {
-                    return yScale(d.start);
+                    return yScale(d.values[0].start);
                 },
 
                 dx: -valueGap,
                 dy: 4,
                 fill: function (d) {
-                    return accessibleColorScale(d.label);
+                    return accessibleColorScale(d.values[0].label);
                 },
             })
             .text(function (d) {
                 return formattedNumber(
-                    d.start,
+                    d.values[0].start,
                     LABELS.valuePrefix,
                     LABELS.valueSuffix,
                     LABELS.maxDecimalPlaces
@@ -226,27 +240,29 @@ var renderSlopegraph = function () {
     var valuesEnd = chartElement.append('g')
         .attr('class', 'value end')
         .selectAll('text')
-        .data(DATA)
+        .data(DATA_GROUPED_END)
         .enter()
         .append('text')
             .attr('class', function (d) {
-                return classify(d.label);
+                return d.values.map(function (v) {
+                    return classify(v.label);
+                }).join(' ');
             })
             .attr({
                 x: xScale(endLabel),
                 y: function (d) {
-                    return yScale(d.end);
+                    return yScale(d.values[0].end);
                 },
 
                 dx: valueGap,
                 dy: 4,
                 fill: function (d) {
-                    return accessibleColorScale(d.label);
+                    return accessibleColorScale(d.values[0].label);
                 },
             })
             .text(function (d) {
                 return formattedNumber(
-                    d.end,
+                    d.values[0].end,
                     LABELS.valuePrefix,
                     LABELS.valueSuffix,
                     LABELS.maxDecimalPlaces
@@ -257,62 +273,95 @@ var renderSlopegraph = function () {
      * Render labels.
      */
     if (!isMobile) {
+        // get the width of the widest start value
         var valuesStartMaxWidth = getMaxElemWidth(valuesStart);
 
         chartElement.append('g')
             .attr('class', 'label start')
             .selectAll('text')
-            .data(DATA)
+            .data(DATA_GROUPED_START)
             .enter()
-            .append('text')
-                .attr('class', function (d, i) {
-                    return classify(d.label);
+            .append('g')
+                .attr('transform', function (d) {
+                    var x = xScale(startLabel) - (valuesStartMaxWidth + (valueGap * 2));
+                    var y = yScale(d.values[0].start) + 4;
+                    return 'translate(' + x + ', ' + y + ')';
                 })
-                .attr({
-                    x: xScale(startLabel),
-                    y: function (d) {
-                        return yScale(d.start);
-                    },
+                .each(function (d) {
+                    var g = d3.select(this);
+                    d.values.forEach(function (v, i) {
+                        g.append('text')
+                            .attr('class', classify(v.label))
+                            .attr({
+                                x: 0,
+                                fill: accessibleColorScale(v.label),
+                            })
+                            .text(v.label)
+                            .call(wrapText, labelWidth, '1.1em')
+                            .attr({
+                                y: function () {
+                                    if (i === 0) {
+                                        return 0;
+                                    }
 
-                    dx: -(valuesStartMaxWidth + (valueGap * 2)),
-                    dy: 4,
-                    fill: function (d) {
-                        return accessibleColorScale(d.label);
-                    },
-                })
-                .text(function (d) {
-                    return d.label;
-                })
-                .call(wrapText, labelWidth, 12);
+                                    var yOffset = 0;
+                                    g.selectAll('text').each(function (t, j) {
+                                        if (j < i) {
+                                            yOffset = yOffset + this.clientHeight;
+                                        }
+                                    });
+
+                                    return yOffset;
+                                },
+                            });
+
+                    });
+                });
     }
 
+    // get the width of the widest end value
     var valuesEndMaxWidth = getMaxElemWidth(valuesEnd);
 
     chartElement.append('g')
         .attr('class', 'label end')
         .selectAll('text')
-        .data(DATA)
+        .data(DATA_GROUPED_END)
         .enter()
-        .append('text')
-            .attr('class', function (d, i) {
-                return classify(d.label);
+        .append('g')
+            .attr('transform', function (d) {
+                var x = xScale(endLabel) + valuesEndMaxWidth + (valueGap * 2);
+                var y = yScale(d.values[0].end) + 4;
+                return 'translate(' + x + ', ' + y + ')';
             })
-            .attr({
-                x: xScale(endLabel),
-                y: function (d) {
-                    return yScale(d.end);
-                },
+            .each(function (d) {
+                var g = d3.select(this);
+                d.values.forEach(function (v, i) {
+                    g.append('text')
+                        .attr('class', classify(v.label))
+                        .attr({
+                            x: 0,
+                            fill: accessibleColorScale(v.label),
+                        })
+                        .text(v.label)
+                        .call(wrapText, labelWidth, '1.1em')
+                        .attr({
+                            y: function () {
+                                if (i === 0) {
+                                    return 0;
+                                }
 
-                dx: valuesEndMaxWidth + (valueGap * 2),
-                dy: 4,
-                fill: function (d) {
-                    return accessibleColorScale(d.label);
-                },
-            })
-            .text(function (d) {
-                return d.label;
-            })
-            .call(wrapText, labelWidth, 12);
+                                var yOffset = 0;
+                                g.selectAll('text').each(function (t, j) {
+                                    if (j < i) {
+                                        yOffset = yOffset + this.clientHeight;
+                                    }
+                                });
+
+                                return yOffset;
+                            },
+                        });
+                });
+            });
 
     chartElement.selectAll('.value, .label, .lines')
         .attr('transform', 'translate(0,15)');
@@ -373,7 +422,7 @@ var wrapText = function (texts, width, lineHeight) {
                     .attr({
                         x: x,
                         dx: dx,
-                        dy: (dy + (lineNumber * lineHeight)),
+                        dy: lineNumber ? lineHeight : 0,
                     })
                     .text(word);
             }
