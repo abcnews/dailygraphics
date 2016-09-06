@@ -109,11 +109,16 @@ var renderSlopegraph = function () {
         .domain([minY, maxY])
         .range([chartHeight, 0]);
 
+    var labelScale = d3.scale.ordinal()
+        .domain(DATA.map(function (d) {
+            return d.label;
+        }));
+
     var colorList = colorArray(LABELS, MONOCHROMECOLORS);
-    var colorScale = d3.scale.ordinal()
+    var colorScale = labelScale.copy()
         .range(colorList);
 
-    var accessibleColorScale = d3.scale.ordinal()
+    var accessibleColorScale = labelScale.copy()
         .range(colorList.map(function (color) {
             return getAccessibleColor(color);
         }));
@@ -163,16 +168,19 @@ var renderSlopegraph = function () {
             .attr('class', function (d, i) {
                 return 'line ' + classify(d.label);
             })
-            .attr('x1', xScale(startLabel))
-            .attr('y1', function (d) {
-                return yScale(d.start);
+            .attr({
+                x1: xScale(startLabel),
+                y1: function (d) {
+                    return yScale(d.start);
+                },
+
+                x2: xScale(endLabel),
+                y2: function (d) {
+                    return yScale(d.end);
+                },
             })
-            .attr('x2', xScale(endLabel))
-            .attr('y2', function (d) {
-                return yScale(d.end);
-            })
-            .style('stroke', function (d, i) {
-                return colorScale(i);
+            .style('stroke', function (d) {
+                return colorScale(d.label);
             });
 
     /*
@@ -194,13 +202,17 @@ var renderSlopegraph = function () {
             .attr('class', function (d) {
                 return classify(d.label);
             })
-            .attr('x', xScale(startLabel))
-            .attr('y', function (d) {
-                return yScale(d.start);
-            })
-            .attr('dx', -valueGap)
-            .style('fill', function (d, i) {
-                return accessibleColorScale(i);
+            .attr({
+                x: xScale(startLabel),
+                y: function (d) {
+                    return yScale(d.start);
+                },
+
+                dx: -valueGap,
+                dy: 4,
+                fill: function (d) {
+                    return accessibleColorScale(d.label);
+                },
             })
             .text(function (d) {
                 return formattedNumber(
@@ -220,13 +232,17 @@ var renderSlopegraph = function () {
             .attr('class', function (d) {
                 return classify(d.label);
             })
-            .attr('x', xScale(endLabel))
-            .attr('y', function (d) {
-                return yScale(d.end);
-            })
-            .attr('dx', valueGap)
-            .style('fill', function (d, i) {
-                return accessibleColorScale(i);
+            .attr({
+                x: xScale(endLabel),
+                y: function (d) {
+                    return yScale(d.end);
+                },
+
+                dx: valueGap,
+                dy: 4,
+                fill: function (d) {
+                    return accessibleColorScale(d.label);
+                },
             })
             .text(function (d) {
                 return formattedNumber(
@@ -252,14 +268,17 @@ var renderSlopegraph = function () {
                 .attr('class', function (d, i) {
                     return classify(d.label);
                 })
-                .attr('x', xScale(startLabel))
-                .attr('y', function (d) {
-                    return yScale(d.start);
-                })
-                .attr('dx', -(valuesStartMaxWidth + (valueGap * 2)))
-                .attr('dy', 4)
-                .style('fill', function (d, i) {
-                    return accessibleColorScale(i);
+                .attr({
+                    x: xScale(startLabel),
+                    y: function (d) {
+                        return yScale(d.start);
+                    },
+
+                    dx: -(valuesStartMaxWidth + (valueGap * 2)),
+                    dy: 4,
+                    fill: function (d) {
+                        return accessibleColorScale(d.label);
+                    },
                 })
                 .text(function (d) {
                     return d.label;
@@ -278,14 +297,17 @@ var renderSlopegraph = function () {
             .attr('class', function (d, i) {
                 return classify(d.label);
             })
-            .attr('x', xScale(endLabel))
-            .attr('y', function (d) {
-                return yScale(d.end);
-            })
-            .attr('dx', valuesEndMaxWidth + (valueGap * 2))
-            .attr('dy', 4)
-            .style('fill', function (d, i) {
-                return accessibleColorScale(i);
+            .attr({
+                x: xScale(endLabel),
+                y: function (d) {
+                    return yScale(d.end);
+                },
+
+                dx: valuesEndMaxWidth + (valueGap * 2),
+                dy: 4,
+                fill: function (d) {
+                    return accessibleColorScale(d.label);
+                },
             })
             .text(function (d) {
                 return d.label;
