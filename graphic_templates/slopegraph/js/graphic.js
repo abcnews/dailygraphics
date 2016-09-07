@@ -272,23 +272,19 @@ var renderSlopegraph = function () {
     /*
      * Render labels.
      */
+    var prevYLimit;
     if (!isMobile) {
         // get the width of the widest start value
         var valuesStartMaxWidth = getMaxElemWidth(valuesStart);
-
-        chartElement.append('g')
+        var labelsStart = chartElement.append('g')
             .attr('class', 'label start')
-            .selectAll('text')
+            .selectAll('g')
             .data(DATA_GROUPED_START)
             .enter()
             .append('g')
-                .attr('transform', function (d) {
-                    var x = xScale(startLabel) - (valuesStartMaxWidth + (valueGap * 2));
-                    var y = yScale(d.values[0].start) + 4;
-                    return 'translate(' + x + ', ' + y + ')';
-                })
                 .each(function (d) {
                     var g = d3.select(this);
+                    // when multiple labels
                     d.values.forEach(function (v, i) {
                         g.append('text')
                             .attr('class', classify(v.label))
@@ -300,39 +296,53 @@ var renderSlopegraph = function () {
                             .call(wrapText, labelWidth, '1.1em')
                             .attr({
                                 y: function () {
-                                    if (i === 0) {
+                                    if (!i) {
                                         return 0;
                                     }
 
-                                    var yOffset = 0;
-                                    g.selectAll('text').each(function (t, j) {
-                                        if (j < i) {
-                                            yOffset = yOffset + this.clientHeight;
-                                        }
+                                    var textElems = g.selectAll('text').filter(function (d, j) {
+                                        return j < i;
                                     });
 
-                                    return yOffset;
+                                    return getCombinedHeightOfElements(textElems);
                                 },
                             });
-
                     });
+                })
+                .attr('transform', function (d, i) {
+                    var x = xScale(startLabel) - (valuesStartMaxWidth + (valueGap * 2));
+                    var y = yScale(d.values[0].start) + 4;
+
+                    if (i) {
+                        if (y < prevYLimit) {
+                            y = prevYLimit;
+
+                            valuesStart.filter(function (d, j) {
+                                return i === j;
+                            }).attr({
+                                y: prevYLimit - 4,
+                            });
+                        }
+
+                    }
+
+                    // set prev value for the next item
+                    var textElems = d3.select(this).selectAll('text');
+                    prevYLimit = y + getCombinedHeightOfElements(textElems);
+
+                    return makeTranslate(x, y);
                 });
+
     }
 
     // get the width of the widest end value
     var valuesEndMaxWidth = getMaxElemWidth(valuesEnd);
-
-    chartElement.append('g')
+    var labelsEnd = chartElement.append('g')
         .attr('class', 'label end')
-        .selectAll('text')
+        .selectAll('g')
         .data(DATA_GROUPED_END)
         .enter()
         .append('g')
-            .attr('transform', function (d) {
-                var x = xScale(endLabel) + valuesEndMaxWidth + (valueGap * 2);
-                var y = yScale(d.values[0].end) + 4;
-                return 'translate(' + x + ', ' + y + ')';
-            })
             .each(function (d) {
                 var g = d3.select(this);
                 d.values.forEach(function (v, i) {
@@ -346,21 +356,42 @@ var renderSlopegraph = function () {
                         .call(wrapText, labelWidth, '1.1em')
                         .attr({
                             y: function () {
-                                if (i === 0) {
+                                if (!i) {
                                     return 0;
                                 }
 
-                                var yOffset = 0;
-                                g.selectAll('text').each(function (t, j) {
-                                    if (j < i) {
-                                        yOffset = yOffset + this.clientHeight;
-                                    }
+                                var textElems = g.selectAll('text').filter(function (d, j) {
+                                    return j < i;
                                 });
 
-                                return yOffset;
+                                return getCombinedHeightOfElements(textElems);
                             },
                         });
                 });
+            })
+            .attr('transform', function (d, i) {
+                var x = xScale(endLabel) + valuesEndMaxWidth + (valueGap * 2);
+                var y = yScale(d.values[0].end) + 4;
+
+                if (i) {
+                    if (y < prevYLimit) {
+                        y = prevYLimit;
+
+                        // move the value down too
+                        valuesEnd.filter(function (d, j) {
+                            return i === j;
+                        }).attr({
+                            y: prevYLimit - 4,
+                        });
+                    }
+
+                }
+
+                // set prev value for the next item
+                var textElems = d3.select(this).selectAll('text');
+                prevYLimit = y + getCombinedHeightOfElements(textElems);
+
+                return makeTranslate(x, y);
             });
 
     chartElement.selectAll('.value, .label, .lines')
@@ -378,6 +409,15 @@ var getMaxElemWidth = function (elems) {
     });
 
     return maxWidth;
+};
+
+var getCombinedHeightOfElements = function (selection) {
+    var height = 0;
+    selection.each(function (t, j) {
+        height = height + this.clientHeight;
+    });
+
+    return height;
 };
 
 /*
