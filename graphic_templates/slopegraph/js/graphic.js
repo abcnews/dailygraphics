@@ -190,17 +190,19 @@ var renderSlopegraph = function () {
 
     // svg.select('line.unaffiliated').moveToFront();
 
-    var DATA_GROUPED_START = d3.nest()
-        .key(function (d) { return d.start; })
-        .entries(DATA.sort(function (a, b) { // sort by start value descending
-            return b.start - a.start;
-        }));
+    var getGroupedSortedData = function (key) {
+        return d3.nest()
+            .key(function (d) {
+                return d[key];
+            })
+            .sortKeys(function (a, b) {
+                return parseFloat(b) - parseFloat(a);
+            })
+            .entries(DATA);
+    };
 
-    var DATA_GROUPED_END = d3.nest()
-        .key(function (d) { return d.end; })
-        .entries(DATA.sort(function (a, b) { // sort by end value descending
-            return b.end - a.end;
-        }));
+    var DATA_GROUPED_START = getGroupedSortedData('start');
+    var DATA_GROUPED_END = getGroupedSortedData('end');
 
     /*
      * Render values.
