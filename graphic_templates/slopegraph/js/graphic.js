@@ -125,12 +125,13 @@ var renderSlopegraph = function () {
 
     var leftOffset = isMobile ? margins.left : margins.left + labelAndGapWidth;
 
-    var chartElement = chartWrapper.append('svg')
+    var chartSVG = chartWrapper.append('svg')
         .attr({
             width: chartWidth + horizMargins + (labelAndGapWidth * noOfLabelCols),
             height: chartHeight + vertMargins,
-        })
-        .append('g')
+        });
+
+    var chartElement = chartSVG.append('g')
             .attr('transform', makeTranslate(leftOffset, margins.top));
 
     /*
@@ -248,8 +249,6 @@ var renderSlopegraph = function () {
      * Render labels.
      */
 
-    var prevYLimit;
-
     var addLabels = function (elem, d) {
         var g = d3.select(elem);
         d.values.forEach(function (v, i) {
@@ -277,6 +276,9 @@ var renderSlopegraph = function () {
         });
     };
 
+    var prevStartYLimit;
+    var prevEndYLimit;
+
     if (!isMobile) {
         // get the width of the widest start value
         var valuesStartMaxWidth = getMaxElemWidth(valuesStart);
@@ -294,13 +296,13 @@ var renderSlopegraph = function () {
                     var y = yScale(d.values[0].start) + 4;
 
                     if (i) {
-                        if (y < prevYLimit) {
-                            y = prevYLimit;
+                        if (y < prevStartYLimit) {
+                            y = prevStartYLimit;
 
                             valuesStart.filter(function (e, j) {
                                 return i === j;
                             }).attr({
-                                y: prevYLimit - 4,
+                                y: prevStartYLimit - 4,
                             });
                         }
 
@@ -308,7 +310,7 @@ var renderSlopegraph = function () {
 
                     // set prev value for the next item
                     var textElems = d3.select(this).selectAll('text');
-                    prevYLimit = y + getCombinedHeightOfElements(textElems);
+                    prevStartYLimit = y + getCombinedHeightOfElements(textElems);
 
                     return makeTranslate(x, y);
                 });
@@ -329,7 +331,7 @@ var renderSlopegraph = function () {
             }
 
             // set prev value for the next item
-            prevYLimit = y + this.clientHeight;
+            prevStartYLimit = y + this.clientHeight;
         });
 
     }
@@ -350,14 +352,14 @@ var renderSlopegraph = function () {
                 var y = yScale(d.values[0].end) + 4;
 
                 if (i) {
-                    if (y < prevYLimit) {
-                        y = prevYLimit;
+                    if (y < prevEndYLimit) {
+                        y = prevEndYLimit;
 
                         // move the value down too
                         valuesEnd.filter(function (e, j) {
                             return i === j;
                         }).attr({
-                            y: prevYLimit - 4,
+                            y: prevEndYLimit - 4,
                         });
                     }
 
@@ -365,10 +367,13 @@ var renderSlopegraph = function () {
 
                 // set prev value for the next item
                 var textElems = d3.select(this).selectAll('text');
-                prevYLimit = y + getCombinedHeightOfElements(textElems);
+                prevEndYLimit = y + getCombinedHeightOfElements(textElems);
 
                 return makeTranslate(x, y);
             });
+
+    // increase height to accommodate multiline labels
+    chartSVG.attr('height', d3.max([prevStartYLimit, prevEndYLimit]) + vertMargins);
 
     chartElement.selectAll('.value, .label, .lines')
         .attr('transform', 'translate(0,15)');
