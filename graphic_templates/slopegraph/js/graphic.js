@@ -310,6 +310,25 @@ var renderSlopegraph = function () {
 
                     return makeTranslate(x, y);
                 });
+    } else {
+        // Need to reposition values so they don't overlap
+        // (on mobile they don't have the labels)
+        valuesStart.each(function (d, i) {
+            var selection = d3.select(this);
+            var y = parseFloat(selection.attr('y'), 10);
+
+            if (i) {
+                if (y < prevYLimit) {
+                    y = prevYLimit;
+                    selection.attr({
+                        y: prevYLimit,
+                    });
+                }
+            }
+
+            // set prev value for the next item
+            prevYLimit = y + this.clientHeight;
+        });
 
     }
 
