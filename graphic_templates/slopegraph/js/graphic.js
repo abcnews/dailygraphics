@@ -205,74 +205,76 @@ var renderSlopegraph = function () {
     /*
      * Render values.
      */
-    var valuesStart = chartElement.append('g')
-        .attr('class', 'value start')
-        .selectAll('text')
-        .data(DATA_GROUPED_START)
-        .enter()
-        .append('text')
-            .attr('class', function (d) {
-                return d.values.map(function (v) {
-                    return classify(v.label);
-                }).join(' ');
-            })
-            .attr({
-                x: xScale(startLabel),
-                y: function (d) {
-                    return yScale(d.values[0].start);
-                },
+    var addValues = function (cls) {
+        return chartElement.append('g')
+            .attr('class', 'value ' + cls)
+            .selectAll('text')
+            .data(DATA_GROUPED_START)
+            .enter()
+            .append('text')
+                .attr('class', function (d) {
+                    return d.values.map(function (v) {
+                        return classify(v.label);
+                    }).join(' ');
+                })
+                .attr({
+                    x: xScale(cls === 'start' ? startLabel : endLabel),
+                    y: function (d) {
+                        return yScale(d.values[0][cls]);
+                    },
 
-                dx: -valueGap,
-                dy: 4,
-                fill: function (d) {
-                    return accessibleColorScale(d.values[0].label);
-                },
-            })
-            .text(function (d) {
-                return formattedNumber(
-                    d.values[0].start,
-                    LABELS.valuePrefix,
-                    LABELS.valueSuffix,
-                    LABELS.maxDecimalPlaces
-                );
-            });
+                    dx: (cls === 'start' ? -valueGap : valueGap),
+                    dy: 4,
+                    fill: function (d) {
+                        return accessibleColorScale(d.values[0].label);
+                    },
+                })
+                .text(function (d) {
+                    return formattedNumber(
+                        d.values[0][cls],
+                        LABELS.valuePrefix,
+                        LABELS.valueSuffix,
+                        LABELS.maxDecimalPlaces
+                    );
+                });
+    };
 
-    var valuesEnd = chartElement.append('g')
-        .attr('class', 'value end')
-        .selectAll('text')
-        .data(DATA_GROUPED_END)
-        .enter()
-        .append('text')
-            .attr('class', function (d) {
-                return d.values.map(function (v) {
-                    return classify(v.label);
-                }).join(' ');
-            })
-            .attr({
-                x: xScale(endLabel),
-                y: function (d) {
-                    return yScale(d.values[0].end);
-                },
-
-                dx: valueGap,
-                dy: 4,
-                fill: function (d) {
-                    return accessibleColorScale(d.values[0].label);
-                },
-            })
-            .text(function (d) {
-                return formattedNumber(
-                    d.values[0].end,
-                    LABELS.valuePrefix,
-                    LABELS.valueSuffix,
-                    LABELS.maxDecimalPlaces
-                );
-            });
+    var valuesStart = addValues('start');
+    var valuesEnd = addValues('end');
 
     /*
      * Render labels.
      */
+
     var prevYLimit;
+
+    var addLabels = function (elem, d) {
+        var g = d3.select(elem);
+        d.values.forEach(function (v, i) {
+            g.append('text')
+                .attr('class', classify(v.label))
+                .attr({
+                    x: 0,
+                    fill: accessibleColorScale(v.label),
+                })
+                .text(v.label)
+                .call(wrapText, labelWidth, '1.1em')
+                .attr({
+                    y: function () {
+                        if (!i) {
+                            return 0;
+                        }
+
+                        var textElems = g.selectAll('text').filter(function (d, j) {
+                            return j < i;
+                        });
+
+                        return getCombinedHeightOfElements(textElems);
+                    },
+                });
+        });
+    };
+
     if (!isMobile) {
         // get the width of the widest start value
         var valuesStartMaxWidth = getMaxElemWidth(valuesStart);
@@ -283,31 +285,7 @@ var renderSlopegraph = function () {
             .enter()
             .append('g')
                 .each(function (d) {
-                    var g = d3.select(this);
-                    // when multiple labels
-                    d.values.forEach(function (v, i) {
-                        g.append('text')
-                            .attr('class', classify(v.label))
-                            .attr({
-                                x: 0,
-                                fill: accessibleColorScale(v.label),
-                            })
-                            .text(v.label)
-                            .call(wrapText, labelWidth, '1.1em')
-                            .attr({
-                                y: function () {
-                                    if (!i) {
-                                        return 0;
-                                    }
-
-                                    var textElems = g.selectAll('text').filter(function (d, j) {
-                                        return j < i;
-                                    });
-
-                                    return getCombinedHeightOfElements(textElems);
-                                },
-                            });
-                    });
+                    addLabels(this, d);
                 })
                 .attr('transform', function (d, i) {
                     var x = xScale(startLabel) - (valuesStartMaxWidth + (valueGap * 2));
@@ -317,7 +295,7 @@ var renderSlopegraph = function () {
                         if (y < prevYLimit) {
                             y = prevYLimit;
 
-                            valuesStart.filter(function (d, j) {
+                            valuesStart.filter(function (e, j) {
                                 return i === j;
                             }).attr({
                                 y: prevYLimit - 4,
@@ -344,30 +322,7 @@ var renderSlopegraph = function () {
         .enter()
         .append('g')
             .each(function (d) {
-                var g = d3.select(this);
-                d.values.forEach(function (v, i) {
-                    g.append('text')
-                        .attr('class', classify(v.label))
-                        .attr({
-                            x: 0,
-                            fill: accessibleColorScale(v.label),
-                        })
-                        .text(v.label)
-                        .call(wrapText, labelWidth, '1.1em')
-                        .attr({
-                            y: function () {
-                                if (!i) {
-                                    return 0;
-                                }
-
-                                var textElems = g.selectAll('text').filter(function (d, j) {
-                                    return j < i;
-                                });
-
-                                return getCombinedHeightOfElements(textElems);
-                            },
-                        });
-                });
+                addLabels(this, d);
             })
             .attr('transform', function (d, i) {
                 var x = xScale(endLabel) + valuesEndMaxWidth + (valueGap * 2);
@@ -378,7 +333,7 @@ var renderSlopegraph = function () {
                         y = prevYLimit;
 
                         // move the value down too
-                        valuesEnd.filter(function (d, j) {
+                        valuesEnd.filter(function (e, j) {
                             return i === j;
                         }).attr({
                             y: prevYLimit - 4,
