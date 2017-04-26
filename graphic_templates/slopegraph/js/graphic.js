@@ -212,7 +212,7 @@ var renderSlopegraph = function () {
         return chartElement.append('g')
             .attr('class', 'value ' + cls)
             .selectAll('text')
-            .data(DATA_GROUPED_START)
+            .data((cls === 'start') ? DATA_GROUPED_START : DATA_GROUPED_END)
             .enter()
             .append('text')
                 .attr('class', function (d) {
@@ -318,20 +318,21 @@ var renderSlopegraph = function () {
         // Need to reposition values so they don't overlap
         // (on mobile they don't have the labels)
         valuesStart.each(function (d, i) {
+
             var selection = d3.select(this);
             var y = parseFloat(selection.attr('y'), 10);
 
             if (i) {
-                if (y < prevYLimit) {
-                    y = prevYLimit;
+                if (y < prevStartYLimit) {
+                    y = prevStartYLimit;
                     selection.attr({
-                        y: prevYLimit,
+                        y: prevStartYLimit,
                     });
                 }
             }
 
             // set prev value for the next item
-            prevStartYLimit = y + this.clientHeight;
+            prevStartYLimit = y + this.getBBox().height;
         });
 
     }
@@ -395,7 +396,7 @@ var getMaxElemWidth = function (elems) {
 var getCombinedHeightOfElements = function (selection) {
     var height = 0;
     selection.each(function (t, j) {
-        height = height + this.clientHeight;
+        height = height + this.getBBox().height;
     });
 
     return height;
