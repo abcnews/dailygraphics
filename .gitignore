@@ -55,3 +55,5 @@ graphic_templates/**/*.xlsx
 graphic_templates/_basec
 graphics
 keys.sh
+.env
+.venv
