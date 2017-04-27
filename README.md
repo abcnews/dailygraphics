@@ -1,41 +1,39 @@
-# ABC News dailygraphics
+ABC News dailygraphics
+======================
 
-A fork of [NPR Visuals' dailygraphics project](https://github.com/nprapps/dailygraphics).
-See their [README.md](https://github.com/nprapps/dailygraphics/blob/master/README.md)
-for original documentation.
+A fork of [NPR Visuals' dailygraphics project](https://github.com/nprapps/dailygraphics). See their [README.md](https://github.com/nprapps/dailygraphics/blob/master/README.md) for original documentation.
 
-This project is used with the [Chart Builder](https://github.com/abcnews/chart-builder/)
-project to provide editors a web interface for creating new graphics.
+This project is used with the [Chart Builder](https://github.com/abcnews/chart-builder/) project to provide editors a web interface for creating new graphics.
 
-*   [Chart configuration options](#chart-configuration-options)
+-	[Chart configuration options](#chart-configuration-options)
 
-    *   [Common](#common)
-    *   [Line Chart](#line-chart)
-    *   [Bar Chart](#bar-chart)
-    *   [Grouped Bar Chart](#grouped-bar-chart)
-    *   [Stacked Bar Chart](#stacked-bar-chart)
-    *   [Column Chart](#column-chart)
-    *   [Stacked Column Chart](#stacked-column-chart)
-    *   [Slopegraph](#slopegraph)
-    *   [Dot Chart](#dot-chart)
-    *   [Pie Chart](#pie-chart)
-    *   [Scatterplot](#scatterplot)
-    *   [Bubbleplot](#bubbleplot)
-    *   [Responsive HTML Table](#responsive-html-table) (TODO)
-    *   [Block Histogram](#block-histogram) (TODO)
-    *   [USA State Grid Map](#usa-state-grid-map) (TODO)
-    *   [Locator Map](#locator-map) (TODO)
-    *   [ai2html](#ai2html) (TODO)
-    *   [Graphic](#graphic) (TODO)
+	-	[Common](#common)
+	-	[Line Chart](#line-chart)
+	-	[Bar Chart](#bar-chart)
+	-	[Grouped Bar Chart](#grouped-bar-chart)
+	-	[Stacked Bar Chart](#stacked-bar-chart)
+	-	[Column Chart](#column-chart)
+	-	[Stacked Column Chart](#stacked-column-chart)
+	-	[Slopegraph](#slopegraph)
+	-	[Dot Chart](#dot-chart)
+	-	[Pie Chart](#pie-chart)
+	-	[Scatterplot](#scatterplot)
+	-	[Bubbleplot](#bubbleplot)
+	-	[Responsive HTML Table](#responsive-html-table) (TODO)
+	-	[Block Histogram](#block-histogram) (TODO)
+	-	[USA State Grid Map](#usa-state-grid-map) (TODO)
+	-	[Locator Map](#locator-map) (TODO)
+	-	[ai2html](#ai2html) (TODO)
+	-	[Graphic](#graphic) (TODO)
 
-*   [Common issues](#common-issues)
+-	[Common issues](#common-issues)
 
-*   [Development](#development)
+-	[Development](#development)
 
-## Chart configuration options
+Chart configuration options
+---------------------------
 
-See the [graphic config matrix](https://github.com/abcnews/dailygraphics/blob/master/graphic-config-matrix.csv)
-for an overview.
+See the [graphic config matrix](https://github.com/abcnews/dailygraphics/blob/master/graphic-config-matrix.csv) for an overview.
 
 ### Common
 
@@ -73,46 +71,39 @@ Small text that appears below the graph prefixed with "Credit: ".
 
 > Default: `on`
 
-By default the chart will be displayed in the ABC card container. Set to `off`
-to remove the card styling.
+By default the chart will be displayed in the ABC card container. Set to `off` to remove the card styling.
 
 #### theme
 
 > single, monochrome, multicolor, highlight.
 
-Use one of the themes to render the chart. Each chart type has a different
-default theme.
+Use one of the themes to render the chart. Each chart type has a different default theme.
 
-*   `single` - only one color, the ABC blue
+-	`single` - only one color, the ABC blue
 
-*   `monochrome` -  variations of ABC blue and grey
+-	`monochrome` - variations of ABC blue and grey
 
-*   `multicolor` - multiple colors designed for color blindness
+-	`multicolor` - multiple colors designed for color blindness
 
-*   `highlight` - line, bar and column chart support the highlight theme that
-    renders everything a dull grey and blue when hovered or "highlighted"
+-	`highlight` - line, bar and column chart support the highlight theme that renders everything a dull grey and blue when hovered or "highlighted"
 
-*   `custom` - use the colors defined in the [colors](#colors) option
+-	`custom` - use the colors defined in the [colors](#colors) option
 
 #### colors
 
-Comma separated list of colors for each data set. These can be defined in a few
-different ways:
+Comma separated list of colors for each data set. These can be defined in a few different ways:
 
-1.  RGB hex values preceded with `#`. e.g. `#f00, #f12e41, #def78e`
-    (see <http://www.colorpicker.com/>)
+1.	RGB hex values preceded with `#`. e.g. `#f00, #f12e41, #def78e` (see http://www.colorpicker.com/\)
 
-2.  Color keywords. e.g. `red, blue, green, yellow`
-    (see <https://developer.mozilla.org/en/docs/Web/CSS/color_value> for full
-    list of available color keywords).
+2.	Color keywords. e.g. `red, blue, green, yellow` (see https://developer.mozilla.org/en/docs/Web/CSS/color_value for full list of available color keywords).
 
-3.  Special political party keywords to use ABC News standard party colors:
+3.	Special political party keywords to use ABC News standard party colors:
 
-    *   `ptylab` or `ptyalp` - Labor
-    *   `ptylib` or `ptylnp` - Liberal
-    *   `ptynat` - National
-    *   `ptygrn` - Green
-    *   `ptyoth` - Other
+	-	`ptylab` or `ptyalp` - Labor
+	-	`ptylib` or `ptylnp` - Liberal
+	-	`ptynat` - National
+	-	`ptygrn` - Green
+	-	`ptyoth` - Other
 
 These different value types can be combined. e.g. `red, #abcdef, ptynat, #333`
 
@@ -138,8 +129,7 @@ Spacing at the top of the graphic in pixels.
 
 > Default: `10`
 
-Maximum number of decimal places to show on the formatted value labels and
-axes. Any trailing zeros will be omitted.
+Maximum number of decimal places to show on the formatted value labels and axes. Any trailing zeros will be omitted.
 
 #### valuePrefix
 
@@ -155,37 +145,30 @@ A string to put at the end of the values. e.g. `%`.
 
 ### Line Chart
 
-Name the X axis in the data sheet `x` for ordinal data or `date` for time based
-data. If it is time based data you *must* ensure it matches the
-[parseDateFormat](#parseDateFormat) option so the chart builder knows how to
-interpret the dates correctly.
+Name the X axis in the data sheet `x` for ordinal data or `date` for time based data. If it is time based data you *must* ensure it matches the[parseDateFormat](#parseDateFormat) option so the chart builder knows how to interpret the dates correctly.
 
 #### ratio
 
 > Default: `4x3` on mobile, `16x9` otherwise
 
-Specify a custom aspect ratio.
-The graphic is responsive and resizable and will retain this ratio.
+Specify a custom aspect ratio. The graphic is responsive and resizable and will retain this ratio.
 
 #### interpolate
 
 > Default: `monotone`
 
-Which function to use for smoothing the lines.
-Common values will be "linear" and "monotone".
-See <https://github.com/mbostock/d3/wiki/SVG-Shapes#line_interpolate>
+Which function to use for smoothing the lines. Common values will be "linear" and "monotone". See https://github.com/mbostock/d3/wiki/SVG-Shapes#line_interpolate
 
 #### lineStyles
 
 > Default: `solid`
 
-Comma separated list of line style for each data set.
-There are 4 line style options:
+Comma separated list of line style for each data set. There are 4 line style options:
 
-1.  `solid`
-2.  `dotted`
-3.  `dashed1`
-4.  `dashed2`
+1.	`solid`
+2.	`dotted`
+3.	`dashed1`
+4.	`dashed2`
 
 E.g. `solid, dotted, solid, dotted, dashed1`
 
@@ -193,26 +176,24 @@ E.g. `solid, dotted, solid, dotted, dashed1`
 
 > Default: `%d/%m/%y`
 
-Specify the date format the data exists in. Use this guide to construct the
-template: <https://github.com/mbostock/d3/wiki/Time-Formatting>
+Specify the date format the data exists in. Use this guide to construct the template: https://github.com/mbostock/d3/wiki/Time-Formatting
 
 Some common formats for dates would be:
 
-*   `%d/%m/%y` (matches day/month/year with preceding zeros and the abbreviated year, e.g. 01/01/16 -  31/12/16) THIS IS THE DEFAULT
-*   `%d/%m/%Y` (matches day/month/year with preceding zeros and the full year, e.g. 01/01/2016 -  31/12/2016)
-*   `%-d/%-m/%y` (matches day/month/year with no preceding zeros and the abbreviated year, e.g. 1/1/16 -  31/12/16)
-*   `%-d/%-m/%Y` (matches day/month/year with no preceding zeros and the full year, e.g. 1/1/2016 -  31/12/2016)
-*   `%m/%d/%y` (matches month/day/year with preceding zeros and the abbreviated year, e.g. 01/01/16 -  12/31/16)
-*   `%m/%d/%Y` (matches month/day/year with preceding zeros and the full year, e.g. 01/01/2016 -  12/31/2016)
-*   `%-m/%-d/%y` (matches month/day/year with no preceding zeros and the abbreviated year, e.g. 1/1/16 -  12/31/16)
-*   `%-m/%-d/%Y` (matches month/day/year with no preceding zeros and the full year, e.g. 1/1/2016 -  12/31/2016)
+-	`%d/%m/%y` (matches day/month/year with preceding zeros and the abbreviated year, e.g. 01/01/16 - 31/12/16) THIS IS THE DEFAULT
+-	`%d/%m/%Y` (matches day/month/year with preceding zeros and the full year, e.g. 01/01/2016 - 31/12/2016)
+-	`%-d/%-m/%y` (matches day/month/year with no preceding zeros and the abbreviated year, e.g. 1/1/16 - 31/12/16)
+-	`%-d/%-m/%Y` (matches day/month/year with no preceding zeros and the full year, e.g. 1/1/2016 - 31/12/2016)
+-	`%m/%d/%y` (matches month/day/year with preceding zeros and the abbreviated year, e.g. 01/01/16 - 12/31/16)
+-	`%m/%d/%Y` (matches month/day/year with preceding zeros and the full year, e.g. 01/01/2016 - 12/31/2016)
+-	`%-m/%-d/%y` (matches month/day/year with no preceding zeros and the abbreviated year, e.g. 1/1/16 - 12/31/16)
+-	`%-m/%-d/%Y` (matches month/day/year with no preceding zeros and the full year, e.g. 1/1/2016 - 12/31/2016)
 
 #### timeFormatLarge
 
 > Default: a customized multi-resolution time format
 
-How to format dates and times when the graphic is large.
-See <https://github.com/mbostock/d3/wiki/Time-Formatting>
+How to format dates and times when the graphic is large. See https://github.com/mbostock/d3/wiki/Time-Formatting
 
 You can use `\n` in this value to break the output over multiple lines.
 
@@ -220,8 +201,7 @@ You can use `\n` in this value to break the output over multiple lines.
 
 > Default: a customized multi-resolution time format
 
-How to format dates and times when the graphic is small (such as on mobile).
-See <https://github.com/mbostock/d3/wiki/Time-Formatting>
+How to format dates and times when the graphic is small (such as on mobile). See https://github.com/mbostock/d3/wiki/Time-Formatting
 
 You can use `\n` in this value to break the output over multiple lines.
 
@@ -233,8 +213,7 @@ Minimum value on the Y axis.
 
 #### maxValue
 
-> Default: largest value in the data rounded *up* to the nearest multiple of
-> `roundTicksFactor`
+> Default: largest value in the data rounded *up* to the nearest multiple of`roundTicksFactor`
 
 Maximum value on the Y axis.
 
@@ -242,15 +221,13 @@ Maximum value on the Y axis.
 
 > Default: `5`
 
-Use this when relying on the default min or max value. When calculating the min
-and max Y value, it will round to the nearest factor or multiple of this number.
+Use this when relying on the default min or max value. When calculating the min and max Y value, it will round to the nearest factor or multiple of this number.
 
 #### ticksX
 
 > Default: `10`
 
-Approximate number of ticks to show on the X axis. Only applies to date-based
-line charts. Otherwise every x value has a tick.
+Approximate number of ticks to show on the X axis. Only applies to date-based line charts. Otherwise every x value has a tick.
 
 #### mobileTicksX
 
@@ -265,6 +242,12 @@ Approximate number of ticks to show on the Y axis.
 #### mobileTicksY
 
 > Default: `5`
+
+### tickValuesX
+
+> Default: null
+
+The values to use for ticks on ordinal (non-date based) charts.
 
 #### prefixY
 
@@ -452,9 +435,9 @@ NOT READY FOR USE IN PRODUCTION
 
 Very similar to [Scatterplot](#scatterplot) with the following differences:
 
-*   has an additional Z axis data that is represented by the area of the point marker
-*   the order of data values is mostly irrelevant because they are sorted by Z value (descending)
-*   only circles are used for markers
+-	has an additional Z axis data that is represented by the area of the point marker
+-	the order of data values is mostly irrelevant because they are sorted by Z value (descending)
+-	only circles are used for markers
 
 #### mostAverage
 
@@ -506,8 +489,7 @@ NOT READY FOR USE IN PRODUCTION
 
 > Default: `4x3` on mobile, `16x9` otherwise
 
-Specify a custom aspect ratio. The graphic is responsive and resizable and will
-retain this ratio.
+Specify a custom aspect ratio. The graphic is responsive and resizable and will retain this ratio.
 
 ### ai2html
 
@@ -521,32 +503,23 @@ NOT READY FOR USE IN PRODUCTION
 
 > Default: `4x3` on mobile, `16x9` otherwise
 
-Specify a custom aspect ratio. The graphic is responsive and resizable and will
-retain this ratio.
+Specify a custom aspect ratio. The graphic is responsive and resizable and will retain this ratio.
 
-## Common issues
+Common issues
+-------------
 
-If your data is displaying but not being plotted in the correct coordinates it
-is possible that you are either:
+If your data is displaying but not being plotted in the correct coordinates it is possible that you are either:
 
-1.  Using a date format different to the default (or the one specified by
-    `parseDateFormat`). You can either update your dates in the data to use the
-    default date format, or define a `parseDateFormat` that matches the date
-    format you are using. See [parseDateFormat](#parseDateFormat) for more
-    information.
+1.	Using a date format different to the default (or the one specified by`parseDateFormat`). You can either update your dates in the data to use the default date format, or define a `parseDateFormat` that matches the date format you are using. See [parseDateFormat](#parseDateFormat) for more information.
 
-2.  The date cells in the Google Sheets are being formatted in the sheet itself.
-    This means that what is presented in the sheet is a different format to the
-    underlying data. In this case there are two options:
+2.	The date cells in the Google Sheets are being formatted in the sheet itself. This means that what is presented in the sheet is a different format to the underlying data. In this case there are two options:
 
-    1.  Change the date cells to be formatted as "Plain text" via the
-        `Format` > `Number` menu.
+	1.	Change the date cells to be formatted as "Plain text" via the`Format` > `Number` menu.
 
-    2.  Update the `parseDateFormat` to match the underlying data format as
-        seen in the function bar. This appears to be `%-m/%-d/%Y` for dates
-        (have not confirmed this works)
+	2.	Update the `parseDateFormat` to match the underlying data format as seen in the function bar. This appears to be `%-m/%-d/%Y` for dates (have not confirmed this works)
 
-## Development
+Development
+-----------
 
 For local development it is easier to create debug graphics so they don't require you to setup OAuth to use Google Spreadsheets. The path of the graphics is specified in `app_config.py`. By default it is located in the directory above the dailygraphics repo in a folder called `graphics`.
 
@@ -554,16 +527,16 @@ For local development it is easier to create debug graphics so they don't requir
 
 Before running `fab` commands you need to change directory to the dailygraphics repo and run:
 
-~~~bash
+```bash
 source "/usr/local/bin/virtualenvwrapper.sh"
 workon dailygraphics
-~~~
+```
 
 ### Creating a debug graphic
 
-~~~bash
+```bash
 fab add_line_chart:GRAPHIC-NAME,debug=1
-~~~
+```
 
 (Alternately you can FTP down an existing graphic from NewsDev3: `/var/www/html/tools/chart-builder/graphics/` )
 
@@ -571,17 +544,17 @@ fab add_line_chart:GRAPHIC-NAME,debug=1
 
 This rebuilds the local copy with any graphic template changes and content changes to the .xlsx file in the graphic folder.
 
-~~~bash
+```bash
 fab debug_deploy:GRAPHIC-NAME,template=line_chart
-~~~
+```
 
 ### Viewing a debug graphic
 
 Navigate to the graphic folder and run a HTTP server:
 
-~~~bash
+```bash
 python -m SimpleHTTPServer 8000
-~~~
+```
 
 Then visit http://localhost:8000/ or http://localhost.abc.net.au:8000/ (for web fonts to work) and navigate into the graphic `build` directory.
 

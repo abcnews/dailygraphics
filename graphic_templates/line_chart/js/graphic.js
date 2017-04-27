@@ -269,6 +269,7 @@ var renderLineChart = function () {
         .orient('bottom')
         .ticks(ticksX)
         .tickFormat(xFormat)
+        .tickValues(LABELS.tickValuesX ? LABELS.tickValuesX.split(',').map(function(d) {return +d;}) : null)
         .outerTickSize(0);
 
     var yAxis = d3.svg.axis()
