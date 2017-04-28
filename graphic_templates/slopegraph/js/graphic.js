@@ -1,6 +1,10 @@
+// Global config
+var SIDEBAR_THRESHOLD = 280;
+
 // Global vars
 var pymChild = null;
 var isMobile = false;
+var isSidebar = false;
 
 /*
  * Initialize graphic
@@ -15,27 +19,53 @@ var onWindowLoaded = function () {
     } else {
         pymChild = new pym.Child({});
     }
-};
+
+    pymChild.onMessage('on-screen', function(bucket) {
+        ANALYTICS.trackEvent('on-screen', bucket);
+    });
+    pymChild.onMessage('scroll-depth', function(data) {
+        data = JSON.parse(data);
+        ANALYTICS.trackEvent('scroll-depth', data.percent, data.seconds);
+    });
+}
 
 /*
  * Format graphic data for processing by D3.
  */
-var formatData = function () {
-    DATA.forEach(function (d) {
-        d.start = +d.start;
-        d.end = +d.end;
+var formatData = function() {
+    DATA.forEach(function(d) {
+        d['start'] = +d['start'];
+        d['end'] = +d['end'];
     });
 };
 
 /*
  * Render the graphic(s). Called by pym with the container width.
  */
-var render = function (containerWidth) {
-    containerWidth = containerWidth || DEFAULT_WIDTH;
-    isMobile = (containerWidth <= MOBILE_THRESHOLD);
+var render = function(containerWidth) {
+    if (!containerWidth) {
+        containerWidth = DEFAULT_WIDTH;
+    }
+
+    if (containerWidth <= MOBILE_THRESHOLD) {
+        isMobile = true;
+    } else {
+        isMobile = false;
+    }
+
+    if (containerWidth <= SIDEBAR_THRESHOLD) {
+        isSidebar = true;
+    } else {
+        isSidebar = false;
+    }
 
     // Render the chart!
-    renderSlopegraph();
+    renderSlopegraph({
+        container: '#slopegraph',
+        width: containerWidth,
+        data: DATA,
+        labels: LABELS
+    });
 
     // Update iframe
     if (pymChild) {
@@ -97,16 +127,18 @@ var renderSlopegraph = function () {
         .domain(xLabels)
         .range([0, chartWidth]);
 
-    var minY = d3.min(DATA, function (d) {
-        return Math.min(d.start, d.end);
+    var min = d3.min(config['data'], function(d) {
+        var rowMin = d3.min([d[startColumn], d[endColumn]]);
+        return Math.floor(rowMin / roundTicksFactor) * roundTicksFactor;
     });
 
-    var maxY = d3.max(DATA, function (d) {
-        return Math.max(d.start, d.end);
+    var max = d3.max(config['data'], function(d) {
+        var rowMax = d3.max([d[startColumn], d[endColumn]]);
+        return Math.ceil(rowMax / roundTicksFactor) * roundTicksFactor;
     });
 
     var yScale = d3.scale.linear()
-        .domain([minY, maxY])
+        .domain([min, max])
         .range([chartHeight, 0]);
 
     var labelScale = d3.scale.ordinal()
@@ -400,56 +432,6 @@ var getCombinedHeightOfElements = function (selection) {
     });
 
     return height;
-};
-
-/*
- * Wrap a block of text to a given width
- * via http://bl.ocks.org/mbostock/7555321
- */
-var wrapText = function (texts, width, lineHeight) {
-    texts.each(function () {
-        var text = d3.select(this);
-        var words = text.text().split(/\s+/).reverse();
-
-        var word = null;
-        var line = [];
-        var lineNumber = 0;
-
-        var x = text.attr('x');
-        var y = text.attr('y');
-
-        var dx = parseFloat(text.attr('dx') || 0);
-        var dy = parseFloat(text.attr('dy') || 0);
-
-        var tspan = text.text(null)
-            .append('tspan')
-            .attr({
-                x: x,
-                dx: dx,
-                dy: dy,
-            });
-
-        while (word = words.pop()) {
-            line.push(word);
-            tspan.text(line.join(' '));
-
-            if (tspan.node().getComputedTextLength() > width) {
-                line.pop();
-                tspan.text(line.join(' '));
-                line = [word];
-
-                lineNumber += 1;
-
-                tspan = text.append('tspan')
-                    .attr({
-                        x: x,
-                        dx: dx,
-                        dy: lineNumber ? lineHeight : 0,
-                    })
-                    .text(word);
-            }
-        }
-    });
 };
 
 /*

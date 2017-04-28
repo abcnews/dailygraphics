@@ -1,6 +1,7 @@
 // Global vars
 var pymChild = null;
 var isMobile = false;
+var skipLabels = [ 'Group', 'key', 'values' ];
 
 /*
  * Initialize the graphic.
@@ -15,38 +16,55 @@ var onWindowLoaded = function () {
     } else {
         pymChild = new pym.Child({});
     }
-};
+
+    pymChild.onMessage('on-screen', function(bucket) {
+        ANALYTICS.trackEvent('on-screen', bucket);
+    });
+    pymChild.onMessage('scroll-depth', function(data) {
+        data = JSON.parse(data);
+        ANALYTICS.trackEvent('scroll-depth', data.percent, data.seconds);
+    });
+}
 
 /*
  * Format graphic data for processing by D3.
  */
-var formatData = function () {
-    DATA = DATA.map(function (d) {
-        return {
-            key: d.Group,
-            values: d3.entries(d).reduce(function (memo, val) {
-                if (val.key !== 'Group') {
-                    memo.push({
-                        label: val.key,
-                        amt: +val.value,
-                    });
-                }
+var formatData = function() {
+    DATA.forEach(function(d) {
+        d['key'] = d['Group'];
+        d['values'] = [];
 
-                return memo;
-            }, []),
-        };
+        d.forEach(function(v, k) {
+            if (skipLabels.indexOf(k) > -1) {
+                return;
+            }
+
+            d['values'].push({ 'label': k, 'amt': +v });
+            delete d[k];
+        });
     });
 };
 
 /*
  * Render the graphic(s). Called by pym with the container width.
  */
-var render = function (containerWidth) {
-    containerWidth = containerWidth || DEFAULT_WIDTH;
-    isMobile = (containerWidth <= MOBILE_THRESHOLD);
+var render = function(containerWidth) {
+    if (!containerWidth) {
+        containerWidth = DEFAULT_WIDTH;
+    }
+
+    if (containerWidth <= MOBILE_THRESHOLD) {
+        isMobile = true;
+    } else {
+        isMobile = false;
+    }
 
     // Render the chart!
-    renderGroupedBarChart();
+    renderGroupedBarChart({
+        container: '#grouped-bar-chart',
+        width: containerWidth,
+        data: DATA
+    });
 
     // Update iframe
     if (pymChild) {
@@ -101,13 +119,36 @@ var renderGroupedBarChart = function () {
         }
     }
 
-    var maxX;
-    if (LABELS.maxX) {
-        maxX = parseFloat(LABELS.maxX, 10);
-    } else {
-        maxX = d3.max(DATA, function (d) {
-            return d3.max(d.values, function (v) {
-                return v.amt;
+    var max = d3.max(config['data'], function(d) {
+        return d3.max(d['values'], function(v) {
+            return Math.ceil(v[valueColumn] / roundTicksFactor) * roundTicksFactor;
+        });
+    });
+
+    var xScale = d3.scale.linear()
+        .domain([min, max])
+        .range([0, chartWidth]);
+
+    var yScale = d3.scale.linear()
+        .range([chartHeight, 0]);
+
+    var colorScale = d3.scale.ordinal()
+        .domain(d3.keys(config['data'][0]['values']).filter(function(d) {
+            if (!_.contains(skipLabels, d)) {
+                return d;
+            }
+        }))
+        .range([COLORS['teal3'], COLORS['teal5']]);
+    /*
+     * Render a color legend.
+     */
+    var legend = containerElement.append('ul')
+        .attr('class', 'key')
+        .selectAll('g')
+            .data(config['data'][0]['values'])
+        .enter().append('li')
+            .attr('class', function(d, i) {
+                return 'key-item key-' + i + ' ' + classify(d[labelColumn]);
             });
         });
     }
@@ -264,6 +305,38 @@ var renderGroupedBarChart = function () {
                     fill: function (d) {
                         return accessibleColorScale(d.label);
                     },
+    /*
+     * Render 0-line.
+     */
+    if (min < 0) {
+        chartElement.append('line')
+            .attr('class', 'zero-line')
+            .attr('x1', xScale(0))
+            .attr('x2', xScale(0))
+            .attr('y1', 0)
+            .attr('y2', chartHeight);
+    }
+
+    /*
+     * Render bar labels.
+     */
+    chartWrapper.append('ul')
+        .attr('class', 'labels')
+        .attr('style', formatStyle({
+            'width': labelWidth + 'px',
+            'top': margins['top'] + 'px',
+            'left': '0'
+        }))
+        .selectAll('li')
+        .data(config['data'])
+        .enter()
+        .append('li')
+            .attr('style', function(d,i) {
+                var top = (groupHeight + barGap) * i;
+
+                if (i == 0) {
+                    top = 0;
+                }
 
                 });
 

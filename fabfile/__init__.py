@@ -1,17 +1,15 @@
- #!/usr/bin/env python
-
+#!/usr/bin/env python
+# _*_ coding:utf-8 _*_
 import boto
-import imp
 import json
 import os
 import subprocess
-import sys
 import webbrowser
+from datetime import datetime
 
 from distutils.spawn import find_executable
-from fabric.api import local, prompt, require, settings, task
+from fabric.api import local, require, task
 from fabric.state import env
-from glob import glob
 from oauth import get_document, get_credentials
 from time import sleep
 
@@ -20,17 +18,13 @@ import assets
 import ftp as flat
 import render
 import utils
+import test
 
 from render_utils import load_graphic_config
 from etc.gdocs import GoogleDoc
 
 SPREADSHEET_COPY_URL_TEMPLATE = 'https://www.googleapis.com/drive/v2/files/%s/copy'
 SPREADSHEET_VIEW_TEMPLATE = 'https://docs.google.com/spreadsheet/ccc?key=%s#gid=1'
-
-"""
-Base configuration
-"""
-env.settings = None
 
 """
 Environments
@@ -78,17 +72,70 @@ def deploy_to_production(slug):
 
     graphic_root = '%s/%s' % (app_config.GRAPHICS_PATH, slug)
     graphic_assets = '%s/assets' % graphic_root
+
+def deploy(*paths):
+    """
+    Deploy the latest app(s) to S3 and, if configured, to our servers.
+    """
+    if paths[0] == '':
+        print 'You must specify at least one slug, like this: "deploy:slug" or "deploy:slug,slug"'
+        return
+
+    for path in paths:
+        deploy_single(path)
+
+def deploy_single(path):
+    """
+    Deploy a single project to S3 and, if configured, to our servers.
+    """
+    require('settings', provided_by=[production, staging])
+    slug, abspath = utils.parse_path(path)
+    graphic_root = '%s/%s' % (abspath, slug)
+    s3_root = '%s/graphics/%s' % (app_config.PROJECT_SLUG, slug)
+    graphic_assets = '%s/assets' % graphic_root
+    s3_assets = '%s/assets' % s3_root
+    graphic_node_modules = '%s/node_modules' % graphic_root
+
     graphic_config = load_graphic_config(graphic_root)
     default_max_age = getattr(graphic_config, 'DEFAULT_MAX_AGE', None) or app_config.DEFAULT_MAX_AGE
+    assets_max_age = getattr(graphic_config, 'ASSETS_MAX_AGE', None) or app_config.ASSETS_MAX_AGE
+    update_copy(path)
+    if use_assets:
+        error = assets.sync(path)
+        if error:
+            return
 
+    render.render(path)
     flat.deploy_folder(
         graphic_root,
         slug,
         headers={
             'Cache-Control': 'max-age=%i' % default_max_age
         },
-        ignore=['%s/*' % graphic_assets]
+        ignore=['%s/*' % graphic_assets, '%s/*' % graphic_node_modules,
+                # Ignore files unused on static S3 server
+                '*.xls', '*.xlsx', '*.pyc', '*.py', '*.less', '*.bak',
+                '%s/base_template.html' % graphic_root,
+                '%s/child_template.html' % graphic_root]
     )
+
+    if use_assets:
+        flat.deploy_folder(
+            graphic_assets,
+            s3_assets,
+            headers={
+                'Cache-Control': 'max-age=%i' % assets_max_age
+            },
+            ignore=['%s/private/*' % graphic_assets]
+        )
+
+        # Need to explicitly point to index.html for the AWS staging link
+        file_suffix = ''
+        if env.settings == 'staging':
+            file_suffix = 'index.html'
+
+        print ''
+        print '%s URL: %s/graphics/%s/%s' % (env.settings.capitalize(), app_config.S3_BASE_URL, slug, file_suffix)
 
     write_meta_json(slug, 'deploy')
 
@@ -117,7 +164,7 @@ def update_from_template(slug, template):
 
 @task
 def debug_deploy(slug, template):
-    require('settings', provided_by=[production, staging])
+    # require('settings', provided_by=[production, staging])
 
     if not slug:
         print 'You must specify a project slug and template, like this: "debug_deploy:slug,template=template"'
@@ -164,11 +211,12 @@ def recopy_templates(slug, template):
 
     write_meta_json(slug, 'template', template)
 
-def download_copy(slug):
+def download_copy(path):
     """
     Downloads a Google Doc as an .xlsx file.
     """
-    graphic_path = '%s/%s' % (app_config.GRAPHICS_PATH, slug)
+    slug, abspath = utils.parse_path(path)
+    graphic_path = '%s/%s' % (abspath, slug)
 
     try:
         graphic_config = load_graphic_config(graphic_path)
@@ -257,20 +305,109 @@ def _check_slug(slug):
         print 'Error: Directory already exists'
         return True
 
-    #try:
-    #    s3 = boto.connect_s3()
-    #    bucket = s3.get_bucket(app_config.PRODUCTION_S3_BUCKET['bucket_name'])
-    #    key = bucket.get_key('%s/graphics/%s/child.html' % (app_config.PROJECT_SLUG, slug))
+    # try:
+    #     bucket = utils.get_bucket(app_config.PRODUCTION_S3_BUCKET['bucket_name'])
+    #     key = bucket.get_key('%s/graphics/%s/child.html' % (app_config.PROJECT_SLUG, slug))
     #
-    #    if key:
-    #        print 'Error: Slug exists on apps.npr.org'
-    #        return True
-    #except boto.exception.NoAuthHandlerFound:
-    #    print 'Could not authenticate, skipping Amazon S3 check'
-    #except boto.exception.S3ResponseError:
-    #    print 'Could not access S3 bucket, skipping Amazon S3 check'
+    #     if key:
+    #         print 'Error: Slug exists on apps.npr.org'
+    #         return True
+    # except boto.exception.NoAuthHandlerFound:
+    #     print 'Could not authenticate, skipping Amazon S3 check'
+    # except boto.exception.S3ResponseError:
+    #     print 'Could not access S3 bucket, skipping Amazon S3 check'
 
     return False
+
+
+def _create_slug(old_slug):
+    """
+    create a new slug based on an older one
+    """
+    today = datetime.today().strftime('%Y%m%d')
+    # create a new slug based on the old one
+    bits = old_slug.split('-')
+    try:
+        datetime.strptime(bits[len(bits) - 1], '%Y%m%d')
+        bits = bits[:-1]
+    except ValueError:
+        # Add today's date to old slug
+        pass
+    bits.extend([today])
+    return "-".join(bits)
+
+
+def _search_graphic_slug(slug):
+    """
+    searches a given slug in graphics and graphics-archive repos
+    """
+    IGNORE_LIST = ['js', 'css', 'assets', 'lib', '.git']
+    # Limit the search to graphics and graphics-archive repos
+    # searching graphics first
+    search_scope = [app_config.GRAPHICS_PATH, app_config.ARCHIVE_GRAPHICS_PATH]
+
+    for idx, d in enumerate(search_scope):
+        old_graphic_warning = True if (idx > 0) else False
+        for local_path, subdirs, filenames in os.walk(d, topdown=True):
+            bits = local_path.split(os.path.sep)
+            if bits[len(bits) - 1] in IGNORE_LIST:
+                continue
+            if slug in subdirs:
+                path = os.path.join(local_path, slug)
+                return path, old_graphic_warning
+    return None, None
+
+
+@task
+def clone_graphic(old_slug, slug=None):
+    """
+    Clone an existing graphic creating a new spreadsheet
+    """
+
+    if not slug:
+        slug = _create_slug(old_slug)
+
+    if slug == old_slug:
+        print "%(slug)s already has today's date, please specify a new slug to clone into, i.e.: fab clone_graphic:%(slug)s,NEW_SLUG" % {'slug': old_slug}
+        return
+
+    graphic_path = '%s/%s' % (app_config.GRAPHICS_PATH, slug)
+    if _check_slug(slug):
+        return
+
+    # First search over the graphics repo
+    clone_path, old_graphic_warning = _search_graphic_slug(old_slug)
+    if not clone_path:
+        print 'Did not find %s on graphics repos...skipping' % (old_slug)
+        return
+
+    local('cp -r %s %s' % (clone_path, graphic_path))
+
+    config_path = os.path.join(graphic_path, 'graphic_config.py')
+
+    if os.path.isfile(config_path):
+        print 'Creating spreadsheet...'
+
+        success = copy_spreadsheet(slug)
+
+        if success:
+            download_copy(slug)
+        else:
+            local('rm -r graphic_path')
+            print 'Failed to copy spreadsheet! Try again!'
+            return
+    else:
+        print 'No graphic_config.py found, not creating spreadsheet'
+
+    # Force render to clean up old graphic generated files
+    render.render(slug)
+
+    print 'Run `fab app` and visit http://127.0.0.1:8000/graphics/%s to view' % slug
+
+    if old_graphic_warning:
+        print "WARNING: %s was found in old & dusty graphic archives\n"\
+              "WARNING: Please ensure that graphic is up-to-date"\
+              " with your current graphic libs & best-practices" % (old_slug)
 
 @task
 def add_graphic(slug):
@@ -285,6 +422,20 @@ def add_ai2html_graphic(slug):
     Create a graphic using an Adobe Illustrator base.
     """
     _add_graphic(slug, 'ai2html_graphic')
+
+@task
+def add_animated_photo(slug):
+    """
+    Create a new animated photo (GIF alternative).
+    """
+    _add_graphic(slug, 'animated_photo')
+
+@task
+def add_archive_graphic(slug):
+    """
+    Create a shell to archive an old project.
+    """
+    _add_graphic(slug, 'archive_graphic')
 
 @task
 def add_bar_chart(slug, debug=False):
@@ -306,6 +457,13 @@ def add_stacked_column_chart(slug, debug=False):
     Create a stacked column chart.
     """
     _add_graphic(slug, 'stacked_column_chart', debug)
+
+@task
+def add_stacked_grouped_column_chart(slug):
+    """
+    Create a stacked grouped column chart.
+    """
+    _add_graphic(slug, 'stacked_grouped_column_chart')
 
 @task
 def add_block_histogram(slug, debug=False):
@@ -391,6 +549,13 @@ def add_table(slug):
     """
     _add_graphic(slug, 'table')
 
+@task
+def add_issue_matrix(slug):
+    """
+    Create a table comparing positions on an issue.
+    """
+    _add_graphic(slug, 'issue_matrix')
+
 def _check_credentials():
     """
     Check credentials and spawn server and browser if not
@@ -416,6 +581,28 @@ def _check_credentials():
         except KeyboardInterrupt:
             print '\nCtrl-c pressed. Later, skater!'
             exit()
+
+
+@task
+def open_spreadsheet(slug):
+    """
+    Open the spreadsheet associated with a given slug
+    """
+
+    config_path, _ = _search_graphic_slug(slug)
+    try:
+        graphic_config = load_graphic_config(config_path)
+    except ImportError:
+        print 'graphic_config.py not found for %s on graphics or graphics-archive repos' % slug
+        return
+
+    if not hasattr(graphic_config, 'COPY_GOOGLE_DOC_KEY') or not graphic_config.COPY_GOOGLE_DOC_KEY:
+        print 'There seems to be no spreadsheet linked to that slug. (COPY_GOOGLE_DOC_KEY is not defined in %s/graphic_config.py.)' % slug
+        return
+
+    spreadsheet_url = SPREADSHEET_VIEW_TEMPLATE % graphic_config.COPY_GOOGLE_DOC_KEY
+    webbrowser.open_new(spreadsheet_url)
+
 
 def copy_spreadsheet(slug):
     """
@@ -450,7 +637,7 @@ def copy_spreadsheet(slug):
         utils.replace_in_file('%s/graphic_config.py' % config_path , graphic_config.COPY_GOOGLE_DOC_KEY, spreadsheet_key)
 
         return True
-
+    else:
         utils.replace_in_file(config_path, graphic_config.COPY_GOOGLE_DOC_KEY, '')
 
     print 'Error creating spreadsheet (status code %s) with message %s' % (resp.status, resp.reason)

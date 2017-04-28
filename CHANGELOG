@@ -1,6 +1,61 @@
+0.1.4
+-----
+
+* Change http and // references to https. (#205)
+* Block histogram: Assign block colors via JS rather than CSS (#175)
+* State grid map: Fix sizing in IE11 (#170)
+* State grid map: Add sequential legend option (#191)
+* State grid map: Define data column as a variable (#176)
+* Animated photo: Check for credit OR caption when displaying caption area (#174)
+* Standardize use of _.contains to filter data columns in stacked bar/column chart templates (#183)
+* Add AP-style month formatter (#190)
+* Line chart template: Update filter for null values (#189)
+* Remove references to local copy of pym in a few graphics templates (#188)
+* Ensure support for https (#193)
+* Add AP-style full date formatter (#198)
+* Change flat to accomodate to new staging policy
+* Update awscli and Authomatic library requirements
+* Remove unused www deployment (#216)
+* Remove unused files for s3 deployment (#218)
+* Allow render/deploy from an arbitrary folder
+* Remove empty env.settings (#221)
+* Force utf-8 character set on html deployment to S3 (#215)
+* Add testing capabilities
+* Add private assets functionality
+
+
+0.1.3
+-----
+
+* Merge carebot branch
+* Remove Newsletter template
+
+0.1.2
+-----
+
+* Integrate new centralized pym v1
+* New template: Newsletter template
+* New template: Stacked grouped column chart (#181)
+* New open_spreadsheet task
+* New clone_graphic task
+* deploy task accepts multiple project slugs (#155)
+* animated_photo process script also outputs a gif (#152)
+* New issue matrix graphic template.
+* Add a new iTerm v3 configuration applescript
+
 0.1.1
 -----
 
+* New animated_photo graphic template.
+* CSS to address SVG overflow quirk in IE11.
+* Add tablesort to table template. (#57)
+* Add smarty filter. (#139)
+* Remove commented-out JS data loader in existing graphics templates. (#147)
+* Reorganize base JS and add some frequently-used D3 date/number formatters. (#137)
+* Clean up CSS and JS in existing graphics templates. (#126, #140, #141, #145, #146, #148)
+* Update boilerplate embed code to match what's needed for NPR's CMS, Seamus.
+* Fix issue with creating a new graphic.
+* Fix S3 SSL certificate issue.
 * Created _base/base_filters.py, a library of default Jinja filters for common formatting tasks.
 * Made it possible for graphic_config.py to import other local modules (#133)
 

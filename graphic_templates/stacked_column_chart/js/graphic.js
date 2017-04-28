@@ -1,6 +1,7 @@
 // Global vars
 var pymChild = null;
 var isMobile = false;
+var skipLabels = [ 'label', 'values', 'total' ];
 
 /*
  * Initialize the graphic.
@@ -15,20 +16,28 @@ var onWindowLoaded = function () {
     } else {
         pymChild = new pym.Child({});
     }
-};
+
+    pymChild.onMessage('on-screen', function(bucket) {
+        ANALYTICS.trackEvent('on-screen', bucket);
+    });
+    pymChild.onMessage('scroll-depth', function(data) {
+        data = JSON.parse(data);
+        ANALYTICS.trackEvent('scroll-depth', data.percent, data.seconds);
+    });
+}
 
 /*
  * Format graphic data for processing by D3.
  */
-var formatData = function () {
-    DATA.forEach(function (d) {
+var formatData = function() {
+    DATA.forEach(function(d) {
         var y0 = 0;
 
         d.values = [];
         d.total = 0;
 
         for (var key in d) {
-            if (key == 'label' || key == 'values' || key == 'total') {
+            if (_.contains(skipLabels, key)) {
                 continue;
             }
 
@@ -52,12 +61,23 @@ var formatData = function () {
 /*
  * Render the graphic(s). Called by pym with the container width.
  */
-var render = function (containerWidth) {
-    containerWidth = containerWidth || DEFAULT_WIDTH;
-    isMobile = (containerWidth <= MOBILE_THRESHOLD);
+var render = function(containerWidth) {
+    if (!containerWidth) {
+        containerWidth = DEFAULT_WIDTH;
+    }
+
+    if (containerWidth <= MOBILE_THRESHOLD) {
+        isMobile = true;
+    } else {
+        isMobile = false;
+    }
 
     // Render the chart!
-    renderStackedColumnChart();
+    renderStackedColumnChart({
+        container: '#stacked-column-chart',
+        width: containerWidth,
+        data: DATA
+    });
 
     // Update iframe
     if (pymChild) {
@@ -120,13 +140,55 @@ var renderStackedColumnChart = function () {
         minY = 0;
     }
 
-    var maxY = d3.max(DATA, function (d) {
-        return d.total;
+    var max = d3.max(config['data'], function(d) {
+        return Math.ceil(d['total'] / roundTicksFactor) * roundTicksFactor;
     });
 
     var yScale = d3.scale.linear()
-        .domain([minY, maxY])
+        .domain([min, max])
         .rangeRound([chartHeight, 0]);
+
+    var colorScale = d3.scale.ordinal()
+        .domain(d3.keys(config['data'][0]).filter(function(d) {
+            if (!_.contains(skipLabels, d)) {
+                return d;
+            }
+        }))
+        .range([ COLORS['teal2'], COLORS['teal5'] ]);
+
+    /*
+     * Render the legend.
+     */
+    var legend = containerElement.append('ul')
+		.attr('class', 'key')
+		.selectAll('g')
+			.data(colorScale.domain())
+		.enter().append('li')
+			.attr('class', function(d, i) {
+				return 'key-item key-' + i + ' ' + classify(d);
+			});
+
+    legend.append('b')
+        .style('background-color', function(d) {
+            return colorScale(d);
+        });
+
+    legend.append('label')
+        .text(function(d) {
+            return d;
+        });
+
+    /*
+     * Create the root SVG element.
+     */
+    var chartWrapper = containerElement.append('div')
+        .attr('class', 'graphic-wrapper');
+
+    var chartElement = chartWrapper.append('svg')
+        .attr('width', chartWidth + margins['left'] + margins['right'])
+        .attr('height', chartHeight + margins['top'] + margins['bottom'])
+        .append('g')
+            .attr('transform', makeTranslate(margins['left'], margins['top']));
 
     /*
      * Create D3 axes.
@@ -243,6 +305,18 @@ var renderStackedColumnChart = function () {
                     return d.accessibleColor;
                 },
             });
+
+    /*
+     * Render 0 value line.
+     */
+    if (min < 0) {
+        chartElement.append('line')
+            .attr('class', 'zero-line')
+            .attr('x1', 0)
+            .attr('x2', chartWidth)
+            .attr('y1', yScale(0))
+            .attr('y2', yScale(0));
+    }
 
     /*
      * Render values to chart.

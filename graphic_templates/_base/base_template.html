@@ -11,12 +11,24 @@
     <meta name="robots" content="noindex" />
     <base target="_blank">
 
+    {% if GOOGLE_ANALYTICS.ACCOUNT_ID %}
+
+    <!-- Configuration -->
+    <script type="text/javascript">
+        GOOGLE_ANALYTICS_ACCOUNT_ID = '{{ GOOGLE_ANALYTICS.ACCOUNT_ID }}';
+        GOOGLE_ANALYTICS_PROJECT_SLUG = '{{ slug }}';
+    </script>
+
+    {% endif %}
+
     <!-- CSS + LESS -->
     {{ CSS.push('css/graphic.less') }}
     {{ CSS.render('css/graphic-header.css') }}
 </head>
 <body>
+    <!-- Analytics -->
     {{ JS.push('js/helpers.js') }}
+    {% if GOOGLE_ANALYTICS.ACCOUNT_ID %}{{ JS.push('js/analytics.js') }}{% endif %}
     {{ JS.render('js/graphic-header.js') }}
 
     {% block content %}
@@ -25,15 +37,13 @@
 
     {% endblock content %}
 
+    <script type="text/javascript" src="{{ PYM['pym_url'] }}"></script>
     {% block js %}
-
         {{ JS.push('js/lib/d3.min.js') }}
         {{ JS.push('js/lib/modernizr.svg.min.js') }}
-        {{ JS.push('js/lib/pym.min.js') }}
         {{ JS.push('js/base.js') }}
         {{ JS.push('js/graphic.js') }}
         {{ JS.render('js/graphic-footer.js') }}
-
     {% endblock js %}
 </body>
 </html>

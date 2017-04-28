@@ -1,10 +1,5 @@
 @import "base";
 
-.value text {
-    fill: #fff;
-    text-anchor: middle;
-}
-
 .label-top {
     font-style: italic;
     fill: #999;
@@ -12,13 +7,15 @@
     -webkit-font-smoothing: antialiased;
 }
 
+.value text {
+    fill: #fff;
+    text-anchor: middle;
+}
+
 line.axis-0 {
     stroke: #999;
 }
 
-
 @media screen and (max-width: 480px) {
-    .value text {
-        font-size: 10px;
-    }
+    .value text { font-size: 10px; }
 }

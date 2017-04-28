@@ -15,7 +15,15 @@ var onWindowLoaded = function () {
     } else {
         pymChild = new pym.Child({});
     }
-};
+
+    pymChild.onMessage('on-screen', function(bucket) {
+        ANALYTICS.trackEvent('on-screen', bucket);
+    });
+    pymChild.onMessage('scroll-depth', function(data) {
+        data = JSON.parse(data);
+        ANALYTICS.trackEvent('scroll-depth', data.percent, data.seconds);
+    });
+}
 
 /*
  * Format graphic data for processing by D3.
@@ -31,12 +39,23 @@ var formatData = function () {
 /*
  * Render the graphic(s). Called by pym with the container width.
  */
-var render = function (containerWidth) {
-    containerWidth = containerWidth || DEFAULT_WIDTH;
-    isMobile = (containerWidth <= MOBILE_THRESHOLD);
+var render = function(containerWidth) {
+    if (!containerWidth) {
+        containerWidth = DEFAULT_WIDTH;
+    }
+
+    if (containerWidth <= MOBILE_THRESHOLD) {
+        isMobile = true;
+    } else {
+        isMobile = false;
+    }
 
     // Render the chart!
-    renderDotChart();
+    renderDotChart({
+        container: '#dot-chart',
+        width: containerWidth,
+        data: DATA
+    });
 
     // Update iframe
     if (pymChild) {
@@ -105,8 +124,13 @@ var renderDotChart = function () {
     /*
      * Create D3 scale objects.
      */
+    var min = 0;
+    var max = d3.max(config['data'], function(d) {
+        return Math.ceil(d[maxColumn] / roundTicksFactor) * roundTicksFactor;
+    });
+
     var xScale = d3.scale.linear()
-        .domain([0, maxX])
+        .domain([min, max])
         .range([0, chartWidth]);
 
     var colorList = colorArray(LABELS, MONOCHROMECOLORS);

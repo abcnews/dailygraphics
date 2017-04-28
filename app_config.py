@@ -29,8 +29,27 @@ REPOSITORY_ALT_URL = None # 'git@bitbucket.org:nprapps/%s.git' % REPOSITORY_NAME
 # Path to the folder containing the graphics
 GRAPHICS_PATH = os.path.abspath('../graphics')
 
+# Path to the folder containing the graphics
+ARCHIVE_GRAPHICS_PATH = os.path.abspath('../graphics-archive')
+
 # Path to the graphic templates
 TEMPLATES_PATH = os.path.abspath('graphic_templates')
+
+"""
+PYM
+"""
+
+PYM = {
+    'pym_url': 'https://pym.nprapps.org/pym.v1.min.js',
+    'pym_loader_url': 'https://pym.nprapps.org/pym-loader.v1.min.js',
+}
+
+"""
+CAREBOT
+"""
+
+CAREBOT_ENABLED = True
+CAREBOT_URL = 'https://carebot.nprapps.org/carebot-tracker.v0.min.js'
 
 """
 OAUTH
@@ -65,12 +84,49 @@ GOOGLE_ANALYTICS = {
     'ACCOUNT_ID': ''
 }
 
+"""
+TESTS
+"""
+AUTOEXECUTE_TESTS = False
+TESTS_LOAD_WAIT_TIME = 2
+TEST_SCRIPTS_TIMEOUT = 5
+
+
 # These variables will be set at runtime. See configure_targets() below
 FTP_URL = 'contentftp.abc.net.au'
 FTP_USER = os.environ.get('FTP_USER')
 FTP_PASS = os.environ.get('FTP_PASS')
 FTP_PATH = '/www/dat/news/interactives/graphics/'
 DEBUG = True
+
+def configure_targets(deployment_target):
+    """
+    Configure deployment targets. Abstracted so this can be
+    overriden for rendering before deployment.
+    """
+    global S3_BUCKET
+    global S3_BASE_URL
+    global S3_DEPLOY_URL
+    global DEBUG
+    global DEPLOYMENT_TARGET
+
+    if deployment_target == 'production':
+        S3_BUCKET = PRODUCTION_S3_BUCKET
+        S3_BASE_URL = 'https://%s/%s' % (S3_BUCKET['bucket_name'], PROJECT_SLUG)
+        S3_DEPLOY_URL = 's3://%s/%s' % (S3_BUCKET['bucket_name'], PROJECT_SLUG)
+        DEBUG = False
+    elif deployment_target == 'staging':
+        S3_BUCKET = STAGING_S3_BUCKET
+        S3_BASE_URL = 'https://s3.amazonaws.com/%s/%s' % (S3_BUCKET['bucket_name'], PROJECT_SLUG)
+        S3_DEPLOY_URL = 's3://%s/%s' % (S3_BUCKET['bucket_name'], PROJECT_SLUG)
+        DEBUG = True
+    else:
+        S3_BUCKET = None
+        S3_BASE_URL = '//127.0.0.1:8000'
+        S3_DEPLOY_URL = None
+        DEBUG = True
+
+    DEPLOYMENT_TARGET = deployment_target
 
 """
 Run automated configuration

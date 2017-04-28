@@ -1,6 +1,7 @@
 // Global vars
 var pymChild = null;
 var isMobile = false;
+var skipLabels = [ 'label', 'values' ];
 
 /*
  * Initialize the graphic.
@@ -15,19 +16,27 @@ var onWindowLoaded = function () {
     } else {
         pymChild = new pym.Child({});
     }
-};
+
+    pymChild.onMessage('on-screen', function(bucket) {
+        ANALYTICS.trackEvent('on-screen', bucket);
+    });
+    pymChild.onMessage('scroll-depth', function(data) {
+        data = JSON.parse(data);
+        ANALYTICS.trackEvent('scroll-depth', data.percent, data.seconds);
+    });
+}
 
 /*
  * Format graphic data for processing by D3.
  */
-var formatData = function () {
-    DATA.forEach(function (d) {
+var formatData = function() {
+    DATA.forEach(function(d) {
         var x0 = 0;
 
         d.values = [];
 
         for (var key in d) {
-            if (key == 'label' || key == 'values') {
+            if (_.contains(skipLabels, key)) {
                 continue;
             }
 
@@ -50,12 +59,23 @@ var formatData = function () {
 /*
  * Render the graphic(s). Called by pym with the container width.
  */
-var render = function (containerWidth) {
-    containerWidth = containerWidth || DEFAULT_WIDTH;
-    isMobile = (containerWidth <= MOBILE_THRESHOLD);
+var render = function(containerWidth) {
+    if (!containerWidth) {
+        containerWidth = DEFAULT_WIDTH;
+    }
+
+    if (containerWidth <= MOBILE_THRESHOLD) {
+        isMobile = true;
+    } else {
+        isMobile = false;
+    }
 
     // Render the chart!
-    renderStackedBarChart();
+    renderStackedBarChart({
+        container: '#stacked-bar-chart',
+        width: containerWidth,
+        data: DATA
+    });
 
     // Update iframe
     if (pymChild) {
@@ -111,32 +131,32 @@ var renderStackedBarChart = function () {
     /*
      * Create D3 scale objects.
      */
-    var minX;
+    var min;
     if (LABELS.minX) {
-        minX = parseFloat(LABELS.minX, 10);
+        min = parseFloat(LABELS.minX, 10);
     } else {
-        minX = d3.min(DATA, function (d) {
-            var lastValue = d.values[d.values.length - 1];
-            return lastValue.x1;
-        });
+		min = d3.min(config['data'], function(d) {
+	        var lastValue = d['values'][d['values'].length - 1];
+	        return Math.floor(lastValue['x1'] / roundTicksFactor) * roundTicksFactor;
+	     });
 
         if (minX > 0) {
             minX = 0;
         }
     }
 
-    var maxX;
+    var max;
     if (LABELS.maxX) {
-        maxX = parseFloat(LABELS.maxX, 10);
+        max = parseFloat(LABELS.maxX, 10);
     } else {
-        maxX = d3.max(DATA, function (d) {
-            var lastValue = d.values[d.values.length - 1];
-            return lastValue.x1;
-        });
+		max = d3.max(config['data'], function(d) {
+	        var lastValue = d['values'][d['values'].length - 1];
+	        return Math.ceil(lastValue['x1'] / roundTicksFactor) * roundTicksFactor;
+	    });
     }
 
     var xScale = d3.scale.linear()
-        .domain([minX, maxX])
+        .domain([min, max])
         .rangeRound([0, chartWidth]);
 
     var colorScaleDomain = d3.keys(DATA[0]).filter(function (d) {
@@ -287,6 +307,21 @@ var renderStackedBarChart = function () {
                 dy: (barHeight / 2),
 
             });
+                return -(valueGap + textWidth);
+            })
+            .attr('dy', (barHeight / 2) + 4)
+
+    /*
+     * Render 0-line.
+     */
+    if (min < 0) {
+        chartElement.append('line')
+            .attr('class', 'zero-line')
+            .attr('x1', xScale(0))
+            .attr('x2', xScale(0))
+            .attr('y1', 0)
+            .attr('y2', chartHeight);
+    }
 
     /*
      * Render bar labels.

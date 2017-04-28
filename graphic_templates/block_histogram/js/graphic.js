@@ -1,5 +1,6 @@
 // Global config
-var COLOR_BINS = [-4, -2, 0, 2, 4, 6, 8, 10];
+var COLOR_BINS = [ -4, -2, 0, 2, 4, 6, 8, 10 ];
+var COLOR_RANGE = [ '#e68c31', '#eba934', '#efc637', '#c6b550', '#99a363', '#6a9171', '#17807e' ];
 
 // Global vars
 var pymChild = null;
@@ -19,7 +20,15 @@ var onWindowLoaded = function () {
     } else {
         pymChild = new pym.Child({});
     }
-};
+
+    pymChild.onMessage('on-screen', function(bucket) {
+        ANALYTICS.trackEvent('on-screen', bucket);
+    });
+    pymChild.onMessage('scroll-depth', function(data) {
+        data = JSON.parse(data);
+        ANALYTICS.trackEvent('scroll-depth', data.percent, data.seconds);
+    });
+}
 
 /*
  * Format graphic data for processing by D3.
@@ -51,12 +60,25 @@ var formatData = function () {
 /*
  * Render the graphic(s). Called by pym with the container width.
  */
-var render = function (containerWidth) {
-    containerWidth = containerWidth || DEFAULT_WIDTH;
-    isMobile = (containerWidth <= MOBILE_THRESHOLD);
+var render = function(containerWidth) {
+    if (!containerWidth) {
+        containerWidth = DEFAULT_WIDTH;
+    }
+
+    if (containerWidth <= MOBILE_THRESHOLD) {
+        isMobile = true;
+    } else {
+        isMobile = false;
+    }
 
     // Render the chart!
-    renderBlockHistogram();
+    renderBlockHistogram({
+        container: '#block-histogram',
+        width: containerWidth,
+        data: binnedData,
+        bins: COLOR_BINS,
+        colors: COLOR_RANGE
+    });
 
     // Update iframe
     if (pymChild) {
@@ -238,8 +260,11 @@ var renderBlockHistogram = function () {
             });
 
     bins.selectAll('rect')
-        .data(function (d) {
-            return d3.entries(d);
+        .data(function(d, i) {
+            // add the bin index to each row of data so we can assign the right color
+            return d.map(function(v,k) {
+                return { 'key': k, 'value': v, 'parentIndex': i };
+            });
         })
         .enter().append('rect')
             .attr('width', xScale.rangeBand())
@@ -248,8 +273,11 @@ var renderBlockHistogram = function () {
                 return chartHeight - ((blockHeight + blockGap) * (i + 1));
             })
             .attr('height', blockHeight)
-            .attr('class', function (d) {
-                return classify(d.value);
+            .attr('fill', function(d) {
+                return config['colors'][d['parentIndex']];
+            })
+            .attr('class', function(d) {
+                return classify(d['value']);
             });
 
     /*

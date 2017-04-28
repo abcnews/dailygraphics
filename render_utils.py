@@ -109,6 +109,7 @@ class JavascriptIncluder(Includer):
             src_paths.append('%s/%s' % (self.root_path, src))
 
             with codecs.open('%s/%s' % (self.root_path, src), encoding='utf-8') as f:
+
                 if not src.endswith('.min.js'):
                     print '- compressing %s' % src
                     output.append(minify(f.read()))
@@ -163,9 +164,14 @@ def load_graphic_config(graphic_path, base_paths=[]):
 
     paths = [graphic_path] + base_paths
 
-    f, path, desc = imp.find_module('graphic_config', paths)
-    graphic_config = imp.load_module('graphic_config', f, path, desc)
-    f.close()
+    try:
+        f, path, desc = imp.find_module('graphic_config', paths)
+        graphic_config = imp.load_module('graphic_config', f, path, desc)
+        f.close()
+    except ImportError:
+        class EmptyConfig:
+            pass
+        graphic_config = EmptyConfig()
 
     sys.path.pop(0)
 

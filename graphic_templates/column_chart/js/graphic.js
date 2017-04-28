@@ -15,7 +15,15 @@ var onWindowLoaded = function () {
     } else {
         pymChild = new pym.Child({});
     }
-};
+
+    pymChild.onMessage('on-screen', function(bucket) {
+        ANALYTICS.trackEvent('on-screen', bucket);
+    });
+    pymChild.onMessage('scroll-depth', function(data) {
+        data = JSON.parse(data);
+        ANALYTICS.trackEvent('scroll-depth', data.percent, data.seconds);
+    });
+}
 
 /*
  * Format graphic data for processing by D3.
@@ -29,12 +37,23 @@ var formatData = function () {
 /*
  * Render the graphic(s). Called by pym with the container width.
  */
-var render = function (containerWidth) {
-    containerWidth = containerWidth || DEFAULT_WIDTH;
-    isMobile = (containerWidth <= MOBILE_THRESHOLD);
+var render = function(containerWidth) {
+    if (!containerWidth) {
+        containerWidth = DEFAULT_WIDTH;
+    }
+
+    if (containerWidth <= MOBILE_THRESHOLD) {
+        isMobile = true;
+    } else {
+        isMobile = false;
+    }
 
     // Render the chart!
-    renderColumnChart();
+    renderColumnChart({
+        container: '#column-chart',
+        width: containerWidth,
+        data: DATA
+    });
 
     // Update iframe
     if (pymChild) {
@@ -104,13 +123,13 @@ var renderColumnChart = function () {
         minY = 0;
     }
 
-    var maxY = d3.max(DATA, function (d) {
-        return d.amt;
+    var max = d3.max(config['data'], function(d) {
+        return Math.ceil(d[valueColumn] / roundTicksFactor) * roundTicksFactor;
     });
 
     var yScale = d3.scale.linear()
-        .domain([minY, maxY])
-        .rangeRound([chartHeight, 0]);
+        .domain([min, max])
+        .range([chartHeight, 0]);
 
     /*
      * Create D3 axes.
@@ -198,6 +217,16 @@ var renderColumnChart = function () {
                 .filter(':nth-child(' + (index + 1) + ')')
                     .classed('over', true);
         });
+    /*
+     * Render 0 value line.
+     */
+    if (min < 0) {
+        chartElement.append('line')
+            .attr('class', 'zero-line')
+            .attr('x1', 0)
+            .attr('x2', chartWidth)
+            .attr('y1', yScale(0))
+            .attr('y2', yScale(0));
     }
 
     /*

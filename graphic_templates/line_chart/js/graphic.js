@@ -12,6 +12,7 @@ lineKeys.remove(xCol);
 
 // D3 formatters
 var bisectDate = d3.bisector(function (d) { return d.values[0].x; }).left;
+var dataSeries = [];
 
 /*
  * Initialize graphic
@@ -21,11 +22,19 @@ var onWindowLoaded = function () {
         formatData();
 
         pymChild = new pym.Child({
-            renderCallback: render,
+            renderCallback: render
         });
     } else {
         pymChild = new pym.Child({});
     }
+
+    pymChild.onMessage('on-screen', function(bucket) {
+        ANALYTICS.trackEvent('on-screen', bucket);
+    });
+    pymChild.onMessage('scroll-depth', function(data) {
+        data = JSON.parse(data);
+        ANALYTICS.trackEvent('scroll-depth', data.percent, data.seconds);
+    });
 };
 
 /*
@@ -84,14 +93,63 @@ var formatData = function () {
 };
 
 /*
+ * Format graphic data for processing by D3.
+ */
+var formatData1 = function() {
+    DATA.forEach(function(d) {
+        d['date'] = d3.time.format('%m/%d/%y').parse(d['date']);
+
+        for (var key in d) {
+            if (key != 'date' && d[key] != null && d[key].length > 0) {
+                d[key] = +d[key];
+            }
+        }
+    });
+
+    /*
+     * Restructure tabular data for easier charting.
+     */
+    for (var column in DATA[0]) {
+        if (column == 'date') {
+            continue;
+        }
+
+        dataSeries.push({
+            'name': column,
+            'values': DATA.map(function(d) {
+                return {
+                    'date': d['date'],
+                    'amt': d[column]
+                };
+    // filter out empty data. uncomment this if you have inconsistent data.
+    //        }).filter(function(d) {
+    //            return d['amt'] != null;
+            })
+        });
+    }
+};
+
+
+/*
  * Render the graphic(s). Called by pym with the container width.
  */
-var render = function (containerWidth) {
-    containerWidth = containerWidth || DEFAULT_WIDTH;
-    isMobile = (containerWidth <= MOBILE_THRESHOLD);
+var render = function(containerWidth) {
+    if (!containerWidth) {
+        containerWidth = DEFAULT_WIDTH;
+    }
+
+    if (containerWidth <= MOBILE_THRESHOLD) {
+        isMobile = true;
+    } else {
+        isMobile = false;
+    }
 
     // Render the chart!
-    renderLineChart();
+    renderLineChart({
+        container: '#line-chart',
+        width: containerWidth,
+        data: dataSeries
+    });
 
     // Update iframe
     if (pymChild) {
@@ -402,7 +460,6 @@ var renderLineChart = function () {
                     'data-index': function (d, i) {
                         return i;
                     },
-
                 });
 
         shadowLines.on({

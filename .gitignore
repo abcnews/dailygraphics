@@ -30,6 +30,9 @@ pip-log.txt
 .DS_store
 .gzip
 
+# Test Logs
+*.log
+
 node_modules
 www/*.html
 www/css/*.min.*.css
@@ -57,3 +60,5 @@ graphics
 keys.sh
 .env
 .venv
+#Test
+test
