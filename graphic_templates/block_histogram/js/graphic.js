@@ -89,7 +89,7 @@ var render = function(containerWidth) {
 /*
  * Render a bar chart.
  */
-var renderBlockHistogram = function () {
+var renderBlockHistogram = function (config) {
     /*
      * Setup
      */
@@ -112,7 +112,7 @@ var renderBlockHistogram = function () {
     }, []).length;
 
     // Clear existing graphic (for redraw)
-    var containerElement = d3.select('#block-histogram');
+    var containerElement = d3.select(config.container);
     containerElement.html('');
 
     /*
