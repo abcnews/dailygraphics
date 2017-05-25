@@ -1,0 +1,32 @@
+{% extends 'base_template.html' %}
+
+{% block content %}
+    {% if COPY.labels.card|string() != 'off' %}<div class="card">{% endif %}
+    {% if COPY.labels.headline %}<h1>{{ COPY.labels.headline }}</h1>{% endif %}
+    {% if COPY.labels.card|string() != 'off' %}<div class="inner">{% endif %}
+    {% if COPY.labels.subhed %}<p>{{ render(COPY.labels.subhed) }}</p>{% endif %}
+
+    <div id="sparkline-inline" class="graphic">
+        <!--<img src="fallback.png" alt="[Chart]" class="fallback" />-->
+    </div>
+
+    {% if COPY.labels.footnote %}
+    <div class="footnotes">
+        <h4>Notes</h4>
+        <p>{{ COPY.labels.footnote }}</p>
+    </div>
+    {% endif %}
+
+    <div class="footer">
+        {% if COPY.labels.source %}<p>Source: {{ COPY.labels.source }}</p>{% endif %}
+        {% if COPY.labels.credit %}<p>Credit: {{ COPY.labels.credit }}</p>{% endif %}
+    </div>
+
+    {% if COPY.labels.card|string() != 'off' %}</div></div>{% endif %}
+
+    <script type="text/javascript">
+        var DATA = {{ COPY.data.json() }};
+        var LABELS = {{ COPY.labels.json() }};
+    </script>
+
+{% endblock content %}

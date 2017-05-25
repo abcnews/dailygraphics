@@ -1,0 +1,61 @@
+@import "base";
+@import "tooltip";
+
+.lines {
+    fill: none;
+    stroke-width: 0.5px;
+    stroke: #ccc;
+}
+
+.shadow-lines .line {
+    stroke-width: 20px;
+}
+
+.point {
+    stroke-width: 3px;
+}
+
+.value text {
+    fill: #666;
+}
+
+.axis-label {
+    font-size: 12px;
+    font-weight: bold;
+    fill: #666;
+}
+
+.label {
+    font-size: 12px;
+    position: absolute;
+    white-space: nowrap;
+    color: #666;
+
+    div {
+        line-height: 1.2;
+        padding: 0.2em 0;
+    }
+}
+
+.lines {
+    background-color: #f9f9f9;
+}
+
+@media screen and (max-width: 500px) {
+    .value text,
+    .axis-label {
+        font-size: 10px;
+    }
+
+    .lines {
+        stroke-width: 0.5px;
+    }
+
+    .point {
+        stroke-width: 1px;
+    }
+
+    .label {
+        font-size: 11px;
+    }
+}
