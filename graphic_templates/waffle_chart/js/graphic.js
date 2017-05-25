@@ -57,14 +57,14 @@ var renderPieChart = function () {
     };
 
     // Clear existing graphic (for redraw)
-    var containerElement = d3.select('#pie-chart');
+    var containerElement = d3.select('#waffle-chart');
     containerElement.html('');
 
     /*
      * Create the root SVG element.
      */
     var chartWrapper = containerElement.append('div')
-        .attr('class', 'graphic-wrapper');
+        .attr('class', 'graphic-wrapper graph');
 
     // Calculate actual chart dimensions
     var innerWidth = chartWrapper.node().getBoundingClientRect().width;
