@@ -43,7 +43,7 @@ var render = function (containerWidth) {
 };
 
 /*
- * Render a pie chart.
+ * Render a waffle chart.
  */
 var renderWaffleChart = function () {
     /*
@@ -99,28 +99,28 @@ var renderWaffleChart = function () {
     //total population
     total = d3.sum(DATA, function(d) { return d.amt; });
 
-   //value of a square
-   squareValue = total / (widthSquares*heightSquares);
+    //value of a square
+    squareValue = total / (widthSquares * heightSquares);
 
 
-   //remap data
-   DATA.forEach(function(d, i) 
-   {
-       d.amt = +d.amt; 
+    //remap data
+    DATA.forEach(function(d, i) 
+    {
+        d.amt = +d.amt;
 
-       d.units = Math.floor(d.amt/squareValue);
-       theData = theData.concat(
-         Array(d.units+1).join(1).split('').map(function()
-           {
-             return {  squareValue:squareValue,                    
-                       units: d.units,
-                       amt: d.amt,
-                       groupIndex: i};
-           })
-         );
-   });
+        d.units = Math.floor(d.amt/squareValue);
+        theData = theData.concat(
+            Array(d.units+1).join(1).split('').map(function()
+            {
+                return {  squareValue:squareValue,                    
+                        units: d.units,
+                        amt: d.amt,
+                        groupIndex: i};
+            })
+            );
+    });
 
-   chartElement.selectAll('rect')
+    chartElement.selectAll('rect')
         .data(theData)
         .enter()
         .append('rect')
@@ -128,38 +128,26 @@ var renderWaffleChart = function () {
         .attr("height", squareSize - gap)
         .attr("fill", function(d)
         {
-          return colorScale(d.groupIndex);
+            return colorScale(d.groupIndex);
         })
         .attr("x", function(d, i)
         {
-          col = i%heightSquares;
-          var x = (col * (squareSize - gap)) + (col * gap); 
-          return x;
+            col = i%heightSquares;
+            var x = (col * (squareSize - gap)) + (col * gap); 
+            return x;
         })
         .attr("y", function(d, i)
-          {
+            {
             //group n squares for column
             row = Math.floor(i/heightSquares);
             return (row * (squareSize - gap)) + (row*gap);
-          })
+            })
         .append("title")
-          .text(function (d,i) 
+            .text(function (d,i) 
             {
-              return "Label: " + DATA[d.groupIndex].label + " | " +  d.amt + " , " + d.units + "%"
+                return "Label: " + DATA[d.groupIndex].label + " | " +  d.amt + " , " + d.units + "%"
             });
-    
-
-   console.log(theData);
-
-    
-
-   
-
 };
-
-
-
-
 
 /*
  * Initially load the graphic
