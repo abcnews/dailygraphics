@@ -33,7 +33,7 @@ var render = function (containerWidth) {
     containerWidth = containerWidth || DEFAULT_WIDTH;
     isMobile = (containerWidth <= MOBILE_THRESHOLD);
 
-    // Render the chart!
+    // Render the chart
     renderWaffleChart();
 
     // Update iframe
@@ -50,13 +50,11 @@ var renderWaffleChart = function () {
      * Setup
      */
     var margins = {
-        top: parseInt(LABELS.marginTop || 0, 10),
-        right: parseInt(LABELS.marginRight || 0, 10),
-        bottom: parseInt(LABELS.marginBottom || 0, 10),
-        left: parseInt(LABELS.marginLeft || 0, 10),
+        top: parseInt(LABELS.marginTop || 10),
+        right: parseInt(LABELS.marginRight || 10),
+        bottom: parseInt(LABELS.marginBottom || 10),
+        left: parseInt(LABELS.marginLeft || 10),
     };
-
-     
 
     // Clear existing graphic (for redraw)
     var containerElement = d3.select('#waffle-chart');
@@ -96,30 +94,33 @@ var renderWaffleChart = function () {
     var colorScale = d3.scale.ordinal()
         .range(colorList);
 
-    //total population
+    // Total population
     total = d3.sum(DATA, function(d) { return d.amt; });
 
-    //value of a square
+    // Value of a square
     squareValue = total / (widthSquares * heightSquares);
 
-
-    //remap data
-    DATA.forEach(function(d, i) 
-    {
+    // Remap data
+    DATA.forEach(function(d, i) {
         d.amt = +d.amt;
 
         d.units = Math.floor(d.amt/squareValue);
         theData = theData.concat(
             Array(d.units+1).join(1).split('').map(function()
             {
-                return {  squareValue:squareValue,                    
-                        units: d.units,
-                        amt: d.amt,
-                        groupIndex: i};
+                return {
+                    squareValue:squareValue,                    
+                    units: d.units,
+                    amt: d.amt,
+                    groupIndex: i
+                };
             })
-            );
+        );
     });
 
+    /*
+     * Render the squares
+     */
     chartElement.selectAll('rect')
         .data(theData)
         .enter()
@@ -136,18 +137,50 @@ var renderWaffleChart = function () {
             var x = (col * (squareSize - gap)) + (col * gap); 
             return x;
         })
-        .attr("y", function(d, i)
-            {
+        .attr("y", function(d, i) {
             //group n squares for column
             row = Math.floor(i/heightSquares);
             return (row * (squareSize - gap)) + (row*gap);
-            })
+        })
         .append("title")
-            .text(function (d,i) 
-            {
+            .text(function (d,i) {
                 return "Label: " + DATA[d.groupIndex].label + " | " +  d.amt + " , " + d.units + "%"
             });
+    
+   //add legend with categorical data
+   var legend = d3.select("#waffle-legend")
+    .append("svg")
+    .attr('width', 300)
+    .attr('height', 200)
+    .append('g')
+    .selectAll("div")
+    .data(theData)
+    .enter()
+      .append("g")
+      .attr('transform', function(d,i){ return "translate(0," + i*20 + ")";});
+  legend.append("rect")
+    .attr("width", 18)
+    .attr("height", 18)
+    .style("fill", function(d, i) { return colorScale(i)});
+  legend.append("text")
+    .attr("x", 25)
+    .attr("y", 13)
+    .text( function(d) { return DATA[d.groupIndex].label});
+    //add value of a unit square
+    var legend2 = d3.select("#waffle-legend")
+      .select('svg')
+      .append('g')
+      .attr('transform', "translate(100,0)");
+    legend2.append("text")    
+      .attr('y', '14')    
+      .attr('font-size', '18px')
+      .text("Total: " + total)
+      .attr("fill", "#444444");
+
+    
 };
+
+
 
 /*
  * Initially load the graphic
