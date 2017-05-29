@@ -50,10 +50,10 @@ var renderWaffleChart = function () {
      * Setup
      */
     var margins = {
-        top: parseInt(LABELS.marginTop || 10),
-        right: parseInt(LABELS.marginRight || 10),
-        bottom: parseInt(LABELS.marginBottom || 10),
-        left: parseInt(LABELS.marginLeft || 10),
+        top: parseInt(LABELS.marginTop || 0),
+        right: parseInt(LABELS.marginRight || 0),
+        bottom: parseInt(LABELS.marginBottom || 0),
+        left: parseInt(LABELS.marginLeft || 0),
     };
 
     // Clear existing graphic (for redraw)
@@ -65,10 +65,12 @@ var renderWaffleChart = function () {
      */
     var chartWrapper = containerElement.append('div')
         .attr('class', 'graphics-wrapper');
+    
 
     // Calculate actual chart dimensions
     var innerWidth = chartWrapper.node().getBoundingClientRect().width;
-    var chartWidth = innerWidth - margins.left - margins.right;
+    var chartWidth = (innerWidth - margins.left - margins.right >= parseInt(LABELS.maxWidth))
+        ? parseInt(LABELS.maxWidth) : innerWidth - margins.left - margins.right;
     var chartHeight = chartWidth;
 
     var chartElement = chartWrapper.append('svg')
@@ -79,37 +81,36 @@ var renderWaffleChart = function () {
         .append('g')
             .attr('transform', makeTranslate(margins.left, margins.top));
 
-    var total = 0;
-    var width,
-        height,
-        widthSquares = 10,
+    var total = 0; // Init total number of squares
+
+    var widthSquares = 10,
         heightSquares = 10,
-        squareSize = chartWidth / widthSquares,
+        squareSize = chartHeight / heightSquares,
         squareValue = 0, // Set later
         gap = 1,
-        theData = []; 
+        squareData = []; // Data for individual squares
 
 
     var colorList = colorArray(LABELS, MULTICOLORS);
     var colorScale = d3.scale.ordinal()
         .range(colorList);
 
-    // Total population
+    // Total of all data
     total = d3.sum(DATA, function(d) { return d.amt; });
 
     // Value of a square
-    squareValue = total / (widthSquares * heightSquares);
+    squareValue = total / (heightSquares * widthSquares);
 
-    // Remap data
+    // Remap data for individual squares
     DATA.forEach(function(d, i) {
         d.amt = +d.amt;
 
         d.units = Math.floor(d.amt/squareValue);
-        theData = theData.concat(
+        squareData = squareData.concat(
             Array(d.units+1).join(1).split('').map(function()
             {
                 return {
-                    squareValue:squareValue,                    
+                    squareValue:squareValue,                 
                     units: d.units,
                     amt: d.amt,
                     groupIndex: i
@@ -118,11 +119,13 @@ var renderWaffleChart = function () {
         );
     });
 
+    
+
     /*
      * Render the squares
      */
     chartElement.selectAll('rect')
-        .data(theData)
+        .data(squareData)
         .enter()
         .append('rect')
         .attr("width", squareSize - gap)
@@ -133,51 +136,47 @@ var renderWaffleChart = function () {
         })
         .attr("x", function(d, i)
         {
-            col = i%heightSquares;
+            col = i%widthSquares;
             var x = (col * (squareSize - gap)) + (col * gap); 
             return x;
         })
         .attr("y", function(d, i) {
             //group n squares for column
-            row = Math.floor(i/heightSquares);
+            row = Math.floor(i/widthSquares);
             return (row * (squareSize - gap)) + (row*gap);
         })
         .append("title")
-            .text(function (d,i) {
+            .text(function (d, i) {
                 return "Label: " + DATA[d.groupIndex].label + " | " +  d.amt + " , " + d.units + "%"
             });
-    
-   //add legend with categorical data
-   var legend = d3.select("#waffle-legend")
-    .append("svg")
-    .attr('width', 300)
-    .attr('height', 200)
-    .append('g')
-    .selectAll("div")
-    .data(theData)
-    .enter()
-      .append("g")
-      .attr('transform', function(d,i){ return "translate(0," + i*20 + ")";});
-  legend.append("rect")
-    .attr("width", 18)
-    .attr("height", 18)
-    .style("fill", function(d, i) { return colorScale(i)});
-  legend.append("text")
-    .attr("x", 25)
-    .attr("y", 13)
-    .text( function(d) { return DATA[d.groupIndex].label});
-    //add value of a unit square
-    var legend2 = d3.select("#waffle-legend")
-      .select('svg')
-      .append('g')
-      .attr('transform', "translate(100,0)");
-    legend2.append("text")    
-      .attr('y', '14')    
-      .attr('font-size', '18px')
-      .text("Total: " + total)
-      .attr("fill", "#444444");
 
-    
+    /*
+     * Output the legend
+     */
+
+    // Create a legend div wrapper
+    var chartLegend = chartWrapper.append("div")  
+        .attr('class', 'legend-wrapper');
+
+    console.log(DATA);
+
+    chartLegend.selectAll("div")
+    .data(DATA)
+    .enter()
+    .append("div")
+        .html(function(d, i) { return d.label })
+        .style("color", function(d, i) { return colorScale(i)});
+
+
+    // chartLegend.append("div")  
+    //     .html("Category 1: 7% ")
+    //     .style("color", "#1F79CD");
+
+
+    // chartLegend.append("div")  
+    //     .html("Category 2: 6% ")
+    //     .style("color", "#FF7C0A");
+
 };
 
 
@@ -187,3 +186,17 @@ var renderWaffleChart = function () {
  * (NB: Use window.load to ensure all images have loaded)
  */
 window.onload = onWindowLoaded;
+
+
+
+
+// Unused code below here
+
+        /* a square */
+        // .append("svg")
+        // .attr("width", "20")
+        // .attr("height", "20")
+        // .append("rect")
+        //     .attr("width", "20")
+        //     .attr("height", "20")
+        //     .attr("fill", "blue");
