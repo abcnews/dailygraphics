@@ -148,11 +148,11 @@ var renderWaffleChart = function () {
         .data(squareData)
         .enter()
         .call( function(selection) {
+            // Render bottom layer of squares
             selection.append('rect')
                 .attr("width", squareSize - gap)
                 .attr("height", squareSize - gap)
-                .attr("fill", function(d)
-                {
+                .attr("fill", function(d) {
                     return colorScale(d.groupIndex);
                 })
                 .attr("x", function(d, i)
@@ -170,13 +170,19 @@ var renderWaffleChart = function () {
                     .text(function (d, i) {
                         return "Label: " + DATA[d.groupIndex].label + " | " +  d.amt + " , " + d.units + "%"
                     });
-
+            // Render top layer of squares
             selection.append('rect')
                 .attr("width", squareSize - gap)
                 .attr("height", squareSize - gap)
-                .attr("fill", "url(#diagonalHatch)")
-                .attr("x", function(d, i)
-                {
+                .attr("fill", function (d,i) {
+                    console.log(d);
+                    if (d.groupIndex % 2 !== 0) { // odds and even groups
+                        return "url(#diagonalHatch)";
+                    } else {
+                        return "rgba(255,255,255,0.0)"; // fully transparent
+                    }
+                })
+                .attr("x", function(d, i) {
                     col = i%widthSquares;
                     var x = (col * (squareSize - gap)) + (col * gap); 
                     return x;
