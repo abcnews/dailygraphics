@@ -6,16 +6,17 @@ var isMobile = false;
  * Initialize the graphic.
  */
 var onWindowLoaded = function () {
-    if (Modernizr.svg) {
-        formatData();
+	if (Modernizr.svg) {
+		formatData();
 
-        pymChild = new pym.Child({
-            renderCallback: render,
-        });
-    } else {
-        pymChild = new pym.Child({});
-    }
+		pymChild = new pym.Child({
+			renderCallback: render,
+		});
+	} else {
+		pymChild = new pym.Child({});
+	}
 };
+
 
 /*
  * Format graphic data for processing by D3.

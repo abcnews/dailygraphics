@@ -49,11 +49,14 @@ var renderWaffleChart = function () {
     /*
      * Setup
      */
+    var labelWidth = parseInt(LABELS.labelWidth || 85);
+    var labelMargin = parseInt(LABELS.labelMargin || 6);
+
     var margins = {
         top: parseInt(LABELS.marginTop || 0),
         right: parseInt(LABELS.marginRight || 0),
         bottom: parseInt(LABELS.marginBottom || 0),
-        left: parseInt(LABELS.marginLeft || 0),
+        left: parseInt(LABELS.marginLeft || (labelWidth + labelMargin)),
     };
 
     // Clear existing graphic (for redraw)
@@ -110,7 +113,7 @@ var renderWaffleChart = function () {
             Array(d.units+1).join(1).split('').map(function()
             {
                 return {
-                    squareValue:squareValue,                 
+                    squareValue:squareValue,
                     units: d.units,
                     amt: d.amt,
                     groupIndex: i
@@ -150,35 +153,39 @@ var renderWaffleChart = function () {
                 return "Label: " + DATA[d.groupIndex].label + " | " +  d.amt + " , " + d.units + "%"
             });
 
+
     /*
      * Output the legend
      */
 
     // Create a legend div wrapper
-    var chartLegend = chartWrapper.append("div")  
-        .attr('class', 'legend-wrapper');
+    var chartLegend = chartWrapper.append("ul")  
+        .attr('class', 'labels')
+        .style({
+            width: labelWidth + 'px',
+            top: '0px',
+            left: 0,
+        });
 
-    console.log(DATA);
 
-    chartLegend.selectAll("div")
+    chartLegend.selectAll("li")
     .data(DATA)
     .enter()
-    .append("div")
-        .html(function(d, i) { return d.label })
-        .style("color", function(d, i) { return colorScale(i)});
-
-
-    // chartLegend.append("div")  
-    //     .html("Category 1: 7% ")
-    //     .style("color", "#1F79CD");
-
-
-    // chartLegend.append("div")  
-    //     .html("Category 2: 6% ")
-    //     .style("color", "#FF7C0A");
-
+    .append("li")
+        .style("color", function(d, i) { 
+            return colorScale(i)
+        })
+        .style({
+            width: labelWidth + 'px',
+            left: 0,
+            position: "relative"
+        })
+        .append("span")
+        .text(function(d, i) {
+            console.log(d);
+            return d.label
+        });
 };
-
 
 
 /*
@@ -186,17 +193,3 @@ var renderWaffleChart = function () {
  * (NB: Use window.load to ensure all images have loaded)
  */
 window.onload = onWindowLoaded;
-
-
-
-
-// Unused code below here
-
-        /* a square */
-        // .append("svg")
-        // .attr("width", "20")
-        // .attr("height", "20")
-        // .append("rect")
-        //     .attr("width", "20")
-        //     .attr("height", "20")
-        //     .attr("fill", "blue");
