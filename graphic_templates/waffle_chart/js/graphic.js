@@ -123,35 +123,76 @@ var renderWaffleChart = function () {
     });
 
     
+    // Create a transparent SVG to use as a pattern
+    var svg = d3.select("#waffle-chart").append("svg")
+        .attr('width', 0)
+        .attr('height', 0)
+        .style('position', 'absolute') // so it doesn't affect flow
+        .append('defs')
+        .append('pattern')
+            .attr('id', 'diagonalHatch')
+            .attr('patternUnits', 'userSpaceOnUse')
+            .attr('width', 4)
+            .attr('height', 4)
+        .append('path')
+            .attr('d', 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2')
+            .attr('stroke', 'white')
+            .attr('stroke-width', 1);
+
+    
 
     /*
      * Render the squares
      */
-    chartElement.selectAll('rect')
+    var squares = chartElement.selectAll('rect')
         .data(squareData)
         .enter()
-        .append('rect')
-        .attr("width", squareSize - gap)
-        .attr("height", squareSize - gap)
-        .attr("fill", function(d)
-        {
-            return colorScale(d.groupIndex);
+        .call( function(selection) {
+            selection.append('rect')
+                .attr("width", squareSize - gap)
+                .attr("height", squareSize - gap)
+                .attr("fill", function(d)
+                {
+                    return colorScale(d.groupIndex);
+                })
+                .attr("x", function(d, i)
+                {
+                    col = i%widthSquares;
+                    var x = (col * (squareSize - gap)) + (col * gap); 
+                    return x;
+                })
+                .attr("y", function(d, i) {
+                    //group n squares for column
+                    row = Math.floor(i/widthSquares);
+                    return (row * (squareSize - gap)) + (row*gap);
+                })        
+                .append("title")
+                    .text(function (d, i) {
+                        return "Label: " + DATA[d.groupIndex].label + " | " +  d.amt + " , " + d.units + "%"
+                    });
+
+            selection.append('rect')
+                .attr("width", squareSize - gap)
+                .attr("height", squareSize - gap)
+                .attr("fill", "url(#diagonalHatch)")
+                .attr("x", function(d, i)
+                {
+                    col = i%widthSquares;
+                    var x = (col * (squareSize - gap)) + (col * gap); 
+                    return x;
+                })
+                .attr("y", function(d, i) {
+                    //group n squares for column
+                    row = Math.floor(i/widthSquares);
+                    return (row * (squareSize - gap)) + (row*gap);
+                })        
+                .append("title")
+                    .text(function (d, i) {
+                        return "Label: " + DATA[d.groupIndex].label + " | " +  d.amt + " , " + d.units + "%"
+                    });
         })
-        .attr("x", function(d, i)
-        {
-            col = i%widthSquares;
-            var x = (col * (squareSize - gap)) + (col * gap); 
-            return x;
-        })
-        .attr("y", function(d, i) {
-            //group n squares for column
-            row = Math.floor(i/widthSquares);
-            return (row * (squareSize - gap)) + (row*gap);
-        })
-        .append("title")
-            .text(function (d, i) {
-                return "Label: " + DATA[d.groupIndex].label + " | " +  d.amt + " , " + d.units + "%"
-            });
+        
+        
 
 
     /*
@@ -167,13 +208,13 @@ var renderWaffleChart = function () {
             left: 0,
         });
 
-
+    // Append a li per data
     chartLegend.selectAll("li")
     .data(DATA)
     .enter()
     .append("li")
         .style("color", function(d, i) { 
-            return colorScale(i)
+            return colorScale(i);
         })
         .style({
             width: labelWidth + 'px',
@@ -181,9 +222,9 @@ var renderWaffleChart = function () {
             position: "relative"
         })
         .append("span")
-        .text(function(d, i) {
+        .html(function(d, i) {
             console.log(d);
-            return d.label
+            return d.label + " " + "<strong>" + d.units + "%</strong>";
         });
 };
 
