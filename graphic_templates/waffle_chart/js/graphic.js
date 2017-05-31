@@ -127,19 +127,33 @@ var renderWaffleChart = function () {
     var svg = d3.select("#waffle-chart").append("svg")
         .attr('width', 0)
         .attr('height', 0)
-        .style('position', 'absolute') // so it doesn't affect flow
-        .append('defs')
-        .append('pattern')
-            .attr('id', 'diagonalHatch')
+        .style('position', 'absolute'); // so it doesn't affect flow
+        
+        svgDefs = svg.append('defs');
+
+        svgDefs.append('pattern')
+            .attr('id', 'diagonalHatchRight') // ID of pattern
             .attr('patternUnits', 'userSpaceOnUse')
             .attr('width', 4)
             .attr('height', 4)
         .append('path')
             .attr('d', 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2')
+            //.attr('d', 'M5,1 l-2,-2 M4,4 l-4,-4 M1,5 l-2,-2')
+            .attr('stroke', 'white')
+            .attr('stroke-width', 1)
+            
+        svgDefs.append('pattern')
+            .attr('id', 'diagonalHatchLeft') // ID of pattern
+            .attr('patternUnits', 'userSpaceOnUse')
+            .attr('width', 4)
+            .attr('height', 4)
+        .append('path')
+            .attr('d', 'M5,1 l-2,-2 M4,4 l-4,-4 M1,5 l-2,-2')
             .attr('stroke', 'white')
             .attr('stroke-width', 1);
 
     
+
 
     /*
      * Render the squares
@@ -175,11 +189,11 @@ var renderWaffleChart = function () {
                 .attr("width", squareSize - gap)
                 .attr("height", squareSize - gap)
                 .attr("fill", function (d,i) {
-                    console.log(d);
-                    if (d.groupIndex % 2 !== 0) { // odds and even groups
-                        return "url(#diagonalHatch)";
-                    } else {
-                        return "rgba(255,255,255,0.0)"; // fully transparent
+                     switch (d.groupIndex % 4) {
+                        case 0: return "rgba(255,255,255,0.0)"; // fully transparent
+                        case 1: return "url(#diagonalHatchLeft)";
+                        case 2: return "rgba(255,255,255,0.0)"; // fully transparent
+                        case 3: return "url(#diagonalHatchRight)";
                     }
                 })
                 .attr("x", function(d, i) {
@@ -196,9 +210,7 @@ var renderWaffleChart = function () {
                     .text(function (d, i) {
                         return "Label: " + DATA[d.groupIndex].label + " | " +  d.amt + " , " + d.units + "%"
                     });
-        })
-        
-        
+        });
 
 
     /*
@@ -206,7 +218,7 @@ var renderWaffleChart = function () {
      */
 
     // Create a legend div wrapper
-    var chartLegend = chartWrapper.append("ul")  
+    var chartLegend = chartWrapper.append("ul")
         .attr('class', 'labels')
         .style({
             width: labelWidth + 'px',
