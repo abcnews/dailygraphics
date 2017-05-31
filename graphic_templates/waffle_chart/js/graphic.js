@@ -60,15 +60,17 @@ var renderWaffleChart = function () {
     };
 
     // Clear existing graphic (for redraw)
-    var containerElement = d3.select('#waffle-chart');
+    var containerElement = d3.select('#waffle-chart')
+        .style('max-width', '460px')
+        .style('margin', 'auto');
     containerElement.html('');
 
     /*
      * Create the root SVG element.
      */
     var chartWrapper = containerElement.append('div')
-        .attr('class', 'graphics-wrapper');
-    
+        .attr('class', 'graphics-wrapper')
+        // .style('text-align', 'center');
 
     // Calculate actual chart dimensions
     var innerWidth = chartWrapper.node().getBoundingClientRect().width;
@@ -123,7 +125,7 @@ var renderWaffleChart = function () {
     });
 
     
-    // Create a transparent SVG to use as a pattern
+    // Create a transparent SVG to use as for patterns
     var svg = d3.select("#waffle-chart").append("svg")
         .attr('width', 0)
         .attr('height', 0)
@@ -138,7 +140,6 @@ var renderWaffleChart = function () {
             .attr('height', 4)
         .append('path')
             .attr('d', 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2')
-            //.attr('d', 'M5,1 l-2,-2 M4,4 l-4,-4 M1,5 l-2,-2')
             .attr('stroke', 'white')
             .attr('stroke-width', 1)
             
@@ -152,9 +153,7 @@ var renderWaffleChart = function () {
             .attr('stroke', 'white')
             .attr('stroke-width', 1);
 
-    
-
-
+            
     /*
      * Render the squares
      */
@@ -208,7 +207,7 @@ var renderWaffleChart = function () {
                 })        
                 .append("title")
                     .text(function (d, i) {
-                        return "Label: " + DATA[d.groupIndex].label + " | " +  d.amt + " , " + d.units + "%"
+                        return "Label: " + DATA[d.groupIndex].label + " | " +  d.amt + ", ~" + d.units + "%"
                     });
         });
 
@@ -243,7 +242,11 @@ var renderWaffleChart = function () {
         .html(function(d, i) {
             console.log(d);
             return d.label + " " + "<strong>" + d.units + "%</strong>";
-        });
+        })
+        .attr("title", function (d, i) {
+            console.log(d);
+                        return d.label + " " + d.amt + ", ~" + d.units + "%"
+                    });
 };
 
 
