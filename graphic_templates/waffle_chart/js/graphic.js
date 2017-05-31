@@ -78,12 +78,14 @@ var renderWaffleChart = function () {
         ? parseInt(LABELS.maxWidth) : innerWidth - margins.left - margins.right;
     var chartHeight = chartWidth;
 
-    var chartElement = chartWrapper.append('svg')
+    var chartSvg = chartWrapper.append('svg')
         .attr({
             width: chartWidth + margins.left + margins.right,
             height: chartHeight + margins.top + margins.bottom,
         })
-        .append('g')
+        
+
+    var chartElement = chartSvg.append('g')
             .attr('transform', makeTranslate(margins.left, margins.top));
 
     var total = 0; // Init total number of squares
@@ -126,12 +128,12 @@ var renderWaffleChart = function () {
 
     
     // Create a transparent SVG to use as for patterns
-    var svg = d3.select("#waffle-chart").append("svg")
+    var svgPatterns = d3.select("#waffle-chart").append("svg")
         .attr('width', 0)
         .attr('height', 0)
         .style('position', 'absolute'); // so it doesn't affect flow
         
-        svgDefs = svg.append('defs');
+        svgDefs = svgPatterns.append('defs');
 
         svgDefs.append('pattern')
             .attr('id', 'diagonalHatchRight') // ID of pattern
@@ -216,6 +218,22 @@ var renderWaffleChart = function () {
      * Output the legend
      */
 
+    // Just an SVG text test that probably won't work
+
+    // squares.append('text')
+    //     .attr('alignment-baseline', 'hanging')
+    //     .attr("x", function(d, i) {
+    //         col = i%widthSquares;
+    //         var x = (col * (squareSize - gap)) + (col * gap); 
+    //         return -35;
+    //     })
+    //     .attr('y', function(d, i) { 
+    //         row = Math.floor(i/widthSquares);
+    //         return (row * (squareSize - gap)) + (row*gap);
+    //     })
+    //     .text("hello");
+
+
     // Create a legend div wrapper
     var chartLegend = chartWrapper.append("ul")
         .attr('class', 'labels')
@@ -230,21 +248,24 @@ var renderWaffleChart = function () {
     .data(DATA)
     .enter()
     .append("li")
+    .style('margin-bottom', function(d, i) {
+            return squareSize + "px";
+        })
         .style("color", function(d, i) { 
             return colorScale(i);
         })
         .style({
             width: labelWidth + 'px',
+            height: squareSize + 'px',
             left: 0,
             position: "relative"
         })
         .append("span")
+        
         .html(function(d, i) {
-            console.log(d);
             return d.label + " " + "<strong>" + d.units + "%</strong>";
         })
         .attr("title", function (d, i) {
-            console.log(d);
                         return d.label + " " + d.amt + ", ~" + d.units + "%"
                     });
 };
