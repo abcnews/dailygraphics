@@ -70,7 +70,6 @@ var renderWaffleChart = function () {
      */
     var chartWrapper = containerElement.append('div')
         .attr('class', 'graphics-wrapper')
-        // .style('text-align', 'center');
 
     // Calculate actual chart dimensions
     var innerWidth = chartWrapper.node().getBoundingClientRect().width;
@@ -141,7 +140,7 @@ var renderWaffleChart = function () {
             .attr('width', 4)
             .attr('height', 4)
         .append('path')
-            .attr('d', 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2')
+            .attr('d', 'M-1,1 l2,-2 M0,4 l4,-4 M3,5 l2,-2') // Draw // pattern
             .attr('stroke', 'white')
             .attr('stroke-width', 1)
             
@@ -151,7 +150,7 @@ var renderWaffleChart = function () {
             .attr('width', 4)
             .attr('height', 4)
         .append('path')
-            .attr('d', 'M5,1 l-2,-2 M4,4 l-4,-4 M1,5 l-2,-2')
+            .attr('d', 'M5,1 l-2,-2 M4,4 l-4,-4 M1,5 l-2,-2') // Draw \\ pattern
             .attr('stroke', 'white')
             .attr('stroke-width', 1);
 
@@ -243,13 +242,55 @@ var renderWaffleChart = function () {
             left: 0,
         });
 
+    percentTotal = 0;
+
     // Append a li per data
     chartLegend.selectAll("li")
     .data(DATA)
     .enter()
     .append("li")
-    .style('margin-bottom', function(d, i) {
-            return squareSize + "px";
+    // Control labels positioning according to data
+    .style('top', function(d, i) {
+            if (percentTotal < 10) {
+                percentTotal += d.units;
+                return "0px";
+            }
+            if (percentTotal >= 10 && percentTotal < 20) {
+                percentTotal += d.units;
+                return squareSize + "px";
+            }
+            if (percentTotal >= 20 && percentTotal < 30) {
+                percentTotal += d.units;
+                return (squareSize * 2) + "px";
+            }
+            if (percentTotal >= 30 && percentTotal < 40) {
+                percentTotal += d.units;
+                return (squareSize * 3) + "px";
+            }
+            if (percentTotal >= 40 && percentTotal < 50) {
+                percentTotal += d.units;
+                return (squareSize * 4) + "px";
+            }
+            if (percentTotal >= 50 && percentTotal < 60) {
+                percentTotal += d.units;
+                return (squareSize * 5) + "px";
+            }
+            if (percentTotal >= 60 && percentTotal < 70) {
+                percentTotal += d.units;
+                return (squareSize * 6) + "px";
+            }
+            if (percentTotal >= 70 && percentTotal < 80) {
+                percentTotal += d.units;
+                return (squareSize * 7) + "px";
+            }
+            if (percentTotal >= 80 && percentTotal < 90) {
+                percentTotal += d.units;
+                return (squareSize * 8) + "px";
+            }
+            if (percentTotal >= 90) {
+                percentTotal += d.units;
+                return (squareSize * 9) + "px";
+            }
         })
         .style("color", function(d, i) { 
             return colorScale(i);
@@ -258,7 +299,7 @@ var renderWaffleChart = function () {
             width: labelWidth + 'px',
             height: squareSize + 'px',
             left: 0,
-            position: "relative"
+            position: "absolute"
         })
         .append("span")
         
