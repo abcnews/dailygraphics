@@ -54,9 +54,9 @@ var renderWaffleChart = function () {
 
     var margins = {
         top: parseInt(LABELS.marginTop || 0),
-        right: parseInt(LABELS.marginRight || 0),
+        right: parseInt(LABELS.marginRight || (labelWidth + labelMargin)),
         bottom: parseInt(LABELS.marginBottom || 0),
-        left: parseInt(LABELS.marginLeft || (labelWidth + labelMargin)),
+        left: parseInt(LABELS.marginLeft || 0),
     };
 
     // Clear existing graphic (for redraw)
@@ -107,19 +107,27 @@ var renderWaffleChart = function () {
     // Value of a square
     squareValue = total / (heightSquares * widthSquares);
 
-    var sumTotal = 0 // to calculate rowOffset
-
+    var sumTotal = 0; // to calculate d.rowOffset
+    
     // Remap data for individual squares
     DATA.forEach(function(d, i) {
         d.amt = +d.amt;
 
         d.units = Math.floor(d.amt/squareValue);
 
+
+        d.rowOffset = Math.floor(sumTotal/heightSquares);
+
         sumTotal = sumTotal + d.units;
         d.total = sumTotal;
-        d.rowOffset = Math.floor(d.total/heightSquares);
+        
 
-        console.log(d.rowOffset);
+        // Try to find duplicate rows (this needs fixing to include more than 2 dupes)
+        if (i>0) {
+            if (d.rowOffset === DATA[i-1].rowOffset) d.rowOffset++;
+        }
+
+        
 
         squareData = squareData.concat(
             Array(d.units+1).join(1).split('').map(function()
@@ -134,13 +142,16 @@ var renderWaffleChart = function () {
         );
     });
 
-    
+
+
+
+
     // Create a transparent SVG to use as for patterns
     var svgPatterns = d3.select("#waffle-chart").append("svg")
         .attr('width', 0)
         .attr('height', 0)
         .style('position', 'absolute'); // so it doesn't affect flow
-        
+
         svgDefs = svgPatterns.append('defs');
 
         svgDefs.append('pattern')
@@ -163,7 +174,19 @@ var renderWaffleChart = function () {
             .attr('stroke', 'white')
             .attr('stroke-width', 1);
 
-            
+
+    // Define the tooltip for rects
+    var tooltip = d3.select("body")
+        .append("div")
+        .style("position", "absolute")
+        .style("z-index", "10")
+        .style("visibility", "hidden")
+        .style('background-color', 'white')
+        .style('padding', '2px 6px')
+        .style('border', 'solid 1px #ddd')
+        .text("the tooltip placeholder");
+
+
     /*
      * Render the squares
      */
@@ -188,11 +211,8 @@ var renderWaffleChart = function () {
                     //group n squares for column
                     row = Math.floor(i/widthSquares);
                     return (row * (squareSize - gap)) + (row*gap);
-                })        
-                .append("title")
-                    .text(function (d, i) {
-                        return "Label: " + DATA[d.groupIndex].label + " | " +  d.amt + " , " + d.units + "%"
-                    });
+                })
+
             // Render top layer of squares
             selection.append('rect')
                 .attr("width", squareSize - gap)
@@ -214,19 +234,27 @@ var renderWaffleChart = function () {
                     //group n squares for column
                     row = Math.floor(i/widthSquares);
                     return (row * (squareSize - gap)) + (row*gap);
-                })        
-                .append("title")
-                    .text(function (d, i) {
-                        return "Label: " + DATA[d.groupIndex].label + " | " +  d.amt + ", ~" + d.units + "%"
-                    });
+                })
+                .on("mouseover", function(d, i) {
+                    return tooltip.style("visibility", "visible");
+                })
+                .on("mousemove", function(d, i) {
+                    tooltip.text(DATA[d.groupIndex].label + " " +  d.amt + ", " + d.units + "%");
+                    return tooltip.style("top", (d3.event.pageY - 10)+"px").style("left",(d3.event.pageX + 14)+"px");
+                })
+                .on("mouseout", function(d, i) {
+                    return tooltip.style("visibility", "hidden");
+                });
+                // .append("svg:title")
+                //     .text(function (d, i) {
+                //         return DATA[d.groupIndex].label + " - " +  d.amt + ", ~" + d.units + "%"
+                //     });
         });
 
 
     /*
      * Output the legend
      */
-
-    
 
 
     // Create a legend div wrapper
@@ -235,7 +263,14 @@ var renderWaffleChart = function () {
         .style({
             width: labelWidth + 'px',
             top: '0px',
-            left: 0,
+            left: chartWidth + labelMargin + 'px',
+            display: 'flex',
+            'flex-direction': 'column',
+            'justify-content': 'space-between',
+            height: chartHeight + 'px',
+            padding: (squareSize / 2) - 6 + 'px 0', // half square - half lineHeight
+            'box-sizing': 'border-box',
+            
         });
 
     // Append a li per data
@@ -244,26 +279,38 @@ var renderWaffleChart = function () {
     .enter()
     .append("li")
     // Control labels positioning according to data
-    .style('top', function(d, i) {
-            return squareSize * d.rowOffset + 'px';
+    // .style('top', function(d, i) {
+    //         return squareSize * d.rowOffset + 'px';
+    //     })
+        .style('flex-grow', function (d) {
+            return Math.floor(d.units / widthSquares);
         })
         .style("color", function(d, i) { 
             return colorScale(i);
         })
+        .style('position', 'relative')
+        .style('display', 'flex')
         .style({
-            width: labelWidth + 'px',
-            height: squareSize + 'px',
-            left: 0,
-            position: "absolute"
+            // width: labelWidth + 'px',
+            // height: squareSize + 'px',
+            // left: 0,
+            // position: "absolute"
+            'line-height': '1',
+            // 'padding': squareSize / 4 + 'px 0',
+            'flex-direction': 'column',
+            'justify-content': 'space-around',
+            // 'flex-shrink': '1'
         })
         .append("span")
-        
-        .html(function(d, i) {
-            return d.label + " " + "<strong>" + d.units + "%</strong>";
-        })
-        .attr("title", function (d, i) {
-                        return d.label + " " + d.amt + ", ~" + d.units + "%"
-                    });
+            .style('text-align', 'left')
+            .style('display', 'block')
+            .style('white-space', 'nowrap')
+            .html(function(d, i) {
+                return d.label + " " + "<strong>" + d.units + "%</strong>";
+            })
+            .attr("title", function (d, i) {
+                            return d.label + " " + d.amt + ", " + d.units + "%"
+                        });
 };
 
 
@@ -325,3 +372,9 @@ window.onload = onWindowLoaded;
     // if (percentTotal >= 90) {
     //     return (squareSize * 9) + "px";
     // }
+
+
+    // if (i>0) {
+    //         console.log(DATA[i-1].rowOffset);
+    //         if (d.rowOffset === DATA[i-1].rowOffset) d.rowOffset++;
+    //     }
