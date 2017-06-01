@@ -107,11 +107,20 @@ var renderWaffleChart = function () {
     // Value of a square
     squareValue = total / (heightSquares * widthSquares);
 
+    var sumTotal = 0 // to calculate rowOffset
+
     // Remap data for individual squares
     DATA.forEach(function(d, i) {
         d.amt = +d.amt;
 
         d.units = Math.floor(d.amt/squareValue);
+
+        sumTotal = sumTotal + d.units;
+        d.total = sumTotal;
+        d.rowOffset = Math.floor(d.total/heightSquares);
+
+        console.log(d.rowOffset);
+
         squareData = squareData.concat(
             Array(d.units+1).join(1).split('').map(function()
             {
@@ -217,20 +226,7 @@ var renderWaffleChart = function () {
      * Output the legend
      */
 
-    // Just an SVG text test that probably won't work
-
-    // squares.append('text')
-    //     .attr('alignment-baseline', 'hanging')
-    //     .attr("x", function(d, i) {
-    //         col = i%widthSquares;
-    //         var x = (col * (squareSize - gap)) + (col * gap); 
-    //         return -35;
-    //     })
-    //     .attr('y', function(d, i) { 
-    //         row = Math.floor(i/widthSquares);
-    //         return (row * (squareSize - gap)) + (row*gap);
-    //     })
-    //     .text("hello");
+    
 
 
     // Create a legend div wrapper
@@ -242,8 +238,6 @@ var renderWaffleChart = function () {
             left: 0,
         });
 
-    percentTotal = 0;
-
     // Append a li per data
     chartLegend.selectAll("li")
     .data(DATA)
@@ -251,46 +245,7 @@ var renderWaffleChart = function () {
     .append("li")
     // Control labels positioning according to data
     .style('top', function(d, i) {
-            if (percentTotal < 10) {
-                percentTotal += d.units;
-                return "0px";
-            }
-            if (percentTotal >= 10 && percentTotal < 20) {
-                percentTotal += d.units;
-                return squareSize + "px";
-            }
-            if (percentTotal >= 20 && percentTotal < 30) {
-                percentTotal += d.units;
-                return (squareSize * 2) + "px";
-            }
-            if (percentTotal >= 30 && percentTotal < 40) {
-                percentTotal += d.units;
-                return (squareSize * 3) + "px";
-            }
-            if (percentTotal >= 40 && percentTotal < 50) {
-                percentTotal += d.units;
-                return (squareSize * 4) + "px";
-            }
-            if (percentTotal >= 50 && percentTotal < 60) {
-                percentTotal += d.units;
-                return (squareSize * 5) + "px";
-            }
-            if (percentTotal >= 60 && percentTotal < 70) {
-                percentTotal += d.units;
-                return (squareSize * 6) + "px";
-            }
-            if (percentTotal >= 70 && percentTotal < 80) {
-                percentTotal += d.units;
-                return (squareSize * 7) + "px";
-            }
-            if (percentTotal >= 80 && percentTotal < 90) {
-                percentTotal += d.units;
-                return (squareSize * 8) + "px";
-            }
-            if (percentTotal >= 90) {
-                percentTotal += d.units;
-                return (squareSize * 9) + "px";
-            }
+            return squareSize * d.rowOffset + 'px';
         })
         .style("color", function(d, i) { 
             return colorScale(i);
@@ -317,3 +272,56 @@ var renderWaffleChart = function () {
  * (NB: Use window.load to ensure all images have loaded)
  */
 window.onload = onWindowLoaded;
+
+
+/* Unused code below here
+------------------------------------------*/
+
+
+// Just an SVG text test that probably won't work
+
+    // squares.append('text')
+    //     .attr('alignment-baseline', 'hanging')
+    //     .attr("x", function(d, i) {
+    //         col = i%widthSquares;
+    //         var x = (col * (squareSize - gap)) + (col * gap); 
+    //         return -35;
+    //     })
+    //     .attr('y', function(d, i) { 
+    //         row = Math.floor(i/widthSquares);
+    //         return (row * (squareSize - gap)) + (row*gap);
+    //     })
+    //     .text("hello");
+
+    // Row offset, but we now use Math.floor(total/10)
+    // percentTotal += d.units;
+    // if (percentTotal < 10) {
+    //     return "0px";
+    // }
+    // if (percentTotal >= 10 && percentTotal < 20) {
+    //     return squareSize + "px";
+    // }
+    // if (percentTotal >= 20 && percentTotal < 30) {
+    //     return (squareSize * 2) + "px";
+    // }
+    // if (percentTotal >= 30 && percentTotal < 40) {
+    //     return (squareSize * 3) + "px";
+    // }
+    // if (percentTotal >= 40 && percentTotal < 50) {
+    //     return (squareSize * 4) + "px";
+    // }
+    // if (percentTotal >= 50 && percentTotal < 60) {
+    //     return (squareSize * 5) + "px";
+    // }
+    // if (percentTotal >= 60 && percentTotal < 70) {
+    //     return (squareSize * 6) + "px";
+    // }
+    // if (percentTotal >= 70 && percentTotal < 80) {
+    //     return (squareSize * 7) + "px";
+    // }
+    // if (percentTotal >= 80 && percentTotal < 90) {
+    //     return (squareSize * 8) + "px";
+    // }
+    // if (percentTotal >= 90) {
+    //     return (squareSize * 9) + "px";
+    // }
