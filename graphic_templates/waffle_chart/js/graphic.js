@@ -2,9 +2,8 @@
 var pymChild = null;
 var isMobile = false;
 
-/*
- * Initialize the graphic.
- */
+/* Initialize the graphic.
+----------------------------------------------------*/
 var onWindowLoaded = function () {
     if (Modernizr.svg) {
         formatData();
@@ -52,6 +51,7 @@ var renderWaffleChart = function () {
     var labelWidth = parseInt(LABELS.labelWidth || 85);
     var labelMargin = parseInt(LABELS.labelMargin || 6);
 
+
     var margins = {
         top: parseInt(LABELS.marginTop || 0),
         right: parseInt(LABELS.marginRight || (labelWidth + labelMargin)),
@@ -61,7 +61,7 @@ var renderWaffleChart = function () {
 
     // Clear existing graphic (for redraw)
     var containerElement = d3.select('#waffle-chart')
-        .style('max-width', '460px')
+        .style('max-width', parseInt(LABELS.maxWidth) || 420 + 'px')
         .style('margin', 'auto');
     containerElement.html('');
 
@@ -69,7 +69,7 @@ var renderWaffleChart = function () {
      * Create the root SVG element.
      */
     var chartWrapper = containerElement.append('div')
-        .attr('class', 'graphics-wrapper')
+        .attr('class', 'graphics-wrapper');
 
     // Calculate actual chart dimensions
     var innerWidth = chartWrapper.node().getBoundingClientRect().width;
@@ -81,13 +81,13 @@ var renderWaffleChart = function () {
         .attr({
             width: chartWidth + margins.left + margins.right,
             height: chartHeight + margins.top + margins.bottom,
-        })
+        });
         
 
     var chartElement = chartSvg.append('g')
             .attr('transform', makeTranslate(margins.left, margins.top));
 
-    var total = 0; // Init total number of squares
+    var totalAmount = 0; // Init total number of squares
 
     var widthSquares = 10,
         heightSquares = 10,
@@ -102,32 +102,16 @@ var renderWaffleChart = function () {
         .range(colorList);
 
     // Total of all data
-    total = d3.sum(DATA, function(d) { return d.amt; });
+    totalAmount = d3.sum(DATA, function(d) { return d.amt; });
 
     // Value of a square
-    squareValue = total / (heightSquares * widthSquares);
-
-    var sumTotal = 0; // to calculate d.rowOffset
+    squareValue = totalAmount / (heightSquares * widthSquares);
     
     // Remap data for individual squares
     DATA.forEach(function(d, i) {
         d.amt = +d.amt;
 
         d.units = Math.floor(d.amt/squareValue);
-
-
-        d.rowOffset = Math.floor(sumTotal/heightSquares);
-
-        sumTotal = sumTotal + d.units;
-        d.total = sumTotal;
-        
-
-        // Try to find duplicate rows (this needs fixing to include more than 2 dupes)
-        if (i>0) {
-            if (d.rowOffset === DATA[i-1].rowOffset) d.rowOffset++;
-        }
-
-        
 
         squareData = squareData.concat(
             Array(d.units+1).join(1).split('').map(function()
@@ -141,9 +125,6 @@ var renderWaffleChart = function () {
             })
         );
     });
-
-
-
 
 
     // Create a transparent SVG to use as for patterns
@@ -175,15 +156,13 @@ var renderWaffleChart = function () {
             .attr('stroke-width', 1);
 
 
-    // Define the tooltip for rects
+    // Define the tooltip for squares
     var tooltip = d3.select("body")
         .append("div")
+        .classed('tooltip', true)
         .style("position", "absolute")
         .style("z-index", "10")
         .style("visibility", "hidden")
-        .style('background-color', 'white')
-        .style('padding', '2px 6px')
-        .style('border', 'solid 1px #ddd')
         .text("the tooltip placeholder");
 
 
@@ -213,7 +192,8 @@ var renderWaffleChart = function () {
                     return (row * (squareSize - gap)) + (row*gap);
                 })
 
-            // Render top layer of squares
+            /* Render top layer of squares
+            ----------------------------------------------------*/
             selection.append('rect')
                 .attr("width", squareSize - gap)
                 .attr("height", squareSize - gap)
@@ -238,24 +218,23 @@ var renderWaffleChart = function () {
                 .on("mouseover", function(d, i) {
                     return tooltip.style("visibility", "visible");
                 })
+                .on("click", function(d, i) { // for mobile
+                    return tooltip.style("visibility", "visible");
+                })
                 .on("mousemove", function(d, i) {
-                    tooltip.text(DATA[d.groupIndex].label + " " +  d.amt + ", " + d.units + "%");
+                    tooltip.html('<div><strong>' + DATA[d.groupIndex].label + "</strong></div><div>"
+                    +  d.amt + ", " + d.units + "%</div>");
                     return tooltip.style("top", (d3.event.pageY - 10)+"px").style("left",(d3.event.pageX + 14)+"px");
                 })
                 .on("mouseout", function(d, i) {
                     return tooltip.style("visibility", "hidden");
                 });
-                // .append("svg:title")
-                //     .text(function (d, i) {
-                //         return DATA[d.groupIndex].label + " - " +  d.amt + ", ~" + d.units + "%"
-                //     });
         });
 
 
     /*
      * Output the legend
      */
-
 
     // Create a legend div wrapper
     var chartLegend = chartWrapper.append("ul")
@@ -269,8 +248,7 @@ var renderWaffleChart = function () {
             'justify-content': 'space-between',
             height: chartHeight + 'px',
             padding: (squareSize / 2) - 6 + 'px 0', // half square - half lineHeight
-            'box-sizing': 'border-box',
-            
+            'box-sizing': 'border-box'
         });
 
     // Append a li per data
@@ -278,103 +256,38 @@ var renderWaffleChart = function () {
     .data(DATA)
     .enter()
     .append("li")
-    // Control labels positioning according to data
-    // .style('top', function(d, i) {
-    //         return squareSize * d.rowOffset + 'px';
-    //     })
         .style('flex-grow', function (d) {
-            return Math.floor(d.units / widthSquares);
+            return Math.floor((d.units - 1) / widthSquares);
         })
-        .style("color", function(d, i) { 
+        .style("color", function(d, i) {
             return colorScale(i);
         })
         .style('position', 'relative')
         .style('display', 'flex')
         .style({
-            // width: labelWidth + 'px',
-            // height: squareSize + 'px',
-            // left: 0,
-            // position: "absolute"
             'line-height': '1',
-            // 'padding': squareSize / 4 + 'px 0',
             'flex-direction': 'column',
             'justify-content': 'space-around',
-            // 'flex-shrink': '1'
         })
         .append("span")
             .style('text-align', 'left')
             .style('display', 'block')
-            .style('white-space', 'nowrap')
             .html(function(d, i) {
                 return d.label + " " + "<strong>" + d.units + "%</strong>";
             })
             .attr("title", function (d, i) {
                             return d.label + " " + d.amt + ", " + d.units + "%"
                         });
-};
 
+        // Output the total stats
+        var chartTotal = chartWrapper.append("div")
+            .classed('labels', true)
+            .style('color', '#666')
+            .text('Total data: ' + totalAmount);
+};
 
 /*
  * Initially load the graphic
  * (NB: Use window.load to ensure all images have loaded)
  */
 window.onload = onWindowLoaded;
-
-
-/* Unused code below here
-------------------------------------------*/
-
-
-// Just an SVG text test that probably won't work
-
-    // squares.append('text')
-    //     .attr('alignment-baseline', 'hanging')
-    //     .attr("x", function(d, i) {
-    //         col = i%widthSquares;
-    //         var x = (col * (squareSize - gap)) + (col * gap); 
-    //         return -35;
-    //     })
-    //     .attr('y', function(d, i) { 
-    //         row = Math.floor(i/widthSquares);
-    //         return (row * (squareSize - gap)) + (row*gap);
-    //     })
-    //     .text("hello");
-
-    // Row offset, but we now use Math.floor(total/10)
-    // percentTotal += d.units;
-    // if (percentTotal < 10) {
-    //     return "0px";
-    // }
-    // if (percentTotal >= 10 && percentTotal < 20) {
-    //     return squareSize + "px";
-    // }
-    // if (percentTotal >= 20 && percentTotal < 30) {
-    //     return (squareSize * 2) + "px";
-    // }
-    // if (percentTotal >= 30 && percentTotal < 40) {
-    //     return (squareSize * 3) + "px";
-    // }
-    // if (percentTotal >= 40 && percentTotal < 50) {
-    //     return (squareSize * 4) + "px";
-    // }
-    // if (percentTotal >= 50 && percentTotal < 60) {
-    //     return (squareSize * 5) + "px";
-    // }
-    // if (percentTotal >= 60 && percentTotal < 70) {
-    //     return (squareSize * 6) + "px";
-    // }
-    // if (percentTotal >= 70 && percentTotal < 80) {
-    //     return (squareSize * 7) + "px";
-    // }
-    // if (percentTotal >= 80 && percentTotal < 90) {
-    //     return (squareSize * 8) + "px";
-    // }
-    // if (percentTotal >= 90) {
-    //     return (squareSize * 9) + "px";
-    // }
-
-
-    // if (i>0) {
-    //         console.log(DATA[i-1].rowOffset);
-    //         if (d.rowOffset === DATA[i-1].rowOffset) d.rowOffset++;
-    //     }
