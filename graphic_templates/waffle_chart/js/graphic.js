@@ -61,7 +61,7 @@ var renderWaffleChart = function () {
 
     // Clear existing graphic (for redraw)
     var containerElement = d3.select('#waffle-chart')
-        .style('max-width', parseInt(LABELS.maxWidth) || 420 + 'px')
+        .style('max-width', parseInt(LABELS.maxWidth) + 'px' || 420 + 'px')
         .style('margin', 'auto');
     containerElement.html('');
 
