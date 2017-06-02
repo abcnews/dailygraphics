@@ -247,7 +247,7 @@ var renderWaffleChart = function () {
             'flex-direction': 'column',
             'justify-content': 'space-between',
             height: chartHeight + 'px',
-            padding: (squareSize / 2) - 6 + 'px 0', // half square - half lineHeight
+            padding: (squareSize / 2) - 7 + 'px 0', // half square - half lineHeight
             'box-sizing': 'border-box'
         });
 
