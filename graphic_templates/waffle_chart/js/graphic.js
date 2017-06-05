@@ -62,7 +62,6 @@ var renderWaffleChart = function () {
     // Clear existing graphic (for redraw)
     var containerElement = d3.select('#waffle-chart')
         .style('max-width', parseInt(LABELS.maxWidth) + 'px' || 420 + 'px')
-        .style('margin', 'auto');
     containerElement.html('');
 
     /*
@@ -129,9 +128,9 @@ var renderWaffleChart = function () {
 
     // Create a transparent SVG to use as for patterns
     var svgPatterns = d3.select("#waffle-chart").append("svg")
+        .classed('pattern', true)
         .attr('width', 0)
         .attr('height', 0)
-        .style('position', 'absolute'); // so it doesn't affect flow
 
         svgDefs = svgPatterns.append('defs');
 
@@ -159,12 +158,7 @@ var renderWaffleChart = function () {
     // Define the tooltip for squares
     var tooltip = d3.select("body")
         .append("div")
-        .classed('tooltip', true)
-        .style("position", "absolute")
-        .style("z-index", "10")
-        .style("visibility", "hidden")
-        .text("the tooltip placeholder");
-
+        .classed('tooltip', true);
 
     /*
      * Render the squares
@@ -243,12 +237,8 @@ var renderWaffleChart = function () {
             width: labelWidth + 'px',
             top: '0px',
             left: chartWidth + labelMargin + 'px',
-            display: 'flex',
-            'flex-direction': 'column',
-            'justify-content': 'space-between',
             height: chartHeight + 'px',
             padding: (squareSize / 2) - 7 + 'px 0', // half square - half lineHeight
-            'box-sizing': 'border-box'
         });
 
     // Append a li per data
@@ -262,16 +252,7 @@ var renderWaffleChart = function () {
         .style("color", function(d, i) {
             return colorScale(i);
         })
-        .style('position', 'relative')
-        .style('display', 'flex')
-        .style({
-            'line-height': '1',
-            'flex-direction': 'column',
-            'justify-content': 'space-around',
-        })
         .append("span")
-            .style('text-align', 'left')
-            .style('display', 'block')
             .html(function(d, i) {
                 return d.label + " " + "<strong>" + d.units + "%</strong>";
             })
@@ -282,7 +263,6 @@ var renderWaffleChart = function () {
         // Output the total stats
         var chartTotal = chartWrapper.append("div")
             .classed('labels', true)
-            .style('color', '#666')
             .text('Total data: ' + totalAmount);
 };
 
