@@ -1,10 +1,10 @@
 // Global vars
 var pymChild = null;
 var isMobile = false;
-var xCol = 'x';
-// var KEY_NESTED_DATA;
+// var xCol = 'x';
+var KEY_NESTED_DATA;
 // var X_NESTED_DATA;
-// var FLAT_DATA = [];
+var FLAT_DATA = [];
 
 var lineKeys = d3.set(d3.map(DATA[0]).keys());
 
@@ -44,7 +44,32 @@ var formatData = function () {
         }, {});
     });
 
+    /*
+     * Restructure tabular data for easier charting.
+     */
+    lineKeys.forEach(function (d) {
+        FLAT_DATA = FLAT_DATA.concat(DATA.map(function (v) {
+            return {
+                // x: v[xCol],
+                amt: v[d],
+                key: d,
+            };
+        }));
+    });
 
+
+    KEY_NESTED_DATA = d3.nest()
+        .key(function (d) { return d.key; })
+        .entries(FLAT_DATA);
+
+    KEY_NESTED_DATA.forEach(function(d, i) {
+        console.log(i);
+        console.log(d.values);
+    });
+
+    // X_NESTED_DATA = d3.nest()
+    //     .key(function (d) { return d.x; })
+    //     .entries(FLAT_DATA);
 };
 
 
@@ -71,12 +96,13 @@ var renderSparklineChart = function () {
     /*
      * Setup
      */
-    var labelWidth = parseInt(LABELS.labelWidth || 85);
+    var labelWidth = parseInt(LABELS.labelWidth || 50);
     var labelMargin = parseInt(LABELS.labelMargin || 6);
 
     var aspectRatio = getAspectRatio(LABELS.ratio);
 
-    var circleRadius = 2.5;
+    var sparklineHeight = 50;
+    var circleRadius = 2;
 
 
     var margins = {
@@ -112,7 +138,7 @@ var renderSparklineChart = function () {
     // Calculate actual chart dimensions
     var innerWidth = chartWrapper.node().getBoundingClientRect().width;
     var chartWidth = innerWidth - margins.left - margins.right;
-    var chartHeight = Math.ceil(innerWidth / aspectRatio) - margins.top - margins.bottom;
+    var chartHeight = sparklineHeight; //Math.ceil(innerWidth / aspectRatio) - margins.top - margins.bottom;
 
     var xScale = d3.scale.linear().range([0 + circleRadius, chartWidth - circleRadius]);
     var yScale = d3.scale.linear().range([chartHeight - circleRadius, 0 + circleRadius]);
@@ -132,6 +158,28 @@ var renderSparklineChart = function () {
         .range(colorList.map(function (color) {
             return getAccessibleColor(color);
         }));
+    
+    // Left side label key
+    chartWrapper.append('div')
+        .classed('sparkline-key', true)
+        .style({
+            'position': 'absolute',
+            'height': chartHeight + 'px',
+            'display': 'flex',
+            // 'justify-content': 'center', /* align horizontal */
+            'align-items': 'center', /* align vertical */
+        })
+        .append('div')
+        // .style({
+        //     'height': chartHeight + 'px',
+        //     'position': 'absolute',
+        //     'margin': 'auto',
+        //     'top': '0',
+        //     'left': '0',
+        //     'bottom': '0',
+        //     'right': '0'
+        // })
+        .text('Apple');
 
 
     var chartSvg = chartWrapper.append('svg')
@@ -168,11 +216,6 @@ var renderSparklineChart = function () {
         .classed('sparkline', true)
         .attr('d', line);
 
-    chartElement.append('circle')
-        .attr('class', 'sparkcircle')
-        .attr('cx', xScale(DATA.length - 1))
-        .attr('cy', yScale(DATA[DATA.length - 1].amt))
-        .attr('r', circleRadius);
 
     // Set minimum and maximup variables
     var yMin = d3.min(DATA, function(d) { return d.amt; });
@@ -180,7 +223,7 @@ var renderSparklineChart = function () {
 
     DATA.forEach(function(d, i) {
         // Find and mark minimum point
-        if (d.amt === yMin) { 
+        if (d.amt === yMin) {
             chartElement.append('circle')
                 .attr('class', 'sparkcircle data-minimum')
                 .attr('cx', xScale(i))
@@ -197,6 +240,13 @@ var renderSparklineChart = function () {
                 .attr('r', circleRadius);
         }
     });
+
+
+    chartElement.append('circle')
+        .attr('class', 'sparkcircle')
+        .attr('cx', xScale(DATA.length - 1))
+        .attr('cy', yScale(DATA[DATA.length - 1].amt))
+        .attr('r', circleRadius);
 
 };
 
