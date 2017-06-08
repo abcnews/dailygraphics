@@ -561,3 +561,13 @@ Then visit http://localhost:8000/ or http://localhost.abc.net.au:8000/ (for web 
 ### Modifying the data
 
 There should be a xlsx file of the same name as the graphic in the graphic directory. Modify this file and run the debug_deploy command.
+
+### Deployment
+
+The `dailygraphics` codebase is hosted on [newsdev3](https://confluence.abc-dev.net.au/display/NEWSDEV/newsdev3). Deploying updates it is simply a matter of logging in there and doing a `git pull` on the master branch.
+
+If our [Git Workflow](https://confluence.abc-dev.net.au/display/NEWSDEV/Git+Workflow) is being properly observed, this should work just fine.
+
+TODO: This process is simple, but quite poor practice. A more robust release procedure would be useful. We should at least be tagging versions and checking a tagged version out in production so it's clear what's deployed.
+
+Once `dailygraphics` updates have been deployed, you may also need to make changes to and/or deploy [chart-builder](https://github.com/abcnews/chart-builder), especially if adding or removing graphic types.
