@@ -67,13 +67,9 @@ var formatData = function () {
         .entries(FLAT_DATA);
 
     KEY_NESTED_DATA.forEach(function(d, i) {
-        console.log(i);
-        console.log(d.values);
+        // console.log(i);
+        // console.log(d.values);
     });
-
-    // X_NESTED_DATA = d3.nest()
-    //     .key(function (d) { return d.x; })
-    //     .entries(FLAT_DATA);
 };
 
 
@@ -120,22 +116,13 @@ var renderSparklineChart = function () {
         margins.right = margins.right * 0.9;
     }
 
-    // var roundTicksFactor = parseInt(LABELS.roundTicksFactor || 5, 10);
-
-    // var ticksX = parseInt(LABELS.ticksX || 10, 10);
-    // var ticksY = parseInt(LABELS.ticksY || 10, 10);
-    // if (isMobile) {
-    //     ticksX = parseInt(LABELS.mobileTicksX || 5, 10);
-    //     ticksY = parseInt(LABELS.mobileTicksY || 5, 10);
-    // }
-
     // Clear existing graphic (for redraw)
     var containerElement = d3.select('#sparkline-chart')
     containerElement.html('');
 
 
-    function drawSparklines() {
-
+    function drawSparklines(chartData) {
+        
         /*
         * Create the root SVG element.
         */
@@ -150,44 +137,30 @@ var renderSparklineChart = function () {
         var xScale = d3.scale.linear().range([0 + circleRadius, chartWidth - circleRadius]);
         var yScale = d3.scale.linear().range([chartHeight - circleRadius, 0 + circleRadius]);
 
-        xScale.domain([0, DATA.length] );
-        yScale.domain(d3.extent(DATA, function(d) { return d.amt; }));
-
+        xScale.domain([0, chartData.values.length] );
+        yScale.domain(d3.extent(chartData.values, function(d) { return d.amt; }));
 
         var colorList = colorArray(LABELS, MONOCHROMECOLORS);
 
-        // var lineKeyScale = d3.scale.ordinal().domain(lineKeys);
+        var minAmt;
+        var maxAmt;
+        var endAmt = chartData.values[chartData.values.length - 1].amt;
 
-        // var colorScale = lineKeyScale.copy()
-        //     .range(colorList);
 
-        // var accessibleColorScale = lineKeyScale.copy()
-        //     .range(colorList.map(function (color) {
-        //         return getAccessibleColor(color);
-        //     }));
-        
         // Left side label key
         chartWrapper.append('div')
             .classed('sparkline-key', true)
             .style({
                 'position': 'absolute',
                 'height': chartHeight + 'px',
-                'line-height': chartHeight + 'px'
-                // 'display': 'flex',
-                // 'justify-content': 'center', /* align horizontal */
-                // 'align-items': 'center', /* align vertical */
             })
-            .append('div')
-            // .style({
-            //     'height': chartHeight + 'px',
-            //     'position': 'absolute',
-            //     'margin': 'auto',
-            //     'top': '0',
-            //     'left': '0',
-            //     'bottom': '0',
-            //     'right': '0'
-            // })
-            .text('Apple');
+            .append('ul')
+            .classed('labels', true)
+            .append('li')
+            .append('span')
+            .style('line-height', chartHeight + 'px')
+            .style('min-width', labelWidth + 'px')
+            .text(chartData.key);
 
 
         var chartSvg = chartWrapper.append('svg')
@@ -209,7 +182,7 @@ var renderSparklineChart = function () {
             });
 
 
-        // Draw a sparline (do multiple in future)
+        // Draw a sparkline
         var line = d3.svg.line()
             .interpolate("linear")
             .x(function(d, i) {
@@ -220,31 +193,35 @@ var renderSparklineChart = function () {
             });
 
         chartElement.append('path')
-            .datum(DATA)
+            .datum(chartData.values)
             .classed('sparkline', true)
             .attr('d', line);
 
 
         // Set minimum and maximup variables
-        var yMin = d3.min(DATA, function(d) { return d.amt; });
-        var yMax = d3.max(DATA, function(d) { return d.amt; });
+        var yMin = d3.min(chartData.values, function(d) { return d.amt; });
+        var yMax = d3.max(chartData.values, function(d) { return d.amt; });
 
-        DATA.forEach(function(d, i) {
+        chartData.values.forEach(function(d, i) {
             // Find and mark minimum point
             if (d.amt === yMin) {
+                minAmt = d.amt;
+
                 chartElement.append('circle')
                     .attr('class', 'sparkcircle data-minimum')
                     .attr('cx', xScale(i))
-                    .attr('cy', yScale(d.amt))
+                    .attr('cy', yScale(minAmt))
                     .attr('r', circleRadius);
             }
 
             // Find and mark maximum point
             if (d.amt === yMax) {
+                maxAmt = d.amt;
+
                 chartElement.append('circle')
                     .attr('class', 'sparkcircle data-maximum')
                     .attr('cx', xScale(i))
-                    .attr('cy', yScale(d.amt))
+                    .attr('cy', yScale(maxAmt))
                     .attr('r', circleRadius);
             }
         });
@@ -252,13 +229,18 @@ var renderSparklineChart = function () {
 
         chartElement.append('circle')
             .attr('class', 'sparkcircle')
-            .attr('cx', xScale(DATA.length - 1))
-            .attr('cy', yScale(DATA[DATA.length - 1].amt))
+            .attr('cx', xScale(chartData.values.length - 1))
+            .attr('cy', yScale(endAmt))
             .attr('r', circleRadius);
+
+
+        console.log(minAmt + " " + maxAmt + " " + endAmt);
 
     };
 
 
+
+    // For each data column render a chart
     KEY_NESTED_DATA.forEach(function(d, i) {
             drawSparklines(d);
         });
