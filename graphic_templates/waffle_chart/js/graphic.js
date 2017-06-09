@@ -61,7 +61,7 @@ var renderWaffleChart = function () {
 
     // Clear existing graphic (for redraw)
     var containerElement = d3.select('#waffle-chart')
-        .style('max-width', parseInt(LABELS.maxWidth) + 'px' || 420 + 'px')
+        .style('max-width', (parseInt(LABELS.maxWidth) || 420) + 'px' )
     containerElement.html('');
 
     /*
@@ -90,7 +90,7 @@ var renderWaffleChart = function () {
 
     var widthSquares = 10,
         heightSquares = 10,
-        squareSize = chartHeight / heightSquares,
+        squareSize = Math.round(chartHeight / heightSquares),
         squareValue = 0, // Set later
         gap = 1,
         squareData = []; // Data for individual squares
@@ -182,8 +182,8 @@ var renderWaffleChart = function () {
                 .attr("y", function(d, i) {
                     //group n squares for column
                     row = Math.floor(i/widthSquares);
-                    return (row * (squareSize - gap)) + (row*gap);
-                })
+                    return (row * (squareSize - gap)) + (row * gap);
+                });
 
             /* Render top layer of squares
             ----------------------------------------------------*/
@@ -206,7 +206,7 @@ var renderWaffleChart = function () {
                 .attr("y", function(d, i) {
                     //group n squares for column
                     row = Math.floor(i/widthSquares);
-                    return (row * (squareSize - gap)) + (row*gap);
+                    return (row * (squareSize - gap)) + (row * gap);
                 })
                 .on("mouseover", function(d, i) {
                     return tooltip.style("visibility", "visible");
