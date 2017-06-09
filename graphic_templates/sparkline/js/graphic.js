@@ -8,6 +8,7 @@ var FLAT_DATA = [];
 
 var lineKeys = d3.set(d3.map(DATA[0]).keys());
 
+
 /* Initialize the graphic.
 ----------------------------------------------------*/
 var onWindowLoaded = function () {
@@ -56,6 +57,9 @@ var formatData = function () {
             };
         }));
     });
+
+
+
 
 
     KEY_NESTED_DATA = d3.nest()
@@ -129,124 +133,138 @@ var renderSparklineChart = function () {
     var containerElement = d3.select('#sparkline-chart')
     containerElement.html('');
 
-    /*
-     * Create the root SVG element.
-     */
-    var chartWrapper = containerElement.append('div')
-        .attr('class', 'graphics-wrapper')
 
-    // Calculate actual chart dimensions
-    var innerWidth = chartWrapper.node().getBoundingClientRect().width;
-    var chartWidth = innerWidth - margins.left - margins.right;
-    var chartHeight = sparklineHeight; //Math.ceil(innerWidth / aspectRatio) - margins.top - margins.bottom;
+    function drawSparklines() {
 
-    var xScale = d3.scale.linear().range([0 + circleRadius, chartWidth - circleRadius]);
-    var yScale = d3.scale.linear().range([chartHeight - circleRadius, 0 + circleRadius]);
+        /*
+        * Create the root SVG element.
+        */
+        var chartWrapper = containerElement.append('div')
+            .attr('class', 'graphics-wrapper')
 
-    xScale.domain([0, DATA.length] );
-    yScale.domain(d3.extent(DATA, function(d) { return d.amt; }));
+        // Calculate actual chart dimensions
+        var innerWidth = chartWrapper.node().getBoundingClientRect().width;
+        var chartWidth = innerWidth - margins.left - margins.right;
+        var chartHeight = sparklineHeight; //Math.ceil(innerWidth / aspectRatio) - margins.top - margins.bottom;
 
+        var xScale = d3.scale.linear().range([0 + circleRadius, chartWidth - circleRadius]);
+        var yScale = d3.scale.linear().range([chartHeight - circleRadius, 0 + circleRadius]);
 
-    var colorList = colorArray(LABELS, MONOCHROMECOLORS);
-
-    var lineKeyScale = d3.scale.ordinal().domain(lineKeys);
-
-    var colorScale = lineKeyScale.copy()
-        .range(colorList);
-
-    var accessibleColorScale = lineKeyScale.copy()
-        .range(colorList.map(function (color) {
-            return getAccessibleColor(color);
-        }));
-    
-    // Left side label key
-    chartWrapper.append('div')
-        .classed('sparkline-key', true)
-        .style({
-            'position': 'absolute',
-            'height': chartHeight + 'px',
-            'display': 'flex',
-            // 'justify-content': 'center', /* align horizontal */
-            'align-items': 'center', /* align vertical */
-        })
-        .append('div')
-        // .style({
-        //     'height': chartHeight + 'px',
-        //     'position': 'absolute',
-        //     'margin': 'auto',
-        //     'top': '0',
-        //     'left': '0',
-        //     'bottom': '0',
-        //     'right': '0'
-        // })
-        .text('Apple');
+        xScale.domain([0, DATA.length] );
+        yScale.domain(d3.extent(DATA, function(d) { return d.amt; }));
 
 
-    var chartSvg = chartWrapper.append('svg')
-        .attr({
-            width: chartWidth + margins.left + margins.right,
-            height: chartHeight + margins.top + margins.bottom,
-        });
+        var colorList = colorArray(LABELS, MONOCHROMECOLORS);
+
+        // var lineKeyScale = d3.scale.ordinal().domain(lineKeys);
+
+        // var colorScale = lineKeyScale.copy()
+        //     .range(colorList);
+
+        // var accessibleColorScale = lineKeyScale.copy()
+        //     .range(colorList.map(function (color) {
+        //         return getAccessibleColor(color);
+        //     }));
         
+        // Left side label key
+        chartWrapper.append('div')
+            .classed('sparkline-key', true)
+            .style({
+                'position': 'absolute',
+                'height': chartHeight + 'px',
+                'line-height': chartHeight + 'px'
+                // 'display': 'flex',
+                // 'justify-content': 'center', /* align horizontal */
+                // 'align-items': 'center', /* align vertical */
+            })
+            .append('div')
+            // .style({
+            //     'height': chartHeight + 'px',
+            //     'position': 'absolute',
+            //     'margin': 'auto',
+            //     'top': '0',
+            //     'left': '0',
+            //     'bottom': '0',
+            //     'right': '0'
+            // })
+            .text('Apple');
 
-    var chartElement = chartSvg.append('g')
-            .attr('transform', makeTranslate(margins.left, margins.top));
+
+        var chartSvg = chartWrapper.append('svg')
+            .attr({
+                width: chartWidth + margins.left + margins.right,
+                height: chartHeight + margins.top + margins.bottom,
+            });
+            
+
+        var chartElement = chartSvg.append('g')
+                .attr('transform', makeTranslate(margins.left, margins.top));
 
 
-    var overlay = chartElement.append('rect')
-        .attr({
-            width: chartWidth,
-            height: chartHeight,
-            fill: 'transparent',
+        var overlay = chartElement.append('rect')
+            .attr({
+                width: chartWidth,
+                height: chartHeight,
+                fill: 'transparent',
+            });
+
+
+        // Draw a sparline (do multiple in future)
+        var line = d3.svg.line()
+            .interpolate("linear")
+            .x(function(d, i) {
+                return xScale(i);
+            })
+            .y(function(d) {
+                return yScale(d.amt);
+            });
+
+        chartElement.append('path')
+            .datum(DATA)
+            .classed('sparkline', true)
+            .attr('d', line);
+
+
+        // Set minimum and maximup variables
+        var yMin = d3.min(DATA, function(d) { return d.amt; });
+        var yMax = d3.max(DATA, function(d) { return d.amt; });
+
+        DATA.forEach(function(d, i) {
+            // Find and mark minimum point
+            if (d.amt === yMin) {
+                chartElement.append('circle')
+                    .attr('class', 'sparkcircle data-minimum')
+                    .attr('cx', xScale(i))
+                    .attr('cy', yScale(d.amt))
+                    .attr('r', circleRadius);
+            }
+
+            // Find and mark maximum point
+            if (d.amt === yMax) {
+                chartElement.append('circle')
+                    .attr('class', 'sparkcircle data-maximum')
+                    .attr('cx', xScale(i))
+                    .attr('cy', yScale(d.amt))
+                    .attr('r', circleRadius);
+            }
         });
 
 
-    // Draw a sparline (do multiple in future)
-    var line = d3.svg.line()
-        .interpolate("linear")
-        .x(function(d, i) {
-            return xScale(i);
-        })
-        .y(function(d) {
-            return yScale(d.amt);
+        chartElement.append('circle')
+            .attr('class', 'sparkcircle')
+            .attr('cx', xScale(DATA.length - 1))
+            .attr('cy', yScale(DATA[DATA.length - 1].amt))
+            .attr('r', circleRadius);
+
+    };
+
+
+    KEY_NESTED_DATA.forEach(function(d, i) {
+            drawSparklines(d);
         });
 
-    chartElement.append('path')
-        .datum(DATA)
-        .classed('sparkline', true)
-        .attr('d', line);
+    
 
-
-    // Set minimum and maximup variables
-    var yMin = d3.min(DATA, function(d) { return d.amt; });
-    var yMax = d3.max(DATA, function(d) { return d.amt; });
-
-    DATA.forEach(function(d, i) {
-        // Find and mark minimum point
-        if (d.amt === yMin) {
-            chartElement.append('circle')
-                .attr('class', 'sparkcircle data-minimum')
-                .attr('cx', xScale(i))
-                .attr('cy', yScale(d.amt))
-                .attr('r', circleRadius);
-        }
-
-        // Find and mark maximum point
-        if (d.amt === yMax) {
-            chartElement.append('circle')
-                .attr('class', 'sparkcircle data-maximum')
-                .attr('cx', xScale(i))
-                .attr('cy', yScale(d.amt))
-                .attr('r', circleRadius);
-        }
-    });
-
-
-    chartElement.append('circle')
-        .attr('class', 'sparkcircle')
-        .attr('cx', xScale(DATA.length - 1))
-        .attr('cy', yScale(DATA[DATA.length - 1].amt))
-        .attr('r', circleRadius);
 
 };
 
