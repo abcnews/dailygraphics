@@ -27,9 +27,6 @@ var onWindowLoaded = function () {
 /*
  * Re-format graphic data for processing by D3.
  */
-
-
-
 var formatData = function () {
 
     // Map through data anc convert to numbers
@@ -59,6 +56,7 @@ var formatData = function () {
         }));
     });
 
+    // Nest data under data keys
     KEY_NESTED_DATA = d3.nest()
         .key(function (d) { return d.key; })
         .entries(FLAT_DATA);
@@ -97,19 +95,20 @@ var renderSparklineChart = function () {
     // var aspectRatio = getAspectRatio(LABELS.ratio);
 
     var sparklineHeight = parseInt(LABELS.sparklineHeight || 50);
-    var circleRadius = 1.5;
-    var endCircleRadius = 2;
+    var circleRadius = parseFloat(LABELS.circleRadius || 1.5);
+    var endCircleRadius = parseFloat(LABELS.endCircleRadius || 2);
 
 
     var margins = {
         top: parseInt(LABELS.marginTop || 0),
-        right: parseInt(LABELS.marginRight || dataLabelWidth + dataLabelMargin), //(labelWidth + labelMargin)),
+        right: parseInt(LABELS.marginRight || dataLabelWidth + dataLabelMargin),
         bottom: parseInt(LABELS.marginBottom || 0),
         left: parseInt(LABELS.marginLeft || labelWidth + labelMargin),
     };
 
     if (isMobile) {
         margins.right = margins.right * 0.9;
+        margins.left = margins.left * 0.9;
     }
 
     // Clear existing graphic (for redraw)
@@ -220,8 +219,7 @@ var renderSparklineChart = function () {
             .attr({
                 width: chartWidth,
                 height: chartHeight,
-                fill: 'gray',
-                'fill-opacity': '0.05'
+                fill: 'transparent'
             });
 
 
@@ -276,17 +274,23 @@ var renderSparklineChart = function () {
             .attr('cy', yScale(endAmt))
             .attr('r', endCircleRadius);
 
-        minMaxValueLabel.html(LABELS.valuePrefix + maxAmt + 
-            '<br>' + LABELS.valuePrefix + minAmt);
-        endValueLabel.html(LABELS.valuePrefix + endAmt);
+            console.log(LABELS.decimalPlaces);
+
+        if (LABELS.decimalPlaces) {
+            minMaxValueLabel.html(LABELS.valuePrefix + Number(maxAmt).toFixed(LABELS.decimalPlaces) + 
+                '<br>' + LABELS.valuePrefix + Number(minAmt).toFixed(LABELS.decimalPlaces));
+            endValueLabel.html(LABELS.valuePrefix + Number(endAmt).toFixed(LABELS.decimalPlaces));
+        } else {
+            minMaxValueLabel.html(LABELS.valuePrefix + maxAmt + 
+                '<br>' + LABELS.valuePrefix + minAmt);
+            endValueLabel.html(LABELS.valuePrefix + endAmt);
+        }
 
 
         console.log(minAmt + " " + maxAmt + " " + endAmt);
 
 
-        
-
-    };
+};
 
 
 
@@ -295,7 +299,7 @@ var renderSparklineChart = function () {
             drawSparklines(d);
         });
 
-    
+
 
 
 };
