@@ -2,9 +2,7 @@
 // Global vars
 var pymChild = null;
 var isMobile = false;
-// var xCol = 'x';
 var KEY_NESTED_DATA;
-// var X_NESTED_DATA;
 var FLAT_DATA = [];
 
 var lineKeys = d3.set(d3.map(DATA[0]).keys());
@@ -29,7 +27,7 @@ var onWindowLoaded = function () {
  */
 var formatData = function () {
 
-    // Map through data anc convert to numbers
+    // Map through data and convert to numbers
     DATA = DATA.map(function (obj) {
         return d3.entries(obj).reduce(function (memo, val) {
             var key = val.key;
@@ -49,7 +47,6 @@ var formatData = function () {
     lineKeys.forEach(function (d) {
         FLAT_DATA = FLAT_DATA.concat(DATA.map(function (v) {
             return {
-                // x: v[xCol],
                 amt: v[d],
                 key: d,
             };
@@ -91,13 +88,12 @@ var renderSparklineChart = function () {
     /*
      * Setup
      */
-    var labelWidth = parseInt(LABELS.labelWidth || 50);
+    var labelWidth = parseInt(LABELS.labelWidth || 60);
     var labelMargin = parseInt(LABELS.labelMargin || 6);
 
     var dataLabelWidth = parseInt(LABELS.dataLabelWidth || 90);
     var dataLabelMargin = parseInt(LABELS.dataLabelMargin || 8);
 
-    // var aspectRatio = getAspectRatio(LABELS.ratio);
 
     var sparklineHeight = parseInt(LABELS.chartHeight || 50);
     var circleRadius = parseFloat(LABELS.circleRadius || 1.5);
@@ -131,7 +127,7 @@ var renderSparklineChart = function () {
 
         // Calculate actual chart dimensions
         var innerWidth = chartWrapper.node().getBoundingClientRect().width;
-        var chartWidth = innerWidth - margins.left - margins.right;
+        var chartWidth = (innerWidth - margins.left - margins.right);
         var chartHeight = sparklineHeight - margins.top - margins.bottom;
 
         var xScale = d3.scale.linear().range([0 + endCircleRadius, chartWidth - endCircleRadius]);
@@ -158,16 +154,16 @@ var renderSparklineChart = function () {
                 .classed('labels', true)
                 .append('li')
                     .style('line-height', chartHeight + 'px')
-                        .append('span')
-                            .style('min-width', labelWidth + 'px')
-                            .text(chartData.key);
+                    .append('span')
+                        .style('min-width', labelWidth + 'px')
+                        .text(chartData.key);
 
         // Min and Max values
         var minMaxValueLabel = chartWrapper.append('div')
             .classed('sparkline-values', true)
             .style({
                 'position': 'absolute',
-                'right': dataLabelWidth - dataLabelMargin + 'px',
+                'left': chartWidth + labelWidth + labelMargin + dataLabelMargin + 'px',
                 'height': chartHeight + 'px',
             })
             .append('ul')
@@ -282,18 +278,36 @@ var renderSparklineChart = function () {
 
         // Render data values
         if (LABELS.decimalPlaces) {
-            minMaxValueLabel.html(LABELS.valuePrefix + Number(maxAmt).toFixed(LABELS.decimalPlaces) +
-                '<br>' + LABELS.valuePrefix + Number(minAmt).toFixed(LABELS.decimalPlaces));
-            endValueLabel.html(LABELS.valuePrefix + Number(endAmt).toFixed(LABELS.decimalPlaces));
+            minMaxValueLabel.html(
+                LABELS.valuePrefix + 
+                Number(maxAmt).toFixed(LABELS.decimalPlaces) +
+                LABELS.valueSuffix +
+                '<br>' + 
+                LABELS.valuePrefix + 
+                Number(minAmt).toFixed(LABELS.decimalPlaces) +
+                LABELS.valueSuffix);
+            endValueLabel.html(
+                LABELS.valuePrefix + 
+                Number(endAmt).toFixed(LABELS.decimalPlaces) +
+                LABELS.valueSuffix
+                );
         } else {
-            minMaxValueLabel.html(LABELS.valuePrefix + maxAmt +
-                '<br>' + LABELS.valuePrefix + minAmt);
-            endValueLabel.html(LABELS.valuePrefix + endAmt);
+            minMaxValueLabel.html(
+                LABELS.valuePrefix + 
+                maxAmt +
+                LABELS.valueSuffix +
+                '<br>' + 
+                LABELS.valuePrefix + 
+                minAmt +
+                LABELS.valueSuffix
+                );
+            endValueLabel.html(
+                LABELS.valuePrefix + 
+                endAmt +
+                LABELS.valueSuffix
+                );
         }
-
-
-
-};
+    };
 
 
 
@@ -301,10 +315,6 @@ var renderSparklineChart = function () {
     KEY_NESTED_DATA.forEach(function(d, i) {
             drawSparklines(d);
         });
-
-
-
-
 };
 
 /*
