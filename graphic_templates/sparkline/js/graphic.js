@@ -35,8 +35,8 @@ var formatData = function () {
             var key = val.key;
             var value = val.value;
             var formattedValue;
-            
-            formattedValue = +value; // turn string into number
+
+            if (value) formattedValue = +value; // turn string into number
 
             memo[key] = formattedValue;
             return memo;
@@ -55,6 +55,11 @@ var formatData = function () {
             };
         }));
     });
+
+    // Remove undefined amounts in data
+    FLAT_DATA = FLAT_DATA.filter(function(element) {
+        return element.amt !== undefined;
+    })
 
     // Nest data under data keys
     KEY_NESTED_DATA = d3.nest()
@@ -94,7 +99,7 @@ var renderSparklineChart = function () {
 
     // var aspectRatio = getAspectRatio(LABELS.ratio);
 
-    var sparklineHeight = parseInt(LABELS.sparklineHeight || 50);
+    var sparklineHeight = parseInt(LABELS.chartHeight || 50);
     var circleRadius = parseFloat(LABELS.circleRadius || 1.5);
     var endCircleRadius = parseFloat(LABELS.endCircleRadius || 2);
 
@@ -119,7 +124,7 @@ var renderSparklineChart = function () {
     function drawSparklines(chartData) {
         
         /*
-        * Create the root SVG element.
+        * Create the root SVG element
         */
         var chartWrapper = containerElement.append('div')
             .attr('class', 'graphics-wrapper')
@@ -127,12 +132,12 @@ var renderSparklineChart = function () {
         // Calculate actual chart dimensions
         var innerWidth = chartWrapper.node().getBoundingClientRect().width;
         var chartWidth = innerWidth - margins.left - margins.right;
-        var chartHeight = sparklineHeight; //Math.ceil(innerWidth / aspectRatio) - margins.top - margins.bottom;
+        var chartHeight = sparklineHeight - margins.top - margins.bottom;
 
         var xScale = d3.scale.linear().range([0 + endCircleRadius, chartWidth - endCircleRadius]);
         var yScale = d3.scale.linear().range([chartHeight - endCircleRadius, 0 + endCircleRadius]);
 
-        xScale.domain([0, chartData.values.length] );
+        xScale.domain([0, chartData.values.length - 1] );
         yScale.domain(d3.extent(chartData.values, function(d) { return d.amt; }));
 
         var colorList = colorArray(LABELS, MONOCHROMECOLORS);
@@ -274,20 +279,18 @@ var renderSparklineChart = function () {
             .attr('cy', yScale(endAmt))
             .attr('r', endCircleRadius);
 
-            console.log(LABELS.decimalPlaces);
 
+        // Render data values
         if (LABELS.decimalPlaces) {
-            minMaxValueLabel.html(LABELS.valuePrefix + Number(maxAmt).toFixed(LABELS.decimalPlaces) + 
+            minMaxValueLabel.html(LABELS.valuePrefix + Number(maxAmt).toFixed(LABELS.decimalPlaces) +
                 '<br>' + LABELS.valuePrefix + Number(minAmt).toFixed(LABELS.decimalPlaces));
             endValueLabel.html(LABELS.valuePrefix + Number(endAmt).toFixed(LABELS.decimalPlaces));
         } else {
-            minMaxValueLabel.html(LABELS.valuePrefix + maxAmt + 
+            minMaxValueLabel.html(LABELS.valuePrefix + maxAmt +
                 '<br>' + LABELS.valuePrefix + minAmt);
             endValueLabel.html(LABELS.valuePrefix + endAmt);
         }
 
-
-        console.log(minAmt + " " + maxAmt + " " + endAmt);
 
 
 };
