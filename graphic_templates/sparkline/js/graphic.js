@@ -91,13 +91,13 @@ var renderSparklineChart = function () {
     var labelWidth = parseInt(LABELS.labelWidth || 55);
     var labelMargin = parseInt(LABELS.labelMargin || 4);
 
-    var dataLabelWidth = parseInt(LABELS.dataLabelWidth || 90);
+    var dataLabelWidth = parseInt(LABELS.dataLabelWidth || 80);
     var dataLabelMargin = parseInt(LABELS.dataLabelMargin || 4);
 
 
     var sparklineHeight = parseInt(LABELS.chartHeight || 50);
-    var circleRadius = parseFloat(LABELS.circleRadius || 1.5);
-    var endCircleRadius = parseFloat(LABELS.endCircleRadius || 2);
+    var circleRadius = parseFloat(LABELS.circleRadius || 1.6);
+    var endCircleRadius = parseFloat(LABELS.endCircleRadius || 2.2);
 
 
     var margins = {
@@ -119,6 +119,8 @@ var renderSparklineChart = function () {
 
     // Set up colors
     var colorList = colorArray(LABELS, MONOCHROMECOLORS);
+    var colorScale = d3.scale.ordinal()
+        .range(colorList);
 
 
 
@@ -129,8 +131,20 @@ var renderSparklineChart = function () {
         var chartWrapper = containerElement.append('div')
             .attr('class', 'graphics-wrapper')
 
+
+
         // Calculate actual chart dimensions
-        var innerWidth = chartWrapper.node().getBoundingClientRect().width;
+
+
+        // 
+        if (isMobile && !LABELS.fullWidth) {
+            var innerWidth = chartWrapper.node().getBoundingClientRect().width;
+        } else {
+            var innerWidth = chartWrapper.node().getBoundingClientRect().width / 2;
+            chartWrapper.style('display', 'inline-block');
+        }
+
+
         var chartWidth = (innerWidth - margins.left - margins.right);
         var chartHeight = sparklineHeight - margins.top - margins.bottom;
 
@@ -164,7 +178,8 @@ var renderSparklineChart = function () {
         var minMaxValueLabel = chartWrapper.append('div')
             .classed('sparkline-values', true)
             .style({
-                'position': 'absolute',
+                'position': 'relative',
+                'display': 'inline-block',
                 'left': chartWidth + labelWidth + labelMargin + dataLabelMargin + 'px',
                 'height': chartHeight + 'px',
             })
@@ -187,8 +202,15 @@ var renderSparklineChart = function () {
         var endValueLabel = chartWrapper.append('div')
             .classed('sparkline-values', true)
             .style({
-                'position': 'absolute',
-                'right': dataLabelWidth / 2 - dataLabelMargin + 'px',
+                'position': 'relative',
+                'display': 'inline-block',
+                'left': chartWidth + 
+                        labelWidth + 
+                        labelMargin + 
+                        dataLabelMargin + 
+                        (dataLabelWidth / 2) + 
+                        dataLabelMargin + 
+                        'px',
                 'height': chartHeight + 'px'
             })
             .append('ul')
