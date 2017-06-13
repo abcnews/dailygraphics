@@ -88,11 +88,11 @@ var renderSparklineChart = function () {
     /*
      * Setup
      */
-    var labelWidth = parseInt(LABELS.labelWidth || 60);
-    var labelMargin = parseInt(LABELS.labelMargin || 6);
+    var labelWidth = parseInt(LABELS.labelWidth || 55);
+    var labelMargin = parseInt(LABELS.labelMargin || 4);
 
     var dataLabelWidth = parseInt(LABELS.dataLabelWidth || 90);
-    var dataLabelMargin = parseInt(LABELS.dataLabelMargin || 8);
+    var dataLabelMargin = parseInt(LABELS.dataLabelMargin || 4);
 
 
     var sparklineHeight = parseInt(LABELS.chartHeight || 50);
@@ -107,18 +107,22 @@ var renderSparklineChart = function () {
         left: parseInt(LABELS.marginLeft || labelWidth + labelMargin),
     };
 
-    if (isMobile) {
-        margins.right = margins.right * 0.9;
-        margins.left = margins.left * 0.9;
-    }
+    // if (isMobile) {
+    //     margins.right = margins.right * 0.9;
+    //     margins.left = margins.left * 0.9;
+    // }
 
     // Clear existing graphic (for redraw)
     var containerElement = d3.select('#sparkline-chart')
     containerElement.html('');
 
 
+    // Set up colors
+    var colorList = colorArray(LABELS, MONOCHROMECOLORS);
+
+
+
     function drawSparklines(chartData) {
-        
         /*
         * Create the root SVG element
         */
@@ -135,8 +139,6 @@ var renderSparklineChart = function () {
 
         xScale.domain([0, chartData.values.length - 1] );
         yScale.domain(d3.extent(chartData.values, function(d) { return d.amt; }));
-
-        var colorList = colorArray(LABELS, MONOCHROMECOLORS);
 
         var minAmt;
         var maxAmt;
@@ -187,7 +189,7 @@ var renderSparklineChart = function () {
             .style({
                 'position': 'absolute',
                 'right': dataLabelWidth / 2 - dataLabelMargin + 'px',
-                'height': chartHeight + 'px',
+                'height': chartHeight + 'px'
             })
             .append('ul')
                 .classed('labels', true)
@@ -201,7 +203,8 @@ var renderSparklineChart = function () {
                     })
                     .append('span')
                         .style('min-width', dataLabelWidth / 2 + 'px')
-                        .style('text-align', 'left');
+                        .style('text-align', 'left')
+                        .style('color', colorList[0]);
 
 
         // Sparkline chart
@@ -226,7 +229,7 @@ var renderSparklineChart = function () {
 
         // Draw a sparkline
         var line = d3.svg.line()
-            .interpolate("linear")
+            .interpolate(LABELS.interpolate || 'linear')
             .x(function(d, i) {
                 return xScale(i);
             })
@@ -250,7 +253,7 @@ var renderSparklineChart = function () {
                 minAmt = d.amt;
 
                 chartElement.append('circle')
-                    .attr('class', 'sparkcircle data-minimum')
+                    .attr('class', 'sparkcircle min-circle')
                     .attr('cx', xScale(i))
                     .attr('cy', yScale(minAmt))
                     .attr('r', circleRadius);
@@ -261,7 +264,7 @@ var renderSparklineChart = function () {
                 maxAmt = d.amt;
 
                 chartElement.append('circle')
-                    .attr('class', 'sparkcircle data-maximum')
+                    .attr('class', 'sparkcircle max-circle')
                     .attr('cx', xScale(i))
                     .attr('cy', yScale(maxAmt))
                     .attr('r', circleRadius);
@@ -270,10 +273,11 @@ var renderSparklineChart = function () {
 
 
         chartElement.append('circle')
-            .attr('class', 'sparkcircle')
+            .attr('class', 'sparkcircle end-circle')
             .attr('cx', xScale(chartData.values.length - 1))
             .attr('cy', yScale(endAmt))
-            .attr('r', endCircleRadius);
+            .attr('r', endCircleRadius)
+            .style('fill', colorList[0]);
 
 
         // Render data values
