@@ -1,5 +1,3 @@
-'use strict';
-
 // Global vars
 var pymChild = null;
 var isMobile = false;
@@ -138,9 +136,8 @@ var renderSparklineChart = function () {
             var innerWidth = chartWrapper.node().getBoundingClientRect().width;
         } else {
             var innerWidth = chartWrapper.node().getBoundingClientRect().width / 2 - 18;
-            chartWrapper
-                .style('display', 'inline-block')
-                .style('margin', '0 9px');
+            chartWrapper.style('display', 'inline-block')
+                        .style('margin', '0 9px');
         }
 
         var chartWidth = (innerWidth - margins.left - margins.right);
@@ -149,7 +146,7 @@ var renderSparklineChart = function () {
         var xScale = d3.scale.linear().range([0 + endCircleRadius, chartWidth - endCircleRadius]);
         var yScale = d3.scale.linear().range([chartHeight - endCircleRadius, 0 + endCircleRadius]);
 
-        xScale.domain([0, chartData.values.length - 1] );
+        xScale.domain([0, chartData.values.length - 1]);
         yScale.domain(d3.extent(chartData.values, function(d) { return d.amt; }));
 
         var minAmt;
@@ -160,10 +157,7 @@ var renderSparklineChart = function () {
         // Left side label key
         chartWrapper.append('div')
             .classed('sparkline-key', true)
-            .style({
-                'position': 'absolute',
-                'height': chartHeight + 'px',
-            })
+            .style('height', chartHeight + 'px')
             .append('ul')
                 .classed('labels', true)
                 .append('li')
@@ -176,8 +170,6 @@ var renderSparklineChart = function () {
         var minMaxValueLabel = chartWrapper.append('div')
             .classed('sparkline-values', true)
             .style({
-                'position': 'relative',
-                'display': 'inline-block',
                 'left': chartWidth + labelWidth + labelMargin + dataLabelMargin + 'px',
                 'height': chartHeight + 'px',
             })
@@ -187,9 +179,6 @@ var renderSparklineChart = function () {
                 .append('li')
                     .classed('min-max', true)
                     .style({
-                        'display': 'flex',
-                        'justify-content': 'center',
-                        'flex-direction': 'column',
                         'min-height': chartHeight + 'px'
                     })
                     .append('span')
@@ -200,8 +189,6 @@ var renderSparklineChart = function () {
         var endValueLabel = chartWrapper.append('div')
             .classed('sparkline-values', true)
             .style({
-                'position': 'relative',
-                'display': 'inline-block',
                 'left': chartWidth +
                         labelWidth +
                         labelMargin +
@@ -211,21 +198,16 @@ var renderSparklineChart = function () {
                         'px',
                 'height': chartHeight + 'px'
             })
-
             .append('ul')
                 .classed('labels', true)
                 .append('li')
                     .classed('end-value', true)
                     .style({
-                        'display': 'flex',
-                        'justify-content': 'center',
-                        'flex-direction': 'column',
                         'min-height': chartHeight + 'px'
                     })
                     .append('span')
                         .style('min-width', dataLabelWidth / 2 + 'px')
-                        .style('text-align', 'left')
-                        .style('color', colorList[0]);
+                        .style('color', colorScale(1));
 
 
         // Sparkline chart
@@ -234,11 +216,10 @@ var renderSparklineChart = function () {
                 width: chartWidth + margins.left + margins.right,
                 height: chartHeight + margins.top + margins.bottom,
             });
-            
+
 
         var chartElement = chartSvg.append('g')
                 .attr('transform', makeTranslate(margins.left, margins.top));
-
 
 
         var overlay = chartElement.append('rect')
@@ -300,11 +281,18 @@ var renderSparklineChart = function () {
             .attr('cx', xScale(chartData.values.length - 1))
             .attr('cy', yScale(endAmt))
             .attr('r', endCircleRadius)
-            .style('fill', colorList[0]);
+            .style('fill', colorScale(1));
 
 
         // Display info on hover or tap
         if (LABELS.tooltips !== "off") {
+
+            var textRect = chartElement.append("rect")
+                .attr("x", 0)
+                .attr("y", 0)
+                .attr("width", 0)
+                .attr("height", 0);
+
             var tooltipLine = chartElement.append('line')
                 .style("stroke", "#bbb")
                 .attr("x1", 0)
@@ -328,6 +316,7 @@ var renderSparklineChart = function () {
                 .style('font-size', '9px')
                 .style('visibility', 'hidden');
 
+
             chartElement
                 .on('mousemove', function() {
                     var pos = d3.mouse(this)[0];
@@ -348,7 +337,6 @@ var renderSparklineChart = function () {
 
                     var tooltipIndex = getClosestIndex(chartData.values, pos) || 0;
 
-
                     tooltipCircle
                         .attr('cx', xScale(tooltipIndex))
                         .attr('cy', yScale(chartData.values[tooltipIndex].amt));
@@ -357,33 +345,43 @@ var renderSparklineChart = function () {
                         .attr('x1', xScale(tooltipIndex))
                         .attr('x2', xScale(tooltipIndex));
 
-                    // Re-position label according to location
+                    // Position label according to location
                     if (tooltipIndex < chartData.values.length / 2) {
-                        tooltipText
-                            .attr('x', xScale(tooltipIndex) + 4)
-                            .attr('text-anchor', 'start')
-                            .html(chartData.values[tooltipIndex].amt);
+                        tooltipText.attr('x', xScale(tooltipIndex) + 4)
+                                   .attr('text-anchor', 'start')
+                                   .html(chartData.values[tooltipIndex].amt.toFixed(LABELS.decimalPlaces));
                     } else {
-                        tooltipText
-                            .attr('x', xScale(tooltipIndex) -4)
-                            .attr('text-anchor', 'end')
-                            .html(chartData.values[tooltipIndex].amt);
+                        tooltipText.attr('x', xScale(tooltipIndex) -4)
+                                   .attr('text-anchor', 'end')
+                                   .html(chartData.values[tooltipIndex].amt.toFixed(LABELS.decimalPlaces));
                     }
+
+                    var bbox = tooltipText.node().getBBox();
+
+                    textRect.attr("x", bbox.x)
+                            .attr("y", bbox.y)
+                            .attr("width", bbox.width)
+                            .attr("height", bbox.height - 1)
+                            .style("fill", "#fff")
+                            .style('fill-opacity', '0.8');
                 })
                 .on('mouseover', function() {
-                    tooltipCircle
-                        .style('visibility', 'visible')
-
-                    tooltipLine
-                        .style('visibility', 'visible')
-
-                    tooltipText
-                        .style('visibility', 'visible')
+                    tooltipCircle.style('visibility', 'visible')
+                    tooltipLine.style('visibility', 'visible')
+                    tooltipText.style('visibility', 'visible')
+                    textRect.style('visibility', 'visible');
+                })
+                .on('mousedown', function() {
+                    tooltipCircle.style('visibility', 'visible')
+                    tooltipLine.style('visibility', 'visible')
+                    tooltipText.style('visibility', 'visible')
+                    textRect.style('visibility', 'visible');
                 })
                 .on("mouseout", function(d, i) {
                     tooltipCircle.style("visibility", "hidden");
                     tooltipLine.style("visibility", "hidden");
                     tooltipText.style("visibility", "hidden");
+                    textRect.style('visibility', 'hidden');
                 });
         }
 
@@ -391,47 +389,40 @@ var renderSparklineChart = function () {
         // Render data values
         if (LABELS.decimalPlaces) {
             minMaxValueLabel.html(
-                LABELS.valuePrefix + 
+                LABELS.valuePrefix +
                 Number(maxAmt).toFixed(LABELS.decimalPlaces) +
                 LABELS.valueSuffix +
-                '<br>' + 
-                LABELS.valuePrefix + 
+                '<br>' +
+                LABELS.valuePrefix +
                 Number(minAmt).toFixed(LABELS.decimalPlaces) +
                 LABELS.valueSuffix);
             endValueLabel.html(
-                LABELS.valuePrefix + 
+                LABELS.valuePrefix +
                 Number(endAmt).toFixed(LABELS.decimalPlaces) +
                 LABELS.valueSuffix
-                );
+            );
         } else {
             minMaxValueLabel.html(
-                LABELS.valuePrefix + 
+                LABELS.valuePrefix +
                 maxAmt +
                 LABELS.valueSuffix +
-                '<br>' + 
-                LABELS.valuePrefix + 
+                '<br>' +
+                LABELS.valuePrefix +
                 minAmt +
                 LABELS.valueSuffix
-                );
+            );
             endValueLabel.html(
-                LABELS.valuePrefix + 
+                LABELS.valuePrefix +
                 endAmt +
                 LABELS.valueSuffix
-                );
+            );
         }
     };
 
 
+
     // For each data column render a chart
     KEY_NESTED_DATA.forEach(function(d, i) {
-            
-            lineObject = {
-                key: randomThing(),
-                values:  volatileChart(100, 0.09, 300)
-            }
-
-
-            // drawSparklines(lineObject); // random lines for testing
             drawSparklines(d);
         });
 };
@@ -441,41 +432,3 @@ var renderSparklineChart = function () {
  * (NB: Use window.load to ensure all images have loaded)
  */
 window.onload = onWindowLoaded;
-
-
-
-
-
-// Temporary testing functions 
-
-function volatileChart (startPrice, volatility, numPoints) {
-        var rval =  [];
-        var now =+new Date();
-        numPoints = numPoints || 100;
-        for(var i = 1; i < numPoints; i++) {
-
-            rval.push({x: now + i * 1000 * 60 * 60 * 24, amt: startPrice, key: "Rand"});
-
-            var rnd = Math.random();
-            var changePct = 2 * volatility * rnd;
-            if ( changePct > volatility) {
-                changePct -= (2*volatility);
-            }
-            startPrice = startPrice + startPrice * changePct;
-        }
-        return rval;
-    }
-
-function randomThing () {
-    var things = [
-        'Random 1', 
-        'Random 2', 
-        'Random 3',
-        'Random 4',
-        'Random 5',
-        'Random 6',
-        'Random 7'
-        ];
-    var thing = things[Math.floor(Math.random()*things.length)];
-    return thing;
-}

@@ -8,12 +8,24 @@
     stroke-width: 0.5px;
 }
 
-.sparkcircle {
-    stroke: none;
+.sparkline-key {
+    position: absolute;
 }
 
-.end-circle {
-    
+.sparkline-values {
+    position: relative;
+    display: inline-block;
+}
+
+.sparkline-values ul li {
+    font-size: 10px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.sparkcircle {
+    stroke: none;
 }
 
 .min-circle,
@@ -30,17 +42,14 @@
     vertical-align: middle;
 }
 
-.sparkline-values ul li {
-    font-size: 10px;
+.end-value {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
 }
-
-.min-max {
-
-}
-
 .end-value span {
-    color: dodgerblue;
     font-weight: bold;
+    text-align: left;
 }
 
 
