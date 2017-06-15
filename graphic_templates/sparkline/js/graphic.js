@@ -304,40 +304,39 @@ var renderSparklineChart = function () {
 
 
         // Display info on hover or tap
-        var tooltipLine = chartElement.append('line')
-            .style("stroke", "#bbb")
-            .attr("x1", 0)
-            .attr("y1", 0)
-            .attr("x2", 0)
-            .attr("y2", chartHeight)
-            .style('visibility', 'hidden');
-
-        var tooltipCircle = chartElement.append('circle')
-            .attr('class', '')
-            .attr('cx', 2)
-            .attr('cy', 2)
-            .attr('r', endCircleRadius)
-            .style('fill', colorList[1])
-            .style('visibility', 'hidden');
-
-        var tooltipText = chartElement.append('text')
-            .attr('x', 0)
-            .attr('y', 8)
-            .attr('fill', '#777')
-            .style('font-size', '9px')
-            .style('visibility', 'hidden');
-
-
         if (LABELS.tooltips !== "off") {
+            var tooltipLine = chartElement.append('line')
+                .style("stroke", "#bbb")
+                .attr("x1", 0)
+                .attr("y1", 0)
+                .attr("x2", 0)
+                .attr("y2", chartHeight)
+                .style('visibility', 'hidden');
+
+            var tooltipCircle = chartElement.append('circle')
+                .attr('class', '')
+                .attr('cx', 2)
+                .attr('cy', 2)
+                .attr('r', endCircleRadius)
+                .style('fill', colorList[1])
+                .style('visibility', 'hidden');
+
+            var tooltipText = chartElement.append('text')
+                .attr('x', 0)
+                .attr('y', 8)
+                .attr('fill', '#777')
+                .style('font-size', '9px')
+                .style('visibility', 'hidden');
+
             chartElement
-                .on("mousemove", function() {
+                .on('mousemove', function() {
                     var pos = d3.mouse(this)[0];
 
-                    // Find closest point
+                    // Returns closest point to mouse
                     function getClosestIndex (data, pos) {
                         var distance = Math.abs(0 - pos);
-                        console.log(distance);
                         var lastVal;
+
                         for (var i = 0; i < data.length; i++) {
                             if (Math.abs(xScale(i) - pos) < distance) {
                                 distance = Math.abs(xScale(i) - pos);
@@ -346,33 +345,40 @@ var renderSparklineChart = function () {
                         }
                         return lastVal;
                     }
-                    console.log(xScale(getClosestIndex(chartData.values, pos)));
 
-                    
-                        
-                        
-                        
-                        
-                        // if (xIndex === pos) {
-                        //     tooltipCircle
-                        //         .style('visibility', 'visible')
-                        //         .attr('cx', xScale(i))
-                        //         .attr('cy', yScale(chartData.values[i].amt));
+                    var tooltipIndex = getClosestIndex(chartData.values, pos) || 0;
 
-                        //     tooltipLine
-                        //         .style('visibility', 'visible')
-                        //         .attr('x1', xScale(i))
-                        //         .attr('x2', xScale(i));
 
-                        //     tooltipText
-                        //         .style('visibility', 'visible')
-                        //         .attr('x', xScale(i) + 4)
-                        //         .html(chartData.values[i].amt);
+                    tooltipCircle
+                        .attr('cx', xScale(tooltipIndex))
+                        .attr('cy', yScale(chartData.values[tooltipIndex].amt));
 
-                        //     // break; // don't process the rest
-                        // }
-                  
+                    tooltipLine
+                        .attr('x1', xScale(tooltipIndex))
+                        .attr('x2', xScale(tooltipIndex));
 
+                    // Re-position label according to location
+                    if (tooltipIndex < chartData.values.length / 2) {
+                        tooltipText
+                            .attr('x', xScale(tooltipIndex) + 4)
+                            .attr('text-anchor', 'start')
+                            .html(chartData.values[tooltipIndex].amt);
+                    } else {
+                        tooltipText
+                            .attr('x', xScale(tooltipIndex) -4)
+                            .attr('text-anchor', 'end')
+                            .html(chartData.values[tooltipIndex].amt);
+                    }
+                })
+                .on('mouseover', function() {
+                    tooltipCircle
+                        .style('visibility', 'visible')
+
+                    tooltipLine
+                        .style('visibility', 'visible')
+
+                    tooltipText
+                        .style('visibility', 'visible')
                 })
                 .on("mouseout", function(d, i) {
                     tooltipCircle.style("visibility", "hidden");
