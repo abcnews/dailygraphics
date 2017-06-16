@@ -350,6 +350,13 @@ def add_pie_chart(slug, debug=False):
     _add_graphic(slug, 'pie_chart', debug)
 
 @task
+def add_sparkline_chart(slug, debug=False):
+    """
+    Create a sparkline chart.
+    """
+    _add_graphic(slug, 'sparkline_chart', debug)
+
+@task
 def add_dot_chart(slug):
     """
     Create a dot chart with error bars
