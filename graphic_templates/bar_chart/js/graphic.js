@@ -17,6 +17,7 @@ var onWindowLoaded = function () {
     }
 };
 
+
 /*
  * Format graphic data for processing by D3.
  */

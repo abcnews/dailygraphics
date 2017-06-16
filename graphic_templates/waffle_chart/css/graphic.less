@@ -1,0 +1,56 @@
+@import "base";
+@import "labels";
+
+#waffle-chart {
+    margin: auto;
+}
+
+svg.pattern {
+    position: absolute;
+}
+
+
+tspan.value {
+    font-weight: bold;
+}
+
+.labels {
+    font-size: 12px;
+    color: #666
+}
+
+ul.labels {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-sizing: border-box;
+}
+
+.labels li {
+    position: relative;
+    display: flex;
+    line-height: 1;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.labels li span {
+    text-align: left;
+    display: block;
+}
+
+.tooltip {
+    background-color: white;
+    padding: 2px 6px;
+    border: solid 1px #ddd;
+    position: absolute;
+    z-index: 10;
+    visibility: hidden;
+}
+
+@media screen and (min-width: 500px) {
+    .labels,
+    .labels li {
+        font-size: 13px;
+    }
+}
