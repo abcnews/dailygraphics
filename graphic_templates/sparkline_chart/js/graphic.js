@@ -302,7 +302,7 @@ var renderSparklineChart = function () {
                 .style('visibility', 'hidden');
 
             var tooltipCircle = chartElement.append('circle')
-                .attr('class', '')
+                .attr('class', 'sparkcircle')
                 .attr('cx', 2)
                 .attr('cy', 2)
                 .attr('r', endCircleRadius)
