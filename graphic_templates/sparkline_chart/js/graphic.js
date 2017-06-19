@@ -180,10 +180,16 @@ var renderSparklineChart = function () {
                     .classed('min-max', true)
                     .style({
                         'min-height': chartHeight + 'px'
-                    })
-                    .append('span')
-                        .style('min-width', dataLabelWidth / 2 + 'px')
-                        .style('text-align', 'left');
+                    });
+
+        var minValueLabel = minMaxValueLabel.append('span')
+            .style('min-width', dataLabelWidth / 2 + 'px')
+            .style('text-align', 'left');
+
+        var maxValueLabel = minMaxValueLabel.append('span')
+            .style('min-width', dataLabelWidth / 2 + 'px')
+            .style('text-align', 'left');
+
 
         // Final value
         var endValueLabel = chartWrapper.append('div')
@@ -349,11 +355,11 @@ var renderSparklineChart = function () {
                     if (tooltipIndex < chartData.values.length / 2) {
                         tooltipText.attr('x', xScale(tooltipIndex) + 4)
                                    .attr('text-anchor', 'start')
-                                   .html(chartData.values[tooltipIndex].amt.toFixed(LABELS.decimalPlaces));
+                                   .text(chartData.values[tooltipIndex].amt.toFixed(LABELS.decimalPlaces));
                     } else {
                         tooltipText.attr('x', xScale(tooltipIndex) -4)
                                    .attr('text-anchor', 'end')
-                                   .html(chartData.values[tooltipIndex].amt.toFixed(LABELS.decimalPlaces));
+                                   .text(chartData.values[tooltipIndex].amt.toFixed(LABELS.decimalPlaces));
                     }
 
                     var bbox = tooltipText.node().getBBox();
@@ -366,15 +372,15 @@ var renderSparklineChart = function () {
                             .style('fill-opacity', '0.8');
                 })
                 .on('mouseover', function() {
-                    tooltipCircle.style('visibility', 'visible')
-                    tooltipLine.style('visibility', 'visible')
-                    tooltipText.style('visibility', 'visible')
+                    tooltipCircle.style('visibility', 'visible');
+                    tooltipLine.style('visibility', 'visible');
+                    tooltipText.style('visibility', 'visible');
                     textRect.style('visibility', 'visible');
                 })
                 .on('mousedown', function() {
-                    tooltipCircle.style('visibility', 'visible')
-                    tooltipLine.style('visibility', 'visible')
-                    tooltipText.style('visibility', 'visible')
+                    tooltipCircle.style('visibility', 'visible');
+                    tooltipLine.style('visibility', 'visible');
+                    tooltipText.style('visibility', 'visible');
                     textRect.style('visibility', 'visible');
                 })
                 .on("mouseout", function(d, i) {
@@ -388,34 +394,16 @@ var renderSparklineChart = function () {
 
         // Render data values
         if (LABELS.decimalPlaces) {
-            minMaxValueLabel.html(
-                LABELS.valuePrefix +
-                Number(maxAmt).toFixed(LABELS.decimalPlaces) +
-                LABELS.valueSuffix +
-                '<br>' +
-                LABELS.valuePrefix +
-                Number(minAmt).toFixed(LABELS.decimalPlaces) +
-                LABELS.valueSuffix);
-            endValueLabel.html(
-                LABELS.valuePrefix +
-                Number(endAmt).toFixed(LABELS.decimalPlaces) +
-                LABELS.valueSuffix
-            );
+            minValueLabel.text(
+                LABELS.valuePrefix + Number(maxAmt).toFixed(LABELS.decimalPlaces) + LABELS.valueSuffix);
+            maxValueLabel.text(
+                LABELS.valuePrefix + Number(minAmt).toFixed(LABELS.decimalPlaces) + LABELS.valueSuffix);
+            endValueLabel.text(
+                LABELS.valuePrefix + Number(endAmt).toFixed(LABELS.decimalPlaces) + LABELS.valueSuffix);
         } else {
-            minMaxValueLabel.html(
-                LABELS.valuePrefix +
-                maxAmt +
-                LABELS.valueSuffix +
-                '<br>' +
-                LABELS.valuePrefix +
-                minAmt +
-                LABELS.valueSuffix
-            );
-            endValueLabel.html(
-                LABELS.valuePrefix +
-                endAmt +
-                LABELS.valueSuffix
-            );
+            minValueLabel.text(LABELS.valuePrefix + maxAmt + LABELS.valueSuffix);
+            maxValueLabel.text(LABELS.valuePrefix + minAmt + LABELS.valueSuffix);
+            endValueLabel.text( LABELS.valuePrefix + endAmt + LABELS.valueSuffix);
         }
     };
 
