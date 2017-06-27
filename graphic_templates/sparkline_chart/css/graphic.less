@@ -1,0 +1,53 @@
+@import "base";
+@import "labels";
+
+
+.sparkline {
+    fill: none;
+    stroke: dimgray;
+    stroke-width: 0.5px;
+}
+
+.sparkline-key {
+    position: absolute;
+}
+
+.sparkline-values {
+    position: relative;
+    display: inline-block;
+}
+
+.sparkline-values ul li {
+    font-size: 10px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.sparkcircle {
+    stroke: none;
+}
+
+.min-circle,
+.max-circle {
+    fill: #444;
+}
+
+.labels {
+    white-space: nowrap; 
+}
+
+.graphics-wrapper .key {
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.end-value {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+}
+.end-value span {
+    font-weight: bold;
+    text-align: left;
+}
