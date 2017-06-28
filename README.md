@@ -145,7 +145,7 @@ A string to put at the end of the values. e.g. `%`.
 
 ### Line Chart
 
-Name the X axis in the data sheet `x` for ordinal data or `date` for time based data. If it is time based data you *must* ensure it matches the[parseDateFormat](#parseDateFormat) option so the chart builder knows how to interpret the dates correctly.
+Name the X axis in the data sheet `x` for ordinal data or `date` for time based data. If it is time based data you *must* ensure it matches the [parseDateFormat](#parsedateformat) option so the chart builder knows how to interpret the dates correctly.
 
 #### ratio
 
@@ -510,7 +510,7 @@ Common issues
 
 If your data is displaying but not being plotted in the correct coordinates it is possible that you are either:
 
-1.	Using a date format different to the default (or the one specified by`parseDateFormat`). You can either update your dates in the data to use the default date format, or define a `parseDateFormat` that matches the date format you are using. See [parseDateFormat](#parseDateFormat) for more information.
+1.	Using a date format different to the default (or the one specified by`parseDateFormat`). You can either update your dates in the data to use the default date format, or define a `parseDateFormat` that matches the date format you are using. See [parseDateFormat](#parsedateformat) for more information.
 
 2.	The date cells in the Google Sheets are being formatted in the sheet itself. This means that what is presented in the sheet is a different format to the underlying data. In this case there are two options:
 
