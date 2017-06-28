@@ -144,6 +144,8 @@ A string to put in front of the values. e.g. `$`.
 
 A string to put at the end of the values. e.g. `%`.
 
+## Options for specific charts
+
 ### Line Chart
 
 Name the X axis in the data sheet `x` for ordinal data or `date` for time based data. If it is time based data you *must* ensure it matches the [parseDateFormat](#parsedateformat) option so the chart builder knows how to interpret the dates correctly.
