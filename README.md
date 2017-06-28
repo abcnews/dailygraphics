@@ -19,6 +19,7 @@ This project is used with the [Chart Builder](https://github.com/abcnews/chart-b
 	-	[Pie Chart](#pie-chart)
 	-	[Scatterplot](#scatterplot)
 	-	[Bubbleplot](#bubbleplot)
+    -	[Waffle chart](#waffle-chart)
 	-	[Responsive HTML Table](#responsive-html-table) (TODO)
 	-	[Block Histogram](#block-histogram) (TODO)
 	-	[USA State Grid Map](#usa-state-grid-map) (TODO)
@@ -450,6 +451,10 @@ Same as Scatterplot - doesn't take Z axis data into account
 #### prefixZ
 
 #### suffixZ
+
+### Waffle chart
+
+New chart type.
 
 ### Responsive HTML Table
 
