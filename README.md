@@ -457,7 +457,7 @@ Same as Scatterplot - doesn't take Z axis data into account
 
 ### Waffle chart
 
-A 10 x 10 square chart where each square represents approximately 1% of the data. Standard colour themes apply.
+A 10 x 10 square chart where each square represents approximately 1% of the data. Think of it as a square shaped pie chart with better readability. Standard colour themes apply.
 
 #### maxWidth
 > Defaults to `420px` when not on mobile. If this is set too high the chart may appear very large on Desktop.
@@ -467,7 +467,18 @@ A 10 x 10 square chart where each square represents approximately 1% of the data
 
 ### Sparkline chart
 
-New chart type.
+Multiple small lines stacked against each other with minimum and maximum points marked and final data point marked. Minimum and maximum and final data values are also displayed.
+
+#### decimalPlaces
+> Ensure a certain number of decimal places. Rounds to nearest decimal and also appends zeros if needed. Useful for currency.
+
+#### valuePrefix & valueSuffix
+> Symbols etc to put before or after data eg. `$` or `%`
+
+#### fullWidth
+> If set to `off` the sparklines will be arranged into columns on Desktop. If set to `on` the sparklines will stretch to fill the full width of the frame.
+
+Other self-explanatory options include `labelWidth`, `dataLabelWidth`, `chartHeight`
 
 ### Responsive HTML Table
 
