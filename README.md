@@ -6,7 +6,7 @@ A fork of [NPR Visuals' dailygraphics project](https://github.com/nprapps/dailyg
 This project is used with the [Chart Builder](https://github.com/abcnews/chart-builder/) project to provide editors a web interface for creating new graphics.
 
 -	[Chart configuration options](#chart-configuration-options)
-
+	
 	-	[Common](#common)
 	-	[Line Chart](#line-chart)
 	-	[Bar Chart](#bar-chart)
@@ -20,6 +20,7 @@ This project is used with the [Chart Builder](https://github.com/abcnews/chart-b
 	-	[Scatterplot](#scatterplot)
 	-	[Bubbleplot](#bubbleplot)
     -	[Waffle chart](#waffle-chart)
+    -	[Sparkline chart](#sparkline-chart)
 	-	[Responsive HTML Table](#responsive-html-table) (TODO)
 	-	[Block Histogram](#block-histogram) (TODO)
 	-	[USA State Grid Map](#usa-state-grid-map) (TODO)
@@ -246,7 +247,7 @@ Approximate number of ticks to show on the Y axis.
 
 > Default: `5`
 
-### tickValuesX
+#### tickValuesX
 
 > Default: null
 
@@ -455,6 +456,10 @@ Same as Scatterplot - doesn't take Z axis data into account
 #### suffixZ
 
 ### Waffle chart
+
+New chart type.
+
+### Sparkline chart
 
 New chart type.
 
