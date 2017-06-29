@@ -457,7 +457,13 @@ Same as Scatterplot - doesn't take Z axis data into account
 
 ### Waffle chart
 
-New chart type.
+A 10 x 10 square chart where each square represents approximately 1% of the data. Standard colour themes apply.
+
+#### maxWidth
+> Defaults to `420px` when not on mobile. If this is set too high the chart may appear very large on Desktop.
+
+#### labelWidth & labelMargin
+> Set label width to the width of your longest label. Set a sensible margin between the labels and the chart. Defaults: `85px` & `6px`
 
 ### Sparkline chart
 
