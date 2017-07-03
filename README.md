@@ -466,7 +466,7 @@ A 10 x 10 square chart where each square represents approximately 1% of the data
 > Set label width to the width of your longest label. Set a sensible margin between the labels and the chart. Defaults: `85px` & `6px`
 
 #### alignCenter
-> Default to `off`. If set to `on` the waffle chart will center aligned on Desktop and Fluid views.
+> Defaults to `off`. If set to `on` the waffle chart will center aligned on Desktop and Fluid views.
 
 ### Sparkline chart
 
