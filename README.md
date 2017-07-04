@@ -6,7 +6,7 @@ A fork of [NPR Visuals' dailygraphics project](https://github.com/nprapps/dailyg
 This project is used with the [Chart Builder](https://github.com/abcnews/chart-builder/) project to provide editors a web interface for creating new graphics.
 
 -	[Chart configuration options](#chart-configuration-options)
-
+	
 	-	[Common](#common)
 	-	[Line Chart](#line-chart)
 	-	[Bar Chart](#bar-chart)
@@ -19,6 +19,8 @@ This project is used with the [Chart Builder](https://github.com/abcnews/chart-b
 	-	[Pie Chart](#pie-chart)
 	-	[Scatterplot](#scatterplot)
 	-	[Bubbleplot](#bubbleplot)
+    -	[Waffle chart](#waffle-chart)
+    -	[Sparkline chart](#sparkline-chart)
 	-	[Responsive HTML Table](#responsive-html-table) (TODO)
 	-	[Block Histogram](#block-histogram) (TODO)
 	-	[USA State Grid Map](#usa-state-grid-map) (TODO)
@@ -143,9 +145,11 @@ A string to put in front of the values. e.g. `$`.
 
 A string to put at the end of the values. e.g. `%`.
 
+## Options for specific charts
+
 ### Line Chart
 
-Name the X axis in the data sheet `x` for ordinal data or `date` for time based data. If it is time based data you *must* ensure it matches the[parseDateFormat](#parseDateFormat) option so the chart builder knows how to interpret the dates correctly.
+Name the X axis in the data sheet `x` for ordinal data or `date` for time based data. If it is time based data you *must* ensure it matches the [parseDateFormat](#parsedateformat) option so the chart builder knows how to interpret the dates correctly.
 
 #### ratio
 
@@ -243,7 +247,7 @@ Approximate number of ticks to show on the Y axis.
 
 > Default: `5`
 
-### tickValuesX
+#### tickValuesX
 
 > Default: null
 
@@ -451,6 +455,34 @@ Same as Scatterplot - doesn't take Z axis data into account
 
 #### suffixZ
 
+### Waffle chart
+
+A 10 x 10 square chart where each square represents approximately 1% of the data. Think of it as a square shaped pie chart with better readability. Standard colour themes apply.
+
+#### maxWidth
+> Defaults to `420px` when not on mobile. If this is set too high the chart may appear very large on Desktop.
+
+#### labelWidth & labelMargin
+> Set label width to the width of your longest label. Set a sensible margin between the labels and the chart. Defaults: `85px` & `6px`
+
+#### alignCenter
+> Defaults to `off`. If set to `on` the waffle chart will center aligned on Desktop and Fluid views.
+
+### Sparkline chart
+
+Multiple small lines stacked against each other with minimum and maximum points marked and final data point marked. Minimum and maximum and final data values are also displayed.
+
+#### decimalPlaces
+> Ensure a certain number of decimal places. Rounds to nearest decimal and also appends zeros if needed. Useful for currency.
+
+#### valuePrefix & valueSuffix
+> Symbols etc to put before or after data eg. `$` or `%`
+
+#### fullWidth
+> If set to `off` the sparklines will be arranged into columns on Desktop. If set to `on` the sparklines will stretch to fill the full width of the frame.
+
+Other self-explanatory options include `labelWidth`, `dataLabelWidth`, `chartHeight`
+
 ### Responsive HTML Table
 
 NOT READY FOR USE IN PRODUCTION
@@ -510,7 +542,7 @@ Common issues
 
 If your data is displaying but not being plotted in the correct coordinates it is possible that you are either:
 
-1.	Using a date format different to the default (or the one specified by`parseDateFormat`). You can either update your dates in the data to use the default date format, or define a `parseDateFormat` that matches the date format you are using. See [parseDateFormat](#parseDateFormat) for more information.
+1.	Using a date format different to the default (or the one specified by`parseDateFormat`). You can either update your dates in the data to use the default date format, or define a `parseDateFormat` that matches the date format you are using. See [parseDateFormat](#parsedateformat) for more information.
 
 2.	The date cells in the Google Sheets are being formatted in the sheet itself. This means that what is presented in the sheet is a different format to the underlying data. In this case there are two options:
 
