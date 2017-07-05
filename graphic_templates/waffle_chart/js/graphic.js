@@ -66,7 +66,7 @@ var renderWaffleChart = function () {
     containerElement.html('');
 
     // Center align if alignCenter is set
-    if (LABELS.alignCenter === 'on') containerElement.style('margin', 'auto');
+    if (LABELS.alignCenter === 'on') containerElement.classed('align-center', true);
 
     /*
      * Create the root SVG element.
