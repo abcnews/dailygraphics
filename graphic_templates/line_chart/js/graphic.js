@@ -220,7 +220,7 @@ var renderLineChart = function () {
             .range([0, chartWidth]);
     } else {
         xFormat = function (d, i) {
-            return d;
+            return d.toString();
         };
 
         xScale = d3.scale.ordinal()
@@ -269,8 +269,13 @@ var renderLineChart = function () {
         .orient('bottom')
         .ticks(ticksX)
         .tickFormat(xFormat)
-        .tickValues(LABELS.tickValuesX ? LABELS.tickValuesX.split(',').map(function(d) {return +d;}) : null)
+        .tickValues(LABELS.tickValuesX ? LABELS.tickValuesX.split(/\s*,\s*/).map(function(d) {return d;}) : null)
         .outerTickSize(0);
+
+    // Show certain values on mobile view
+    if (isMobile && LABELS.mobileTickValuesX) {
+        xAxis.tickValues(LABELS.mobileTickValuesX.split(/\s*,\s*/).map(function(d) {return d;}));
+    }
 
     var yAxis = d3.svg.axis()
         .scale(yScale)

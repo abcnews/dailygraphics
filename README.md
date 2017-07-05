@@ -249,9 +249,15 @@ Approximate number of ticks to show on the Y axis.
 
 #### tickValuesX
 
-> Default: null
+> Accepts a comma separated list of text values. Default: null
 
-The values to use for ticks on ordinal (non-date based) charts.
+The values to show for ticks on ordinal (non-date based) charts. Values not in this list will not show up on the X Axis at the bottom of the chart.
+
+#### mobileTickValuesX
+
+> Accepts a comma separated list of text values. Default: null
+
+Only show these values as tick labels on mobile view for "x labeled" ordinal charts (non-date based). Other values will be hidden to avoid clutter.
 
 #### prefixY
 
