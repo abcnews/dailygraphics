@@ -269,12 +269,12 @@ var renderLineChart = function () {
         .orient('bottom')
         .ticks(ticksX)
         .tickFormat(xFormat)
-        .tickValues(LABELS.tickValuesX ? LABELS.tickValuesX.split(',').map(function(d) {return d;}) : null)
+        .tickValues(LABELS.tickValuesX ? LABELS.tickValuesX.split(/\s*,\s*/).map(function(d) {return d;}) : null)
         .outerTickSize(0);
 
     // Show certain values on mobile view
     if (isMobile && LABELS.mobileTickValuesX) {
-        xAxis.tickValues(LABELS.mobileTickValuesX.split(',').map(function(d) {return d;}));
+        xAxis.tickValues(LABELS.mobileTickValuesX.split(/\s*,\s*/).map(function(d) {return d;}));
     }
 
     var yAxis = d3.svg.axis()
