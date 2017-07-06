@@ -62,7 +62,11 @@ var renderWaffleChart = function () {
     // Clear existing graphic (for redraw)
     var containerElement = d3.select('#waffle-chart')
         .style('max-width', (parseInt(LABELS.maxWidth) || 420) + 'px' )
+
     containerElement.html('');
+
+    // Center align if alignCenter is set
+    if (LABELS.alignCenter === 'on') containerElement.classed('align-center', true);
 
     /*
      * Create the root SVG element.
