@@ -94,7 +94,7 @@ var renderWaffleChart = function() {
   });
 
   if (!showTotals) {
-    chartHeight.style("max-height", chartHeight);
+    chartHeight.style("max-height", chartHeight + "px");
   }
 
   var chartElement = chartSvg
