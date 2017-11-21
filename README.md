@@ -474,6 +474,9 @@ A 10 x 10 square chart where each square represents approximately 1% of the data
 #### alignCenter
 > Defaults to `off`. If set to `on` the waffle chart will center aligned on Desktop and Fluid views.
 
+#### showTotals
+> Defaults to `on`. If set to `off` the grand total and the tooltip totals will be hidden.
+
 ### Sparkline chart
 
 Multiple small lines stacked against each other with minimum and maximum points marked and final data point marked. Minimum and maximum and final data values are also displayed.
