@@ -93,10 +93,6 @@ var renderWaffleChart = function() {
     height: chartHeight + margins.top + margins.bottom
   });
 
-  if (!showTotals) {
-    chartHeight.style("max-height", chartHeight + "px");
-  }
-
   var chartElement = chartSvg
     .append("g")
     .attr("transform", makeTranslate(margins.left, margins.top));
