@@ -74,8 +74,8 @@ var renderWaffleChart = function() {
     containerElement.classed("align-center", true);
 
   /*
-     * Create the root SVG element.
-     */
+   * Create the root SVG element.
+   */
   var chartWrapper = containerElement
     .append("div")
     .attr("class", "graphics-wrapper");
@@ -92,6 +92,10 @@ var renderWaffleChart = function() {
     width: chartWidth + margins.left + margins.right,
     height: chartHeight + margins.top + margins.bottom
   });
+
+  if (!showTotals) {
+    chartHeight.style("max-height", chartHeight);
+  }
 
   var chartElement = chartSvg
     .append("g")
@@ -176,8 +180,8 @@ var renderWaffleChart = function() {
     .classed("tooltip", true);
 
   /*
-     * Render the squares
-     */
+   * Render the squares
+   */
   var squares = chartElement
     .selectAll("rect")
     .data(squareData)
@@ -267,8 +271,8 @@ var renderWaffleChart = function() {
     });
 
   /*
-     * Output the legend
-     */
+   * Output the legend
+   */
 
   // Create a legend div wrapper
   var chartLegend = chartWrapper
